@@ -1,11 +1,11 @@
 [package]
 name = "octaindex3d"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Michael A. McLarney"]
 description = "3D Spatial Indexing and Routing System based on BCC lattice with truncated octahedral cells"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/yourusername/octaindex3d"
+license = "MIT"
+repository = "https://github.com/FunKite/OctaIndex3D"
 keywords = ["spatial", "3d", "indexing", "routing", "bcc-lattice"]
 categories = ["algorithms", "data-structures", "science"]
 
