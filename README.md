@@ -45,14 +45,13 @@ The BCC lattice is the optimal sampling lattice for isotropic 3D functions, requ
 - ✅ **A* Pathfinding**: Shortest path with pluggable cost functions
 - ✅ **Line Tracing**: 3D Bresenham-like line traversal
 - ✅ **Data Layers**: Attribute storage with aggregation operations
-- ✅ **I/O Support**: JSON, CBOR, GeoJSON export
+- ✅ **I/O Support**: JSON, CBOR, GeoJSON, and optional Arrow/Parquet export
 
 ### Advanced Features (Roadmap)
 
 - 🚧 **Polyfill Operations**: Fill 3D regions (boxes, cylinders, polygons)
 - 🚧 **Dynamic Replanning**: D* Lite for changing environments
 - 🚧 **Multi-Resolution Planning**: Coarse-to-fine pathfinding
-- 🚧 **Parquet/Arrow Support**: Large-scale data export
 - 🚧 **Bidirectional A***: Faster pathfinding for long distances
 
 ## Installation
@@ -63,7 +62,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-octaindex3d = "0.1"
+octaindex3d = "0.2.0"
 ```
 
 ### As a CLI Tool
