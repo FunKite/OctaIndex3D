@@ -4,7 +4,7 @@
 
 **A 3D Spatial Indexing and Routing System based on BCC Lattice**
 
-[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
 
 [Documentation](https://docs.rs/octaindex3d) | [Examples](#examples) | [CLI Reference](#cli-usage)
@@ -296,14 +296,7 @@ Licensed under the MIT License.
 
 ## References
 
-1. Conway & Sloane - "Sphere Packings, Lattices and Groups"
-2. Entezari et al. - "Optimal Sampling Lattices and Trivariate Box Splines"
-3. Wikipedia - "Truncated octahedron"
-4. D* Lite Algorithm (Koenig & Likhachev)
-
-## Acknowledgments
-
-Originally specified as CODEX, renamed to OctaIndex3D. Built with Rust, inspired by H3 (Uber's hexagonal hierarchical spatial index) extended to 3D with BCC lattice.
+- [Wikipedia - "Truncated octahedron"](https://en.wikipedia.org/wiki/Truncated_octahedron)
 
 ---
 
