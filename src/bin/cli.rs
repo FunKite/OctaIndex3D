@@ -3,9 +3,7 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use octaindex3d::id::CellID;
-use octaindex3d::io::{export_cells_geojson, Dataset};
-use octaindex3d::layer::Layer;
-use octaindex3d::lattice::Lattice;
+use octaindex3d::io::export_cells_geojson;
 use octaindex3d::path::{astar, k_ring, k_shell, trace_line, EuclideanCost};
 
 #[derive(Parser)]

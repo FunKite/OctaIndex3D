@@ -5,10 +5,8 @@
 use crate::error::{Error, Result};
 use crate::id::CellID;
 use crate::layer::{CellFlags, Layer};
-use crate::lattice::LatticeCoord;
 use ordered_float::OrderedFloat;
 use rustc_hash::{FxHashMap, FxHashSet};
-use std::cmp::Reverse;
 use std::collections::{BinaryHeap, VecDeque};
 
 /// Cost function trait for pathfinding
@@ -41,14 +39,14 @@ impl CostFn for EuclideanCost {
 /// Cost function that avoids blocked cells
 pub struct AvoidBlockedCost {
     flags: Layer<CellFlags>,
-    blocked_penalty: f64,
+    _blocked_penalty: f64,
 }
 
 impl AvoidBlockedCost {
     pub fn new(flags: Layer<CellFlags>, blocked_penalty: f64) -> Self {
         Self {
             flags,
-            blocked_penalty,
+            _blocked_penalty: blocked_penalty,
         }
     }
 }
