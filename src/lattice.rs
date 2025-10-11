@@ -4,7 +4,6 @@
 //! with truncated octahedral cells.
 
 use crate::error::{Error, Result};
-use std::f64::consts::SQRT_2;
 
 /// Parity type for BCC lattice coordinates
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -100,8 +99,8 @@ pub struct Lattice;
 impl Lattice {
     /// Convert physical coordinates to nearest lattice point at given resolution
     /// Resolution 0 = base lattice, higher resolutions = finer grid (2^res scaling)
-    pub fn physical_to_lattice(x: f64, y: f64, z: f64, resolution: u8) -> Result<LatticeCoord> {
-        let scale = 1.0; // At resolution 0, lattice spacing is 1 unit
+    pub fn physical_to_lattice(x: f64, y: f64, z: f64, _resolution: u8) -> Result<LatticeCoord> {
+        let _scale = 1.0; // At resolution 0, lattice spacing is 1 unit
 
         // Round to nearest integer coordinates
         let xi = x.round() as i32;
@@ -153,7 +152,7 @@ impl Lattice {
 
     /// Compute all 14 neighbor offsets for a given parity
     /// Returns (dx, dy, dz) offsets
-    pub fn neighbor_offsets(parity: Parity) -> Vec<(i32, i32, i32)> {
+    pub fn neighbor_offsets(_parity: Parity) -> Vec<(i32, i32, i32)> {
         let mut offsets = Vec::with_capacity(14);
 
         // 8 opposite-parity neighbors (diagonal, closer)
