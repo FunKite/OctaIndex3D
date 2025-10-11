@@ -1,8 +1,8 @@
 //! Cell ID system with 128-bit format and Bech32m encoding
 //!
 //! This module implements the hierarchical cell identification system with:
-//! - 128-bit binary format (default)
-//! - Bech32m human-readable encoding
+//! - 128-bit binary format with 32-bit coordinates (v0.2.0+)
+//! - Bech32m human-readable encoding with error detection
 //! - Support for frames, resolution levels, and coordinates
 
 use crate::error::{Error, Result};
@@ -14,22 +14,32 @@ use std::fmt;
 /// Human-readable prefix for Bech32m encoding
 pub const BECH32_HRP: &str = "cx3d";
 
-/// Maximum coordinate value for 24-bit signed representation
-const MAX_COORD_24BIT: i32 = (1 << 23) - 1; // 8,388,607
-const MIN_COORD_24BIT: i32 = -(1 << 23);    // -8,388,608
+/// Cell ID format version
+pub const FORMAT_VERSION: u8 = 2;
 
 /// 128-bit Cell ID
 ///
-/// Bit layout (128 bits total):
-/// - Frame: 8 bits (0-7)
-/// - Resolution: 8 bits (8-15)
-/// - Exponent: 4 bits (16-19)
-/// - Flags: 4 bits (20-23)
-/// - Reserved: 24 bits (24-47)
-/// - X coordinate: 24 bits signed (48-71)
-/// - Y coordinate: 24 bits signed (72-95)
-/// - Z coordinate: 24 bits signed (96-119)
-/// - Checksum: 8 bits (120-127)
+/// ## Bit layout (128 bits total) - v0.2.0
+///
+/// **Improved format with 32-bit coordinates:**
+/// - Frame: 8 bits (0-7) - coordinate reference system
+/// - Resolution: 8 bits (8-15) - level of detail (0-255)
+/// - Exponent: 4 bits (16-19) - scale factor for extreme ranges
+/// - Flags: 8 bits (20-27) - cell properties (DOUBLED from v0.1!)
+/// - Reserved: 4 bits (28-31) - future expansion (reduced from 24 bits)
+/// - X coordinate: 32 bits signed (32-63) - ±2.1B range
+/// - Y coordinate: 32 bits signed (64-95) - ±2.1B range
+/// - Z coordinate: 32 bits signed (96-127) - ±2.1B range
+///
+/// ## Changes from v0.1:
+/// - ✅ Coordinates: 24-bit → 32-bit (250× larger range!)
+/// - ✅ Flags: 4-bit → 8-bit (16× more flags)
+/// - ✅ Reserved: 24-bit → 4-bit (efficient use of space)
+/// - ✅ Removed internal checksum (Bech32m provides error detection)
+///
+/// ## Coordinate Range:
+/// - v0.1: ±8.4 million per axis
+/// - v0.2: ±2.1 billion per axis (supports Earth-scale in meters!)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CellID {
     /// Raw 128-bit value
@@ -38,6 +48,15 @@ pub struct CellID {
 
 impl CellID {
     /// Create a new Cell ID from components
+    ///
+    /// # Arguments
+    /// * `frame` - Coordinate reference system (0-255)
+    /// * `resolution` - Level of detail, higher = finer (0-255)
+    /// * `x` - X coordinate (±2.1 billion)
+    /// * `y` - Y coordinate (±2.1 billion)
+    /// * `z` - Z coordinate (±2.1 billion)
+    /// * `exponent` - Scale factor (0-15)
+    /// * `flags` - Cell properties (0-255)
     pub fn new(
         frame: u8,
         resolution: u8,
@@ -47,22 +66,10 @@ impl CellID {
         exponent: u8,
         flags: u8,
     ) -> Result<Self> {
-        // Validate coordinates
-        if x < MIN_COORD_24BIT || x > MAX_COORD_24BIT {
-            return Err(Error::CoordinateOutOfRange { coord: x, bits: 24 });
-        }
-        if y < MIN_COORD_24BIT || y > MAX_COORD_24BIT {
-            return Err(Error::CoordinateOutOfRange { coord: y, bits: 24 });
-        }
-        if z < MIN_COORD_24BIT || z > MAX_COORD_24BIT {
-            return Err(Error::CoordinateOutOfRange { coord: z, bits: 24 });
-        }
-
-        // Validate parity
+        // Validate parity - BCC lattice requires identical parity
         Parity::from_coords(x, y, z)?;
 
         let exponent = exponent & 0x0F; // 4 bits
-        let flags = flags & 0x0F;       // 4 bits
 
         // Build the 128-bit value
         let mut value: u128 = 0;
@@ -76,26 +83,19 @@ impl CellID {
         // Exponent (bits 16-19)
         value |= ((exponent as u128) & 0x0F) << 16;
 
-        // Flags (bits 20-23)
-        value |= ((flags as u128) & 0x0F) << 20;
+        // Flags (bits 20-27) - now 8 bits!
+        value |= ((flags as u128) & 0xFF) << 20;
 
-        // Reserved 24 bits (24-47) remain zero
+        // Reserved 4 bits (28-31) remain zero
 
-        // X coordinate (bits 48-71) - convert signed to unsigned for storage
-        let x_unsigned = (x as u32) & 0x00FFFFFF;
-        value |= (x_unsigned as u128) << 48;
+        // X coordinate (bits 32-63) - full 32-bit signed
+        value |= ((x as u32 as u128) & 0xFFFFFFFF) << 32;
 
-        // Y coordinate (bits 72-95)
-        let y_unsigned = (y as u32) & 0x00FFFFFF;
-        value |= (y_unsigned as u128) << 72;
+        // Y coordinate (bits 64-95) - full 32-bit signed
+        value |= ((y as u32 as u128) & 0xFFFFFFFF) << 64;
 
-        // Z coordinate (bits 96-119)
-        let z_unsigned = (z as u32) & 0x00FFFFFF;
-        value |= (z_unsigned as u128) << 96;
-
-        // Compute checksum (simple CRC-8)
-        let checksum = Self::compute_checksum(value);
-        value |= (checksum as u128) << 120;
+        // Z coordinate (bits 96-127) - full 32-bit signed
+        value |= ((z as u32 as u128) & 0xFFFFFFFF) << 96;
 
         Ok(Self { value })
     }
@@ -125,89 +125,29 @@ impl CellID {
         ((self.value >> 16) & 0x0F) as u8
     }
 
-    /// Extract flags field
+    /// Extract flags field (now 8 bits!)
     pub fn flags(&self) -> u8 {
-        ((self.value >> 20) & 0x0F) as u8
+        ((self.value >> 20) & 0xFF) as u8
     }
 
-    /// Extract X coordinate
+    /// Extract X coordinate (full 32-bit signed)
     pub fn x(&self) -> i32 {
-        let x_unsigned = ((self.value >> 48) & 0x00FFFFFF) as u32;
-        // Sign-extend from 24 bits
-        if x_unsigned & 0x00800000 != 0 {
-            // Negative number
-            (x_unsigned | 0xFF000000) as i32
-        } else {
-            x_unsigned as i32
-        }
+        ((self.value >> 32) & 0xFFFFFFFF) as u32 as i32
     }
 
-    /// Extract Y coordinate
+    /// Extract Y coordinate (full 32-bit signed)
     pub fn y(&self) -> i32 {
-        let y_unsigned = ((self.value >> 72) & 0x00FFFFFF) as u32;
-        if y_unsigned & 0x00800000 != 0 {
-            (y_unsigned | 0xFF000000) as i32
-        } else {
-            y_unsigned as i32
-        }
+        ((self.value >> 64) & 0xFFFFFFFF) as u32 as i32
     }
 
-    /// Extract Z coordinate
+    /// Extract Z coordinate (full 32-bit signed)
     pub fn z(&self) -> i32 {
-        let z_unsigned = ((self.value >> 96) & 0x00FFFFFF) as u32;
-        if z_unsigned & 0x00800000 != 0 {
-            (z_unsigned | 0xFF000000) as i32
-        } else {
-            z_unsigned as i32
-        }
-    }
-
-    /// Extract checksum
-    pub fn checksum(&self) -> u8 {
-        ((self.value >> 120) & 0xFF) as u8
+        ((self.value >> 96) & 0xFFFFFFFF) as u32 as i32
     }
 
     /// Get lattice coordinates
     pub fn lattice_coord(&self) -> Result<LatticeCoord> {
         LatticeCoord::new(self.x(), self.y(), self.z())
-    }
-
-    /// Validate checksum
-    pub fn validate_checksum(&self) -> Result<()> {
-        let stored_checksum = self.checksum();
-        // Clear checksum bits and recompute
-        let value_without_checksum = self.value & !(0xFF_u128 << 120);
-        let computed_checksum = Self::compute_checksum(value_without_checksum);
-
-        if stored_checksum == computed_checksum {
-            Ok(())
-        } else {
-            Err(Error::ChecksumMismatch {
-                expected: computed_checksum,
-                actual: stored_checksum,
-            })
-        }
-    }
-
-    /// Compute simple CRC-8 checksum
-    fn compute_checksum(value: u128) -> u8 {
-        // Simple CRC-8 with polynomial x^8 + x^2 + x + 1 (0x07)
-        let bytes = value.to_le_bytes();
-        let mut crc: u8 = 0;
-
-        for &byte in &bytes[0..15] {
-            // Skip checksum byte
-            crc ^= byte;
-            for _ in 0..8 {
-                if crc & 0x80 != 0 {
-                    crc = (crc << 1) ^ 0x07;
-                } else {
-                    crc <<= 1;
-                }
-            }
-        }
-
-        crc
     }
 
     /// Get the 14 neighbors of this cell
@@ -265,6 +205,8 @@ impl CellID {
     }
 
     /// Decode from Bech32m string
+    ///
+    /// Bech32m provides built-in error detection, so no additional validation needed
     pub fn from_bech32m(s: &str) -> Result<Self> {
         let (hrp, data) = bech32::decode(s).map_err(|e| Error::DecodingError(e.to_string()))?;
 
@@ -289,12 +231,7 @@ impl CellID {
         bytes.copy_from_slice(&data);
         let value = u128::from_be_bytes(bytes);
 
-        let cell_id = Self { value };
-
-        // Validate checksum
-        cell_id.validate_checksum()?;
-
-        Ok(cell_id)
+        Ok(Self { value })
     }
 
     /// Convert to raw bytes (big-endian)
@@ -303,11 +240,9 @@ impl CellID {
     }
 
     /// Create from raw bytes (big-endian)
-    pub fn from_bytes(bytes: [u8; 16]) -> Result<Self> {
+    pub fn from_bytes(bytes: [u8; 16]) -> Self {
         let value = u128::from_be_bytes(bytes);
-        let cell_id = Self { value };
-        cell_id.validate_checksum()?;
-        Ok(cell_id)
+        Self { value }
     }
 
     /// Get raw u128 value
@@ -363,11 +298,6 @@ mod tests {
         assert!(result.is_err());
     }
 
-    #[test]
-    fn test_cell_id_checksum() {
-        let cell = CellID::from_coords(0, 5, 2, 4, 6).unwrap();
-        assert!(cell.validate_checksum().is_ok());
-    }
 
     #[test]
     fn test_neighbor_count() {
@@ -402,7 +332,7 @@ mod tests {
     fn test_bytes_roundtrip() {
         let cell = CellID::from_coords(0, 10, 100, 200, 300).unwrap();
         let bytes = cell.to_bytes();
-        let cell2 = CellID::from_bytes(bytes).unwrap();
+        let cell2 = CellID::from_bytes(bytes);
         assert_eq!(cell, cell2);
     }
 

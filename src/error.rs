@@ -36,10 +36,6 @@ pub enum Error {
     #[error("Bech32m error: {0}")]
     Bech32Error(String),
 
-    /// Checksum mismatch
-    #[error("Checksum mismatch: expected {expected:02x}, got {actual:02x}")]
-    ChecksumMismatch { expected: u8, actual: u8 },
-
     /// No parent cell (already at resolution 0)
     #[error("No parent cell: already at resolution 0")]
     NoParent,

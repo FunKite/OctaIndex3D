@@ -190,22 +190,33 @@ octaindex3d trace-line --start "0,0,0" --end "10,0,0" -r 5
 └─────────────────────────────────────────────────┘
 ```
 
-## Cell ID Format (128-bit)
+## Cell ID Format (128-bit) - v0.2.0
 
 ```
-┌──────────┬────────────┬──────────┬─────────┬────────────┬──────────┐
-│  Frame   │ Resolution │ Exponent │  Flags  │  Reserved  │ Checksum │
-│  8 bits  │   8 bits   │  4 bits  │ 4 bits  │  24 bits   │  8 bits  │
-├──────────┴────────────┴──────────┴─────────┴────────────┴──────────┤
-│                     Coordinates (72 bits)                           │
-│                X (24 bits) │ Y (24 bits) │ Z (24 bits)             │
-└─────────────────────────────────────────────────────────────────────┘
+┌──────────┬────────────┬──────────┬─────────┬────────────┐
+│  Frame   │ Resolution │ Exponent │  Flags  │  Reserved  │
+│  8 bits  │   8 bits   │  4 bits  │ 8 bits  │   4 bits   │
+│  (0-7)   │   (8-15)   │ (16-19)  │ (20-27) │  (28-31)   │
+├──────────┴────────────┴──────────┴─────────┴────────────┤
+│                  Coordinates (96 bits)                   │
+│      X (32 bits)   │   Y (32 bits)   │   Z (32 bits)    │
+│      (32-63)       │     (64-95)     │    (96-127)      │
+└──────────────────────────────────────────────────────────┘
 ```
 
-- **Frame**: Coordinate reference system (0-255)
-- **Resolution**: Level of detail (0-255, higher = finer)
-- **Coordinates**: Signed 24-bit per axis (±8.4M range)
-- **Checksum**: CRC-8 for error detection
+### Field Descriptions:
+- **Frame** (8 bits): Coordinate reference system (0-255)
+- **Resolution** (8 bits): Level of detail (0-255, higher = finer)
+- **Exponent** (4 bits): Scale factor for extreme ranges (0-15)
+- **Flags** (8 bits): Cell properties - DOUBLED from v0.1!
+- **Reserved** (4 bits): Future expansion
+- **Coordinates** (96 bits): Signed 32-bit per axis (±2.1B range each)
+
+### Improvements in v0.2.0:
+- ✅ Coordinates: 24-bit → 32-bit (250× larger range!)
+- ✅ Flags: 4-bit → 8-bit (16× more property flags)
+- ✅ Reserved: 24-bit → 4-bit (efficient space use)
+- ✅ Removed internal checksum (Bech32m provides error detection)
 
 ## Examples
 
@@ -282,12 +293,7 @@ Contributions welcome! Areas of interest:
 
 ## License
 
-Licensed under either of:
-
-- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
-- MIT License ([LICENSE-MIT](LICENSE-MIT))
-
-at your option.
+Licensed under the MIT License.
 
 ## References
 
@@ -306,6 +312,6 @@ Originally specified as CODEX, renamed to OctaIndex3D. Built with Rust, inspired
 
 **Made with ❤️ and Rust**
 
-[Report Bug](https://github.com/yourusername/octaindex3d/issues) · [Request Feature](https://github.com/yourusername/octaindex3d/issues)
+[Report Bug](https://github.com/FunKite/OctaIndex3D/issues) · [Request Feature](https://github.com/FunKite/OctaIndex3D/issues)
 
 </div>
