@@ -174,7 +174,10 @@ impl CellID {
         Self::from_lattice_coord(self.frame(), resolution - 1, &parent_coord)
     }
 
-    /// Get 8 children cells (one resolution finer)
+    /// Get children cells (one resolution finer)
+    ///
+    /// Note: In BCC lattice, only 4 of the 8 possible children have valid parity.
+    /// This method filters out invalid children and returns only valid ones (typically 4).
     pub fn children(&self) -> Result<Vec<CellID>> {
         let resolution = self.resolution();
         if resolution == 255 {
@@ -184,10 +187,16 @@ impl CellID {
         let coord = self.lattice_coord()?;
         let children_coords = Lattice::get_children(&coord);
 
-        children_coords
+        let valid_children: Vec<CellID> = children_coords
             .into_iter()
-            .map(|c| Self::from_lattice_coord(self.frame(), resolution + 1, &c))
-            .collect()
+            .filter_map(|c| Self::from_lattice_coord(self.frame(), resolution + 1, &c).ok())
+            .collect();
+
+        if valid_children.is_empty() {
+            return Err(Error::NoChildren);
+        }
+
+        Ok(valid_children)
     }
 
     /// Encode to Bech32m string
