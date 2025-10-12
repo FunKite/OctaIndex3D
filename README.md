@@ -47,13 +47,6 @@ The BCC lattice is the optimal sampling lattice for isotropic 3D functions, requ
 - ✅ **Data Layers**: Attribute storage with aggregation operations
 - ✅ **I/O Support**: JSON, CBOR, GeoJSON, and optional Arrow/Parquet export
 
-### Advanced Features (Roadmap)
-
-- 🚧 **Polyfill Operations**: Fill 3D regions (boxes, cylinders, polygons)
-- 🚧 **Dynamic Replanning**: D* Lite for changing environments
-- 🚧 **Multi-Resolution Planning**: Coarse-to-fine pathfinding
-- 🚧 **Bidirectional A***: Faster pathfinding for long distances
-
 ## Installation
 
 ### As a Library
