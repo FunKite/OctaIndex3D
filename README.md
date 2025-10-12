@@ -204,12 +204,6 @@ octaindex3d trace-line --start "0,0,0" --end "10,0,0" -r 5
 - **Reserved** (4 bits): Future expansion
 - **Coordinates** (96 bits): Signed 32-bit per axis (±2.1B range each)
 
-### Improvements in v0.2.0:
-- ✅ Coordinates: 24-bit → 32-bit (250× larger range!)
-- ✅ Flags: 4-bit → 8-bit (16× more property flags)
-- ✅ Reserved: 24-bit → 4-bit (efficient space use)
-- ✅ Removed internal checksum (Bech32m provides error detection)
-
 ## Examples
 
 ### Pathfinding with Obstacles
