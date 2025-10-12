@@ -170,21 +170,21 @@ octaindex3d trace-line --start "0,0,0" --end "10,0,0" -r 5
 │                OctaIndex3D                      │
 ├─────────────────────────────────────────────────┤
 │                                                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
-│  │ Lattice  │  │  CellID  │  │  Layers  │    │
-│  │          │  │          │  │          │    │
-│  │ • BCC    │  │ • 128bit │  │ • Data   │    │
-│  │ • Parity │  │ • Bech32m│  │ • Agg    │    │
-│  │ • 14-nbr │  │ • Hier   │  │ • Flags  │    │
-│  └──────────┘  └──────────┘  └──────────┘    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│  │ Lattice  │  │  CellID  │  │  Layers  │       │
+│  │          │  │          │  │          │       │
+│  │ • BCC    │  │ • 128bit │  │ • Data   │       │
+│  │ • Parity │  │ • Bech32m│  │ • Agg    │       │
+│  │ • 14-nbr │  │ • Hier   │  │ • Flags  │       │
+│  └──────────┘  └──────────┘  └──────────┘       │
 │                                                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
-│  │   Path   │  │    I/O   │  │   CLI    │    │
-│  │          │  │          │  │          │    │
-│  │ • A*     │  │ • JSON   │  │ • Tools  │    │
-│  │ • K-ring │  │ • CBOR   │  │ • Batch  │    │
-│  │ • Trace  │  │ • GeoJSON│  │ • Script │    │
-│  └──────────┘  └──────────┘  └──────────┘    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│  │   Path   │  │    I/O   │  │   CLI    │       │
+│  │          │  │          │  │          │       │
+│  │ • A*     │  │ • JSON   │  │ • Tools  │       │
+│  │ • K-ring │  │ • CBOR   │  │ • Batch  │       │
+│  │ • Trace  │  │ • GeoJSON│  │ • Script │       │
+│  └──────────┘  └──────────┘  └──────────┘       │
 │                                                 │
 └─────────────────────────────────────────────────┘
 ```
@@ -197,10 +197,10 @@ octaindex3d trace-line --start "0,0,0" --end "10,0,0" -r 5
 │  8 bits  │   8 bits   │  4 bits  │ 8 bits  │   4 bits   │
 │  (0-7)   │   (8-15)   │ (16-19)  │ (20-27) │  (28-31)   │
 ├──────────┴────────────┴──────────┴─────────┴────────────┤
-│                  Coordinates (96 bits)                   │
+│                  Coordinates (96 bits)                  │
 │      X (32 bits)   │   Y (32 bits)   │   Z (32 bits)    │
 │      (32-63)       │     (64-95)     │    (96-127)      │
-└──────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### Field Descriptions:
@@ -279,16 +279,6 @@ The BCC lattice is defined by points whose coordinates have identical parity (al
 - 8 opposite-parity neighbors at distance `√3` (hexagonal faces)
 - 6 same-parity neighbors at distance `2` (square faces)
 - 8:1 hierarchical refinement: each parent has 8 children
-
-## Contributing
-
-Contributions welcome! Areas of interest:
-
-- Polyfill operations for 3D regions
-- Parquet/Arrow integration
-- GPU acceleration for large-scale operations
-- Additional cost functions and routing algorithms
-- Visualization tools
 
 ## License
 
