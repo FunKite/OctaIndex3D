@@ -136,10 +136,7 @@ impl Layer<f64> {
 
         for (cell, value) in self.iter() {
             if let Ok(parent) = cell.parent() {
-                parent_groups
-                    .entry(parent)
-                    .or_default()
-                    .push(*value);
+                parent_groups.entry(parent).or_default().push(*value);
             }
         }
 
