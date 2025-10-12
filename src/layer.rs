@@ -117,6 +117,7 @@ impl Layer<f64> {
                 let mut sorted = values.clone();
                 sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
                 let mid = sorted.len() / 2;
+                #[allow(clippy::manual_is_multiple_of)]
                 if sorted.len() % 2 == 0 {
                     Ok((sorted[mid - 1] + sorted[mid]) / 2.0)
                 } else {
@@ -137,7 +138,7 @@ impl Layer<f64> {
             if let Ok(parent) = cell.parent() {
                 parent_groups
                     .entry(parent)
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(*value);
             }
         }
