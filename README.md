@@ -4,10 +4,12 @@
 
 **A 3D Spatial Indexing and Routing System based on BCC Lattice**
 
+[![Crates.io](https://img.shields.io/crates/v/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
+[![Documentation](https://docs.rs/octaindex3d/badge.svg)](https://docs.rs/octaindex3d)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
 
-[Documentation](https://docs.rs/octaindex3d) | [Examples](#examples) | [CLI Reference](#cli-usage)
+[Documentation](https://docs.rs/octaindex3d) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [CLI Reference](#cli-usage)
 
 </div>
 
