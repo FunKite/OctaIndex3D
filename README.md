@@ -80,7 +80,7 @@ cargo install octaindex3d
 Or build from source:
 
 ```bash
-git clone https://github.com/yourusername/octaindex3d
+git clone https://github.com/FunKite/OctaIndex3D
 cd octaindex3d
 cargo build --release
 ```
