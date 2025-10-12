@@ -213,7 +213,7 @@ octaindex3d trace-line --start "0,0,0" --end "10,0,0" -r 5
 - **Frame** (8 bits): Coordinate reference system (0-255)
 - **Resolution** (8 bits): Level of detail (0-255, higher = finer)
 - **Exponent** (4 bits): Scale factor for extreme ranges (0-15)
-- **Flags** (8 bits): Cell properties - DOUBLED from v0.1!
+- **Flags** (8 bits): Cell properties
 - **Reserved** (4 bits): Future expansion
 - **Coordinates** (96 bits): Signed 32-bit per axis (±2.1B range each)
 
