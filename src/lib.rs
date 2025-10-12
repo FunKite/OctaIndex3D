@@ -12,7 +12,7 @@
 //! - **14-Neighbor Connectivity**: More isotropic than cubic grids
 //! - **Hierarchical 8:1 Refinement**: Multiresolution support
 //! - **Robust Cell IDs**: 128-bit format with Bech32m encoding
-//! - **First-Class Routing**: A* and hierarchical pathfinding
+//! - **First-Class Routing**: A* pathfinding with closed-set optimization and configurable limits
 //! - **Data Aggregation**: Efficient spatial queries and roll-ups
 //!
 //! ## Example

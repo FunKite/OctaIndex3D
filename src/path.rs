@@ -116,8 +116,30 @@ impl Ord for AStarNode {
     }
 }
 
-/// A* pathfinding algorithm
+/// A* pathfinding algorithm with optional expansion limit
+///
+/// # Arguments
+/// * `start` - Starting cell
+/// * `goal` - Goal cell
+/// * `cost_fn` - Cost function for edge weights and heuristic
+/// * `max_expansions` - Optional limit on node expansions (default: 100,000)
+///
+/// # Returns
+/// Returns the optimal path or an error if no path exists or expansion limit exceeded
 pub fn astar<C: CostFn>(start: CellID, goal: CellID, cost_fn: &C) -> Result<Path> {
+    astar_with_limit(start, goal, cost_fn, 100_000)
+}
+
+/// A* pathfinding algorithm with configurable expansion limit
+///
+/// This is the internal implementation with full control over the expansion limit.
+/// For most use cases, use [`astar`] instead.
+pub fn astar_with_limit<C: CostFn>(
+    start: CellID,
+    goal: CellID,
+    cost_fn: &C,
+    max_expansions: usize,
+) -> Result<Path> {
     if start == goal {
         return Ok(Path {
             cells: vec![start],
@@ -126,8 +148,10 @@ pub fn astar<C: CostFn>(start: CellID, goal: CellID, cost_fn: &C) -> Result<Path
     }
 
     let mut open_set = BinaryHeap::new();
+    let mut closed_set: FxHashSet<CellID> = FxHashSet::default();
     let mut came_from: FxHashMap<CellID, CellID> = FxHashMap::default();
     let mut g_score: FxHashMap<CellID, f64> = FxHashMap::default();
+    let mut expansions = 0;
 
     g_score.insert(start, 0.0);
     let h_start = cost_fn.heuristic(start, goal);
@@ -137,6 +161,20 @@ pub fn astar<C: CostFn>(start: CellID, goal: CellID, cost_fn: &C) -> Result<Path
     });
 
     while let Some(AStarNode { cell: current, .. }) = open_set.pop() {
+        // Skip if already fully explored
+        if !closed_set.insert(current) {
+            continue;
+        }
+
+        // Check expansion limit
+        expansions += 1;
+        if expansions > max_expansions {
+            return Err(Error::SearchLimitExceeded {
+                expansions,
+                limit: max_expansions,
+            });
+        }
+
         if current == goal {
             // Reconstruct path
             let mut path = vec![current];
@@ -154,6 +192,11 @@ pub fn astar<C: CostFn>(start: CellID, goal: CellID, cost_fn: &C) -> Result<Path
         let current_g = *g_score.get(&current).unwrap_or(&f64::INFINITY);
 
         for neighbor in current.neighbors() {
+            // Skip if already fully explored
+            if closed_set.contains(&neighbor) {
+                continue;
+            }
+
             let edge_cost = cost_fn.cost(current, neighbor);
             if edge_cost.is_infinite() {
                 continue; // Skip blocked cells
@@ -345,5 +388,44 @@ mod tests {
         assert!(!line.is_empty());
         assert_eq!(line.first(), Some(&start));
         assert_eq!(line.last(), Some(&end));
+    }
+
+    #[test]
+    fn test_astar_expansion_limit() {
+        let start = CellID::from_coords(0, 5, 0, 0, 0).unwrap();
+        let goal = CellID::from_coords(0, 5, 100, 100, 100).unwrap();
+
+        let cost_fn = EuclideanCost;
+
+        // Test with very low limit - should fail
+        let result = astar_with_limit(start, goal, &cost_fn, 10);
+        assert!(result.is_err());
+        match result {
+            Err(Error::SearchLimitExceeded { expansions, limit }) => {
+                assert_eq!(limit, 10);
+                assert!(expansions > limit);
+            }
+            _ => panic!("Expected SearchLimitExceeded error"),
+        }
+
+        // Test with reasonable limit - should succeed
+        let result = astar_with_limit(start, goal, &cost_fn, 10_000);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_astar_closed_set_efficiency() {
+        // This test verifies that the closed set prevents re-expansion of nodes
+        let start = CellID::from_coords(0, 5, 0, 0, 0).unwrap();
+        let goal = CellID::from_coords(0, 5, 10, 10, 10).unwrap();
+
+        let cost_fn = EuclideanCost;
+        let path = astar(start, goal, &cost_fn).unwrap();
+
+        // Path should be found efficiently
+        assert!(!path.is_empty());
+        assert_eq!(path.cells.first(), Some(&start));
+        assert_eq!(path.cells.last(), Some(&goal));
+        assert!(path.cost > 0.0);
     }
 }
