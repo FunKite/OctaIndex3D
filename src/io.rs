@@ -73,8 +73,7 @@ impl Dataset {
     pub fn save_json<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let file = File::create(path)?;
         let writer = BufWriter::new(file);
-        serde_json::to_writer_pretty(writer, self)
-            .map_err(|e| Error::IoError(e.to_string()))?;
+        serde_json::to_writer_pretty(writer, self).map_err(|e| Error::IoError(e.to_string()))?;
         Ok(())
     }
 

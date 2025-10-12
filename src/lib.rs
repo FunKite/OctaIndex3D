@@ -34,11 +34,11 @@
 //! ```
 
 pub mod error;
-pub mod lattice;
 pub mod id;
+pub mod io;
+pub mod lattice;
 pub mod layer;
 pub mod path;
-pub mod io;
 
 // Re-export commonly used types
 pub use crate::error::{Error, Result};

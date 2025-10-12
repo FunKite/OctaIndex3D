@@ -262,14 +262,14 @@ mod tests {
         let neighbors = Lattice::get_neighbors(&coord);
 
         // 8 neighbors should be opposite parity (odd)
-        let opposite_parity_count = neighbors
-            .iter()
-            .filter(|n| n.parity == Parity::Odd)
-            .count();
+        let opposite_parity_count = neighbors.iter().filter(|n| n.parity == Parity::Odd).count();
         assert_eq!(opposite_parity_count, 8);
 
         // 6 neighbors should be same parity (even)
-        let same_parity_count = neighbors.iter().filter(|n| n.parity == Parity::Even).count();
+        let same_parity_count = neighbors
+            .iter()
+            .filter(|n| n.parity == Parity::Even)
+            .count();
         assert_eq!(same_parity_count, 6);
     }
 
