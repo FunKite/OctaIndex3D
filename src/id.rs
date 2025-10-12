@@ -258,6 +258,34 @@ impl CellID {
     pub fn raw_value(&self) -> u128 {
         self.value
     }
+
+    /// Get the cell between this cell and a same-parity neighbor
+    pub fn cell_between(&self, other: CellID) -> Option<CellID> {
+        if self.resolution() != other.resolution() {
+            return None;
+        }
+
+        let p1 = self.lattice_coord().unwrap();
+        let p2 = other.lattice_coord().unwrap();
+
+        if p1.parity != p2.parity {
+            return None; // Not a same-parity neighbor
+        }
+
+        let dx = p2.x - p1.x;
+        let dy = p2.y - p1.y;
+        let dz = p2.z - p1.z;
+
+        if dx.abs() + dy.abs() + dz.abs() != 2 {
+            return None; // Not a direct same-parity neighbor
+        }
+
+        let mid_x = p1.x + dx / 2;
+        let mid_y = p1.y + dy / 2;
+        let mid_z = p1.z + dz / 2;
+
+        CellID::from_coords(self.frame(), self.resolution(), mid_x, mid_y, mid_z).ok()
+    }
 }
 
 impl fmt::Display for CellID {
@@ -306,7 +334,6 @@ mod tests {
         let result = CellID::from_coords(0, 5, 0, 1, 2);
         assert!(result.is_err());
     }
-
 
     #[test]
     fn test_neighbor_count() {

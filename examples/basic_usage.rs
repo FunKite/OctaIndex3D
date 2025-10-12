@@ -1,8 +1,8 @@
 //! Basic usage examples for OctaIndex3D
 
-use octaindex3d::{CellID, Result};
+use octaindex3d::layer::{Aggregation, Layer};
 use octaindex3d::path::{astar, k_ring, k_shell, EuclideanCost};
-use octaindex3d::layer::{Layer, Aggregation};
+use octaindex3d::{CellID, Result};
 
 fn main() -> Result<()> {
     println!("=== OctaIndex3D v0.2.0 Examples ===\n");
@@ -11,7 +11,11 @@ fn main() -> Result<()> {
     println!("1. Creating cells:");
     let cell = CellID::from_coords(0, 5, 0, 0, 0)?;
     println!("   Cell: {}", cell);
-    println!("   Frame: {}, Resolution: {}", cell.frame(), cell.resolution());
+    println!(
+        "   Frame: {}, Resolution: {}",
+        cell.frame(),
+        cell.resolution()
+    );
 
     // 2. Bech32m encoding
     println!("\n2. Bech32m encoding:");
@@ -31,7 +35,10 @@ fn main() -> Result<()> {
     let parent = cell.parent()?;
     println!("   Parent resolution: {}", parent.resolution());
     let children = cell.children()?;
-    println!("   Children count: {} (BCC lattice constraint)", children.len());
+    println!(
+        "   Children count: {} (BCC lattice constraint)",
+        children.len()
+    );
 
     // 5. K-ring
     println!("\n5. K-ring (all cells within k steps):");
@@ -50,9 +57,13 @@ fn main() -> Result<()> {
     let path = astar(start, goal, &EuclideanCost)?;
     println!("   Path length: {} cells", path.cells.len());
     println!("   Path cost: {:.2}", path.cost);
-    println!("   Path: {:?}", path.cells.iter()
-        .map(|c| (c.x(), c.y(), c.z()))
-        .collect::<Vec<_>>());
+    println!(
+        "   Path: {:?}",
+        path.cells
+            .iter()
+            .map(|c| (c.x(), c.y(), c.z()))
+            .collect::<Vec<_>>()
+    );
 
     // 8. Data layers
     println!("\n8. Data layers:");
@@ -76,8 +87,12 @@ fn main() -> Result<()> {
     // 9. Coordinate range demo
     println!("\n9. Coordinate range (v0.2.0 - 32-bit):");
     let large_cell = CellID::from_coords(0, 10, 1_000_000, 2_000_000, -500_000)?;
-    println!("   Large coordinates: ({}, {}, {})",
-        large_cell.x(), large_cell.y(), large_cell.z());
+    println!(
+        "   Large coordinates: ({}, {}, {})",
+        large_cell.x(),
+        large_cell.y(),
+        large_cell.z()
+    );
     println!("   Range: ±2.1 billion per axis!");
 
     println!("\n=== All examples completed successfully! ===");

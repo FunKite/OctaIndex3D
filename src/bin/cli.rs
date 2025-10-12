@@ -165,7 +165,9 @@ fn main() -> Result<()> {
 
             println!("Cell has {} neighbors:", neighbors.len());
             for (i, neighbor) in neighbors.iter().enumerate() {
-                let bech32m = neighbor.to_bech32m().unwrap_or_else(|_| "ERROR".to_string());
+                let bech32m = neighbor
+                    .to_bech32m()
+                    .unwrap_or_else(|_| "ERROR".to_string());
                 println!(
                     "  {}: ({}, {}, {}) - {}",
                     i + 1,
@@ -203,7 +205,12 @@ fn main() -> Result<()> {
             println!("Parent cell:");
             println!("  Frame: {}", parent.frame());
             println!("  Resolution: {}", parent.resolution());
-            println!("  Coordinates: ({}, {}, {})", parent.x(), parent.y(), parent.z());
+            println!(
+                "  Coordinates: ({}, {}, {})",
+                parent.x(),
+                parent.y(),
+                parent.z()
+            );
             println!("  Bech32m: {}", bech32m);
         }
 
@@ -223,13 +230,7 @@ fn main() -> Result<()> {
                 _ => {
                     println!("K-ring (k={}) contains {} cells:", k, ring.len());
                     for (i, c) in ring.iter().enumerate() {
-                        println!(
-                            "  {}: ({}, {}, {})",
-                            i + 1,
-                            c.x(),
-                            c.y(),
-                            c.z()
-                        );
+                        println!("  {}: ({}, {}, {})", i + 1, c.x(), c.y(), c.z());
                     }
                 }
             }
@@ -251,13 +252,7 @@ fn main() -> Result<()> {
                 _ => {
                     println!("K-shell (k={}) contains {} cells:", k, shell.len());
                     for (i, c) in shell.iter().enumerate() {
-                        println!(
-                            "  {}: ({}, {}, {})",
-                            i + 1,
-                            c.x(),
-                            c.y(),
-                            c.z()
-                        );
+                        println!("  {}: ({}, {}, {})", i + 1, c.x(), c.y(), c.z());
                     }
                 }
             }
@@ -285,13 +280,7 @@ fn main() -> Result<()> {
             println!("  Cost: {:.2}", path.cost);
             println!("\nPath:");
             for (i, cell) in path.cells.iter().enumerate() {
-                println!(
-                    "  {}: ({}, {}, {})",
-                    i + 1,
-                    cell.x(),
-                    cell.y(),
-                    cell.z()
-                );
+                println!("  {}: ({}, {}, {})", i + 1, cell.x(), cell.y(), cell.z());
             }
         }
 
@@ -313,13 +302,7 @@ fn main() -> Result<()> {
 
             println!("\nLine traverses {} cells:", line.len());
             for (i, cell) in line.iter().enumerate() {
-                println!(
-                    "  {}: ({}, {}, {})",
-                    i + 1,
-                    cell.x(),
-                    cell.y(),
-                    cell.z()
-                );
+                println!("  {}: ({}, {}, {})", i + 1, cell.x(), cell.y(), cell.z());
             }
         }
     }

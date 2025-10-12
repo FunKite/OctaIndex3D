@@ -64,6 +64,7 @@ struct App {
     active_probe_id: Option<usize>,
     time_compression: f64,
     time_compression_stage: u8,
+    scene_frame: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -116,6 +117,7 @@ struct ExplorationTarget {
     distance: f64,
     resolution: u8,
     coordinates: (i32, i32, i32),
+    mission_profile: MissionProfile,
 }
 
 #[derive(Debug, Clone)]
@@ -123,6 +125,16 @@ struct LogEntry {
     message: String,
     log_type: LogType,
     timestamp: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum MissionProfile {
+    GalacticSurvey,
+    DustfieldNavigators,
+    RelayBuoyChain,
+    OrbitalInfrastructure,
+    MorphobotSurvey,
+    CryogenicBurrowers,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -182,6 +194,7 @@ impl App {
             active_probe_id: None,
             time_compression: 1.0,
             time_compression_stage: 0,
+            scene_frame: 0,
         };
 
         app.add_log(
@@ -252,56 +265,67 @@ impl App {
             &format!("OctaGrid Resolution Level: {}", target.resolution),
         );
 
-        match target.target_type.as_str() {
-            "Nebula" => {
-                self.add_log(
-                    LogType::Warning,
-                    "Mission Profile: Nebula survey - ionized gas reduces visibility",
-                );
-                self.add_log(
-                    LogType::Tech,
-                    "Adaptive plasma filters engaged for magneto-hydrodynamic turbulence",
-                );
-            }
-            "Binary System" => {
-                self.add_log(
-                    LogType::Tech,
-                    "Mission Profile: Binary grav-lens analysis and planetary census",
-                );
-                self.add_log(
-                    LogType::Warning,
-                    "Caution: Dual-star radiation flares predicted",
-                );
-            }
-            "Rogue Planet" => {
-                self.add_log(
-                    LogType::Info,
-                    "Mission Profile: Rogue world reconnaissance in interstellar dark space",
-                );
-                self.add_log(
-                    LogType::Warning,
-                    "Thermal imaging prioritized - no parent star detected",
-                );
-            }
-            "Galaxy" => {
+        match target.mission_profile {
+            MissionProfile::GalacticSurvey => {
                 self.add_log(
                     LogType::Info,
                     "Mission Profile: Deep field galactic structure mapping",
                 );
-            }
-            "Star System" => {
                 self.add_log(
-                    LogType::Info,
-                    "Mission Profile: Frontier system survey and resource cataloguing",
+                    LogType::Tech,
+                    "Deploying wide-baseline dustfield navigators for column density charts",
                 );
             }
-            "Planet" => {
+            MissionProfile::DustfieldNavigators => {
                 self.add_log(
-                    LogType::Info,
-                    "Mission Profile: Detailed planetary biosignature sweep",
+                    LogType::Warning,
+                    "Mission Profile: Dustfield survey - stellar wind variability expected",
+                );
+                self.add_log(
+                    LogType::Tech,
+                    "Launching ultralight wafer scouts to measure debris flux and radiation",
                 );
             }
-            _ => {}
+            MissionProfile::RelayBuoyChain => {
+                self.add_log(
+                    LogType::Info,
+                    "Mission Profile: Relay buoy chain installation for comm/navigation mesh",
+                );
+                self.add_log(
+                    LogType::Tech,
+                    "Laser link alignment and clock synchronization checklist engaged",
+                );
+            }
+            MissionProfile::OrbitalInfrastructure => {
+                self.add_log(
+                    LogType::Info,
+                    "Mission Profile: Pre-landing orbital infrastructure build-out",
+                );
+                self.add_log(
+                    LogType::Tech,
+                    "Autonomous factories and atmospheric processors staged for deployment",
+                );
+            }
+            MissionProfile::MorphobotSurvey => {
+                self.add_log(
+                    LogType::Info,
+                    "Mission Profile: Morphobot adaptive survey of surface biomes",
+                );
+                self.add_log(
+                    LogType::Tech,
+                    "Programmable matter rovers set to morph between locomotion modes",
+                );
+            }
+            MissionProfile::CryogenicBurrowers => {
+                self.add_log(
+                    LogType::Info,
+                    "Mission Profile: Cryogenic burrower subsurface reconnaissance",
+                );
+                self.add_log(
+                    LogType::Tech,
+                    "Thermal drilling arrays calibrated for ice and regolith analysis",
+                );
+            }
         }
 
         self.current_target = Some(target);
@@ -1070,6 +1094,7 @@ impl App {
                 self.start_new_exploration()?;
             }
         }
+        self.scene_frame = self.scene_frame.wrapping_add(1);
         Ok(())
     }
 }
@@ -1170,32 +1195,37 @@ fn ui(f: &mut Frame, app: &App) {
 
     let body = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(45), Constraint::Percentage(55)])
+        .constraints([Constraint::Percentage(60), Constraint::Percentage(40)])
         .split(frame[1]);
 
     render_log(f, body[0], app);
 
     let right_column = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(9), Constraint::Min(0)])
+        .constraints([
+            Constraint::Length(9),
+            Constraint::Length(12),
+            Constraint::Min(0),
+        ])
         .split(body[1]);
 
     render_stats(f, right_column[0], app);
+    render_scene_panel(f, right_column[1], app);
 
-    let detail = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(55), Constraint::Percentage(45)])
-        .split(right_column[1]);
-
-    render_navigation_overview(f, detail[0], app);
-
-    let lower = Layout::default()
+    let data_panels = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-        .split(detail[1]);
+        .constraints([Constraint::Percentage(58), Constraint::Percentage(42)])
+        .split(right_column[2]);
 
-    render_telemetry(f, lower[0], app);
-    render_octagrid_panel(f, lower[1], app);
+    render_navigation_overview(f, data_panels[0], app);
+
+    let instrumentation = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(62), Constraint::Percentage(38)])
+        .split(data_panels[1]);
+
+    render_telemetry(f, instrumentation[0], app);
+    render_octagrid_panel(f, instrumentation[1], app);
 }
 
 fn render_header(f: &mut Frame, area: Rect, app: &App) {
@@ -1398,6 +1428,142 @@ fn render_stats(f: &mut Frame, area: Rect, app: &App) {
     f.render_widget(assets_widget, chunks[2]);
 }
 
+fn render_scene_panel(f: &mut Frame, area: Rect, app: &App) {
+    let inner_width = area.width.saturating_sub(2) as usize;
+    let inner_height = area.height.saturating_sub(2) as usize;
+    let canvas_width = inner_width.max(32);
+    let canvas_height = inner_height.max(10);
+
+    let mut canvas = vec![vec![' '; canvas_width]; canvas_height];
+    for row in canvas.iter_mut() {
+        for cell in row.iter_mut() {
+            *cell = '.';
+        }
+    }
+
+    let mut caption = "Mission scene standby".to_string();
+
+    if let Some(target) = &app.current_target {
+        let frame = app.scene_frame;
+        let wave = ((frame / 4) % 4) as usize;
+        match app.phase {
+            ExplorationPhase::Traveling | ExplorationPhase::PreparingNavigation => {
+                caption = format!("Transit to {}", target.name);
+                let mid = canvas_height / 2;
+                for x in 0..canvas_width {
+                    canvas[mid][x] = '=';
+                    if x % 8 == wave {
+                        canvas[mid.saturating_sub(1)][x] = '^';
+                    }
+                }
+                let progress = ((app.navigation_progress / 100.0)
+                    * (canvas_width.saturating_sub(1) as f64))
+                    .round() as usize;
+                let ship_col = progress.min(canvas_width.saturating_sub(1));
+                canvas[mid][ship_col] = '>';
+                if mid > 0 {
+                    canvas[mid - 1][ship_col] = 'A';
+                }
+            }
+            ExplorationPhase::ProbeTransit => {
+                caption = format!("Probe descent over {}", target.name);
+                let top = canvas_width / 3;
+                for x in top..(canvas_width * 2 / 3) {
+                    canvas[1][x] = '_';
+                }
+                let descent = ((app.navigation_progress / 100.0)
+                    * (canvas_height.saturating_sub(3) as f64))
+                    .round() as usize;
+                let probe_row = descent.min(canvas_height.saturating_sub(2));
+                let col = canvas_width / 2;
+                for y in 2..=probe_row {
+                    canvas[y][col] = '|';
+                }
+                if probe_row < canvas_height {
+                    canvas[probe_row][col] = 'O';
+                }
+            }
+            ExplorationPhase::DroneScan => {
+                caption = format!("Surface scan on {}", target.name);
+                for y in 0..canvas_height {
+                    for x in 0..canvas_width {
+                        if x % 6 == (y + wave) % 6 {
+                            canvas[y][x] = match target.mission_profile {
+                                MissionProfile::MorphobotSurvey => 'M',
+                                MissionProfile::CryogenicBurrowers => 'C',
+                                MissionProfile::OrbitalInfrastructure => 'F',
+                                MissionProfile::RelayBuoyChain => 'B',
+                                MissionProfile::DustfieldNavigators => 'D',
+                                MissionProfile::GalacticSurvey => '*',
+                            };
+                        }
+                    }
+                }
+                let sweep_col = (frame / 2) % canvas_width;
+                for y in 0..canvas_height {
+                    canvas[y][sweep_col] = '|';
+                }
+            }
+            ExplorationPhase::RetrievingAssets => {
+                caption = "Asset retrieval sequence".to_string();
+                let base_row = canvas_height.saturating_sub(3);
+                for idx in 0..canvas_width.min(24) {
+                    if idx % 2 == 0 {
+                        canvas[base_row][idx] = '>';
+                    }
+                }
+                let dock = canvas_width.saturating_sub(6);
+                for y in base_row.saturating_sub(2)..=base_row {
+                    if dock < canvas_width {
+                        canvas[y][dock] = '#';
+                    }
+                }
+            }
+            ExplorationPhase::AnalyzingDiscoveries => {
+                caption = "Cataloguing discoveries".to_string();
+                for y in 0..canvas_height {
+                    for x in 0..canvas_width {
+                        if (x + y + frame) % 7 == 0 {
+                            canvas[y][x] = '*';
+                        }
+                    }
+                }
+            }
+            _ => {
+                caption = format!("Mission staging for {}", target.name);
+            }
+        }
+    }
+
+    let mut lines = Vec::new();
+    lines.push(Line::from(Span::styled(
+        caption,
+        Style::default()
+            .fg(Color::Yellow)
+            .add_modifier(Modifier::BOLD),
+    )));
+    lines.push(Line::from(""));
+
+    for row in canvas {
+        let row_string: String = row.into_iter().collect();
+        lines.push(Line::from(Span::styled(
+            row_string,
+            Style::default().fg(Color::Gray),
+        )));
+    }
+
+    let paragraph = Paragraph::new(lines)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(" Mission Scene ")
+                .border_type(BorderType::Rounded),
+        )
+        .wrap(Wrap { trim: false });
+
+    f.render_widget(paragraph, area);
+}
+
 fn render_navigation_overview(f: &mut Frame, area: Rect, app: &App) {
     let mut lines = Vec::new();
 
@@ -1431,7 +1597,7 @@ fn render_navigation_overview(f: &mut Frame, area: Rect, app: &App) {
     lines.push(Line::from(""));
 
     if !app.path.is_empty() {
-        let bar_width = (area.width as usize).saturating_sub(16);
+        let bar_width = (area.width as usize).saturating_sub(10);
         let filled = ((app.navigation_progress / 100.0) * bar_width as f64) as usize;
         let progress_bar = format!(
             "[{}{}] {:>5.1}%",
@@ -1455,6 +1621,32 @@ fn render_navigation_overview(f: &mut Frame, area: Rect, app: &App) {
                 Style::default().fg(Color::Yellow),
             ),
         ]));
+
+        let timeline_width = (area.width as usize).saturating_sub(6).max(24);
+        let mut timeline = vec!['-'; timeline_width];
+        let checkpoints = [0.0, 0.25, 0.5, 0.75, 1.0];
+        let labels = ["START", "¼", "½", "¾", "END"];
+        for (i, ratio) in checkpoints.iter().enumerate() {
+            let idx = ((*ratio * (timeline_width.saturating_sub(1) as f64)).round() as usize)
+                .min(timeline_width - 1);
+            timeline[idx] = '|';
+            let label = labels[i].as_bytes();
+            let start = idx.saturating_sub(label.len() / 2);
+            for (offset, &byte) in label.iter().enumerate() {
+                let pos = start + offset;
+                if pos < timeline_width {
+                    timeline[pos] = byte as char;
+                }
+            }
+        }
+        let pointer = ((app.navigation_progress / 100.0)
+            * (timeline_width.saturating_sub(1) as f64))
+            .round() as usize;
+        timeline[pointer.min(timeline_width - 1)] = '▲';
+        lines.push(Line::from(Span::styled(
+            timeline.into_iter().collect::<String>(),
+            Style::default().fg(Color::Yellow),
+        )));
     }
 
     if matches!(
@@ -1496,6 +1688,76 @@ fn render_navigation_overview(f: &mut Frame, area: Rect, app: &App) {
                 Style::default().fg(Color::Cyan),
             ),
         ]));
+
+        let mission_label = match target.mission_profile {
+            MissionProfile::GalacticSurvey => {
+                "Galactic survey: deep field dust lanes and stellar density"
+            }
+            MissionProfile::DustfieldNavigators => {
+                "Dustfield navigators: wafer scouts sampling debris and radiation"
+            }
+            MissionProfile::RelayBuoyChain => {
+                "Relay buoy chain: communication and navigation mesh deployment"
+            }
+            MissionProfile::OrbitalInfrastructure => {
+                "Orbital infrastructure: factories, processors, AI constellation"
+            }
+            MissionProfile::MorphobotSurvey => {
+                "Morphobot survey: adaptive rovers mapping biosphere layers"
+            }
+            MissionProfile::CryogenicBurrowers => {
+                "Cryogenic burrowers: subsurface drilling for thermal profiles"
+            }
+        };
+        lines.push(Line::from(vec![
+            Span::styled("Mission Profile: ", Style::default().fg(Color::Gray)),
+            Span::styled(mission_label, Style::default().fg(Color::Green)),
+        ]));
+
+        let task_queue = match target.mission_profile {
+            MissionProfile::GalacticSurvey => [
+                "Wavefront sampling",
+                "Dust density fit",
+                "Star cluster map",
+                "Relay uplink",
+            ],
+            MissionProfile::DustfieldNavigators => [
+                "Deploy wafer scouts",
+                "Measure debris flux",
+                "Radiation sweep",
+                "Consolidate field map",
+            ],
+            MissionProfile::RelayBuoyChain => [
+                "Buoy launch",
+                "Laser alignment",
+                "Clock sync",
+                "Signal verification",
+            ],
+            MissionProfile::OrbitalInfrastructure => [
+                "Factory assembly",
+                "Solar mirror array",
+                "Atmosphere samplers",
+                "Constellation mesh",
+            ],
+            MissionProfile::MorphobotSurvey => [
+                "Adaptive morphing",
+                "Biomass sampling",
+                "Energy harvest",
+                "Terrain export",
+            ],
+            MissionProfile::CryogenicBurrowers => [
+                "Borehole pathing",
+                "Core drilling",
+                "Thermal sensing",
+                "Seismic relay",
+            ],
+        };
+        for task in task_queue.iter() {
+            lines.push(Line::from(vec![
+                Span::styled(" • ", Style::default().fg(Color::DarkGray)),
+                Span::styled(*task, Style::default().fg(Color::White)),
+            ]));
+        }
     }
 
     let paragraph = Paragraph::new(lines)
@@ -1733,6 +1995,8 @@ fn render_telemetry(f: &mut Frame, area: Rect, app: &App) {
 fn render_log(f: &mut Frame, area: Rect, app: &App) {
     let max_entries = area.height.saturating_sub(2) as usize;
     let capacity = max_entries.max(1);
+    let phase_label = format!("{:?}", app.phase);
+    let compression_tag = format!("{:>4.1}×", app.time_compression);
     let log_lines: Vec<Line> = app
         .log_entries
         .iter()
@@ -1764,6 +2028,10 @@ fn render_log(f: &mut Frame, area: Rect, app: &App) {
                 ),
                 Span::styled(format!("{} ", icon), style),
                 Span::styled(&entry.message, style),
+                Span::styled(
+                    format!(" | Phase: {:<18} | Tc: {}", phase_label, compression_tag),
+                    Style::default().fg(Color::DarkGray),
+                ),
             ])
         })
         .collect();
@@ -1827,7 +2095,7 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
     if cycle < 3 {
         ExplorationTarget {
             name: galaxy_names[time_seed % galaxy_names.len()].to_string(),
-            target_type: "Galaxy".to_string(),
+            target_type: "Deep Field Galaxy".to_string(),
             distance: 500_000.0 + (time_seed as f64 * 50_000.0),
             resolution: 5,
             coordinates: (
@@ -1835,11 +2103,12 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 (time_seed as i32 * 241) % 1000 - 500,
                 (time_seed as i32 * 163) % 1000 - 500,
             ),
+            mission_profile: MissionProfile::GalacticSurvey,
         }
     } else if cycle < 7 {
         ExplorationTarget {
             name: nebula_names[time_seed % nebula_names.len()].to_string(),
-            target_type: "Nebula".to_string(),
+            target_type: "Dustfield Corridor".to_string(),
             distance: 1_200.0 + (time_seed as f64 * 90.0) % 3_500.0,
             resolution: 12,
             coordinates: (
@@ -1847,14 +2116,15 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 (time_seed as i32 * 223) % 6_000 - 3_000,
                 (time_seed as i32 * 167) % 6_000 - 3_000,
             ),
+            mission_profile: MissionProfile::DustfieldNavigators,
         }
     } else if cycle < 12 {
         ExplorationTarget {
             name: format!(
-                "{} Binary",
+                "{} Relay Sector",
                 binary_designations[time_seed % binary_designations.len()]
             ),
-            target_type: "Binary System".to_string(),
+            target_type: "Relay Buoy Network".to_string(),
             distance: 18.0 + (time_seed as f64 * 2.3) % 140.0,
             resolution: 18,
             coordinates: (
@@ -1862,6 +2132,7 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 (time_seed as i32 * 271) % 12_000 - 6_000,
                 (time_seed as i32 * 193) % 12_000 - 6_000,
             ),
+            mission_profile: MissionProfile::RelayBuoyChain,
         }
     } else if cycle < 16 {
         ExplorationTarget {
@@ -1870,7 +2141,7 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 rogue_names[time_seed % rogue_names.len()],
                 300 + (time_seed % 700)
             ),
-            target_type: "Rogue Planet".to_string(),
+            target_type: "Morphobot Survey Site".to_string(),
             distance: 0.4 + (time_seed as f64 * 0.12) % 15.0,
             resolution: 22,
             coordinates: (
@@ -1878,6 +2149,7 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 (time_seed as i32 * 281) % 40_000 - 20_000,
                 (time_seed as i32 * 211) % 40_000 - 20_000,
             ),
+            mission_profile: MissionProfile::MorphobotSurvey,
         }
     } else if cycle < 20 {
         ExplorationTarget {
@@ -1886,7 +2158,7 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 star_names[time_seed % star_names.len()],
                 100 + time_seed % 900
             ),
-            target_type: "Star System".to_string(),
+            target_type: "Orbital Infrastructure Zone".to_string(),
             distance: 8.0 + (time_seed as f64 * 3.5) % 500.0,
             resolution: 15,
             coordinates: (
@@ -1894,6 +2166,7 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 (time_seed as i32 * 271) % 10000 - 5000,
                 (time_seed as i32 * 193) % 10000 - 5000,
             ),
+            mission_profile: MissionProfile::OrbitalInfrastructure,
         }
     } else {
         ExplorationTarget {
@@ -1902,7 +2175,7 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 planet_prefixes[time_seed % planet_prefixes.len()],
                 100 + time_seed % 900
             ),
-            target_type: "Planet".to_string(),
+            target_type: "Cryogenic Borehole Target".to_string(),
             distance: 0.5 + (time_seed as f64 * 0.3) % 30.0,
             resolution: 25,
             coordinates: (
@@ -1910,6 +2183,7 @@ fn generate_target(stats: &MissionStats) -> ExplorationTarget {
                 (time_seed as i32 * 281) % 100000 - 50000,
                 (time_seed as i32 * 211) % 100000 - 50000,
             ),
+            mission_profile: MissionProfile::CryogenicBurrowers,
         }
     }
 }
@@ -1923,14 +2197,18 @@ fn make_discoveries(
         + target.coordinates.1.abs()
         + target.coordinates.2.abs()) as usize;
 
-    match target.target_type.as_str() {
-        "Galaxy" => {
+    match target.mission_profile {
+        MissionProfile::GalacticSurvey => {
             discoveries.push(Discovery::Galaxy {
                 name: target.name.clone(),
                 size: vec!["Dwarf", "Spiral", "Elliptical", "Irregular"][seed % 4].to_string(),
             });
+            discoveries.push(Discovery::Anomaly {
+                name: "Dust Density Gradient".to_string(),
+                description: "Wafer scouts mapped steep change in particulate density".to_string(),
+            });
         }
-        "Nebula" => {
+        MissionProfile::DustfieldNavigators => {
             let anomaly_profiles = [
                 (
                     "Ionized Shock Front",
@@ -1954,101 +2232,85 @@ fn make_discoveries(
                 name: anomaly.0.to_string(),
                 description: anomaly.1.to_string(),
             });
-
-            if seed % 3 == 0 {
-                discoveries.push(Discovery::StarSystem {
-                    name: format!("{} Protocluster", target.name),
-                    stars: 1,
-                });
-            }
-        }
-        "Binary System" => {
-            discoveries.push(Discovery::StarSystem {
-                name: target.name.clone(),
-                stars: 2,
-            });
-            let num_planets = 2 + (seed % 4);
-            let planet_types = ["Rocky", "Ocean World", "Desert", "Gas Giant", "Super-Earth"];
-            for i in 0..num_planets {
-                let planet_type = planet_types[(seed + i) % planet_types.len()];
-                let habitable = matches!(planet_type, "Rocky" | "Super-Earth" | "Ocean World")
-                    && (seed + i) % 5 == 0;
-                discoveries.push(Discovery::Planet {
-                    name: format!("{}-{}", target.name, (b'B' + i as u8) as char),
-                    planet_type: planet_type.to_string(),
-                    habitable,
-                });
-            }
-
-            if seed % 4 == 0 {
-                discoveries.push(Discovery::Anomaly {
-                    name: "Lagrange Flux".to_string(),
-                    description: "Stable plasma bridge detected between binary stars".to_string(),
-                });
-            }
-        }
-        "Rogue Planet" => {
-            let planet_types = ["Ice World", "Super-Earth", "Carbon World", "Silicate Core"];
-            let planet_type = planet_types[seed % planet_types.len()];
-            let habitable = (planet_type == "Super-Earth") && seed % 5 == 0;
-            discoveries.push(Discovery::Planet {
-                name: target.name.clone(),
-                planet_type: planet_type.to_string(),
-                habitable,
-            });
-
-            let rogue_findings = [
-                (
-                    "Thermal Plume",
-                    "Subsurface ocean vents emitting geothermal energy",
-                ),
-                (
-                    "Polar Cavern",
-                    "Radar sounding indicates hollow structure beneath polar cap",
-                ),
-                (
-                    "Mass Wake",
-                    "Gravitational signature suggests unseen companion object",
-                ),
-            ];
-            let finding = &rogue_findings[seed % rogue_findings.len()];
             discoveries.push(Discovery::Anomaly {
-                name: finding.0.to_string(),
-                description: finding.1.to_string(),
+                name: "Solar Wind Channel".to_string(),
+                description: "Dust navigators identified stable particle corridor".to_string(),
             });
         }
-        "Star System" => {
+        MissionProfile::RelayBuoyChain => {
             discoveries.push(Discovery::StarSystem {
-                name: target.name.clone(),
-                stars: 1 + (seed % 3) as u32,
+                name: format!("{} Node Cluster", target.name),
+                stars: 1 + (seed % 2) as u32,
             });
-            let num_planets = 1 + (seed % 4);
-            for i in 0..num_planets {
-                let planet_types = ["Rocky", "Gas Giant", "Ice World", "Super-Earth"];
-                let planet_type = planet_types[(seed + i) % planet_types.len()];
-                let habitable =
-                    (planet_type == "Rocky" || planet_type == "Super-Earth") && (seed + i) % 4 == 0;
-
-                discoveries.push(Discovery::Planet {
-                    name: format!("{}-{}", target.name, (b'A' + i as u8) as char),
-                    planet_type: planet_type.to_string(),
-                    habitable,
+            discoveries.push(Discovery::Anomaly {
+                name: "Laser Relay Alignment".to_string(),
+                description:
+                    "Buoy constellation established continuous line-of-sight communication path"
+                        .to_string(),
+            });
+            if seed % 3 == 0 {
+                discoveries.push(Discovery::Anomaly {
+                    name: "Clock Drift Event".to_string(),
+                    description: "Corrected buoy oscillator drift with synchronized pulse trains"
+                        .to_string(),
                 });
             }
         }
-        "Planet" => {
-            let planet_types = ["Rocky", "Gas Giant", "Ice World", "Super-Earth"];
-            let planet_type = planet_types[seed % planet_types.len()];
-            let habitable =
-                (planet_type == "Rocky" || planet_type == "Super-Earth") && seed % 3 == 0;
-
-            discoveries.push(Discovery::Planet {
-                name: target.name.clone(),
-                planet_type: planet_type.to_string(),
-                habitable,
+        MissionProfile::OrbitalInfrastructure => {
+            discoveries.push(Discovery::Anomaly {
+                name: "Autonomous Factory Anchor".to_string(),
+                description: "Carbon lattice assembly lines stabilized in orbit".to_string(),
+            });
+            discoveries.push(Discovery::Anomaly {
+                name: "Atmospheric Processor Grid".to_string(),
+                description: "Drones mapped turbulence layers for processor placement".to_string(),
+            });
+            discoveries.push(Discovery::Anomaly {
+                name: "Constellation Hologram".to_string(),
+                description: "AI satellites produced coherent atmosphere and gravity model"
+                    .to_string(),
             });
         }
-        _ => {}
+        MissionProfile::MorphobotSurvey => {
+            let biome_types = [
+                "Rainforest Basin",
+                "Basalt Plateau",
+                "Coastal Delta",
+                "Crater Marsh",
+            ];
+            let biome = biome_types[seed % biome_types.len()];
+            discoveries.push(Discovery::Planet {
+                name: format!("{} Biome Sector", target.name),
+                planet_type: biome.to_string(),
+                habitable: biome.contains("Rainforest") || biome.contains("Delta"),
+            });
+            discoveries.push(Discovery::Anomaly {
+                name: "Adaptive Locomotion Log".to_string(),
+                description: "Morphobots reconfigured between legged and rotor profiles"
+                    .to_string(),
+            });
+            discoveries.push(Discovery::Anomaly {
+                name: "In-situ Energy Harvest".to_string(),
+                description: "Local thermal and photosynthetic sources powering morphobots"
+                    .to_string(),
+            });
+        }
+        MissionProfile::CryogenicBurrowers => {
+            discoveries.push(Discovery::Planet {
+                name: target.name.clone(),
+                planet_type: "Subsurface Ice Layer".to_string(),
+                habitable: seed % 5 == 0,
+            });
+            discoveries.push(Discovery::Anomaly {
+                name: "Thermal Plume".to_string(),
+                description: "Cryogenic burrowers detected warm vent rising through ice strata"
+                    .to_string(),
+            });
+            discoveries.push(Discovery::Anomaly {
+                name: "Seismic Echo".to_string(),
+                description: "Burrower impactors mapped cavity 1.4 km beneath surface".to_string(),
+            });
+        }
     }
 
     if seed % 6 == 0 {
