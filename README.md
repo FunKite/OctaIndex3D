@@ -284,10 +284,6 @@ The BCC lattice is defined by points whose coordinates have identical parity (al
 
 Licensed under the MIT License.
 
-## Related Projects
-
-- **[ValorSim](https://github.com/FunKite/valorsim)** - Space exploration simulation and game built on OctaIndex3D
-
 ## References
 
 - [Wikipedia - "Truncated octahedron"](https://en.wikipedia.org/wiki/Truncated_octahedron)
