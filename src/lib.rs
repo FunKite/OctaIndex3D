@@ -53,6 +53,8 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert!(!VERSION.is_empty());
+        // Verify version string is in expected format (e.g., "0.2.1")
+        assert!(VERSION.contains('.'));
+        assert!(VERSION.chars().any(|c| c.is_ascii_digit()));
     }
 }

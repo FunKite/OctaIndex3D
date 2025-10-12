@@ -129,7 +129,7 @@ impl Lattice {
             let mut best_dist = f64::MAX;
 
             for (cx, cy, cz) in candidates {
-                if let Ok(_) = Parity::from_coords(cx, cy, cz) {
+                if Parity::from_coords(cx, cy, cz).is_ok() {
                     let dist = ((cx as f64 - x).powi(2)
                         + (cy as f64 - y).powi(2)
                         + (cz as f64 - z).powi(2))
