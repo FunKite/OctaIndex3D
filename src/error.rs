@@ -56,6 +56,10 @@ pub enum Error {
     #[error("No path found from {start} to {goal}")]
     NoPathFound { start: String, goal: String },
 
+    /// Search limit exceeded during pathfinding
+    #[error("Search limit exceeded: expanded {expansions} nodes (limit: {limit})")]
+    SearchLimitExceeded { expansions: usize, limit: usize },
+
     /// I/O error
     #[error("I/O error: {0}")]
     IoError(String),
