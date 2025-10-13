@@ -186,10 +186,10 @@ write_geojson_linestring(Path::new("path.geojson"), &path_ids, &opts)?;
 │                       Galactic128                           │
 │  128-bit global ID with frame, tier, LOD, and coordinates   │
 │  ┌────────┬──────┬─────┬──────┬──────────────────────────┐  │
-│  │ Frame  │ Tier │ LOD │ Attr │    Coordinates (90b)    │  │
-│  │ 8 bits │ 2b   │ 4b  │ 24b  │    X, Y, Z (30b each)   │  │
+│  │ Frame  │ Tier │ LOD │ Attr │    Coordinates (90b)     │  │
+│  │ 8 bits │ 2b   │ 4b  │ 24b  │    X, Y, Z (30b each)    │  │
 │  └────────┴──────┴─────┴──────┴──────────────────────────┘  │
-│  HRP: g3d1                                                   │
+│  HRP: g3d1                                                  │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
