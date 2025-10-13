@@ -4,62 +4,17 @@ This directory contains documentation for the OctaIndex3D project.
 
 ## Whitepaper
 
-The comprehensive technical whitepaper is available in the repository root:
-- **Markdown**: [`../WHITEPAPER.md`](../WHITEPAPER.md) (version-controlled, GitHub-rendered)
-- **PDF**: `whitepaper.pdf` (generated from Markdown)
+The comprehensive technical whitepaper is available in two formats:
 
-### Generating the PDF
+- **Markdown**: [`../WHITEPAPER.md`](../WHITEPAPER.md) - Version-controlled source, best viewed on GitHub
+- **PDF**: [`whitepaper.pdf`](whitepaper.pdf) - Portable, printable format for offline reading
 
-You can generate the PDF from the Markdown source using any of these methods:
-
-#### Method 1: Pandoc (Recommended)
-
-```bash
-# Install pandoc (if not already installed)
-# macOS: brew install pandoc basictex
-# Ubuntu: sudo apt install pandoc texlive
-# Windows: choco install pandoc miktex
-
-# Generate PDF
-pandoc ../WHITEPAPER.md \
-    -o whitepaper.pdf \
-    --pdf-engine=xelatex \
-    -V geometry:margin=1in \
-    -V fontsize=11pt \
-    -V documentclass=article \
-    --toc \
-    --number-sections \
-    --highlight-style=tango
-```
-
-#### Method 2: Grip + wkhtmltopdf
-
-```bash
-# Install grip and wkhtmltopdf
-pip install grip
-# macOS: brew install wkhtmltopdf
-# Ubuntu: sudo apt install wkhtmltopdf
-
-# Generate PDF
-grip ../WHITEPAPER.md --export whitepaper.html
-wkhtmltopdf whitepaper.html whitepaper.pdf
-```
-
-#### Method 3: Online Tools
-
-- [Markdown to PDF](https://www.markdowntopdf.com/)
-- [Dillinger](https://dillinger.io/) (export as PDF)
-- GitHub's "Print to PDF" from rendered Markdown
-
-#### Method 4: VS Code Extension
-
-Install "Markdown PDF" extension:
-1. Open `WHITEPAPER.md` in VS Code
-2. Right-click → "Markdown PDF: Export (pdf)"
-
-### Automated PDF Generation
-
-The repository includes a GitHub Action that automatically generates the PDF on changes to `WHITEPAPER.md`. The PDF is attached to releases and can be downloaded from the Releases page.
+Both formats contain identical content covering:
+- Mathematical foundations of BCC lattice geometry
+- Detailed system architecture and implementation
+- Performance benchmarks and analysis
+- Applications across multiple domains
+- Future research directions
 
 ## Citation
 

@@ -24,7 +24,7 @@ The Body-Centered Cubic (BCC) lattice, well-known in crystallography and signal 
 2. **Geometric Isotropy**: Near-uniform connectivity in all directions
 3. **Consistent Topology**: Unambiguous parent-child relationships (8:1 refinement)
 
-OctaIndex3D is the first production-ready implementation of BCC-based spatial indexing with:
+OctaIndex3D is an experimental implementation of BCC-based spatial indexing with:
 - Multiple identifier formats for different use cases
 - Space-filling curves optimized for cache locality
 - Streaming container formats for large datasets
@@ -42,7 +42,7 @@ OctaIndex3D is the first production-ready implementation of BCC-based spatial in
 
 1. **Three Interoperable ID Types**: Global (128-bit), indexed (64-bit Morton), and local routing (64-bit signed)
 2. **BCC-Optimized Algorithms**: Neighbor lookup, hierarchy traversal, and pathfinding
-3. **Production-Ready Implementation**: Rust library with comprehensive testing (60+ unit tests)
+3. **Experimental Implementation**: Rust library with comprehensive testing (60+ unit tests)
 4. **Performance Benchmarks**: Sub-nanosecond operations on modern hardware
 5. **Practical Container Formats**: Streaming, compression, and crash recovery
 
@@ -817,7 +817,7 @@ Our implementation demonstrates three key advantages:
 
 ## 11. Conclusion
 
-OctaIndex3D provides a production-ready spatial indexing system based on the Body-Centered Cubic lattice, offering superior geometric properties compared to traditional cubic grids. The system's three identifier types—Galactic128, Index64, and Route64—enable flexible multi-scale operations from global addressing to local routing. Performance benchmarks demonstrate practical efficiency: sub-10ns neighbor lookups, ~200ns human-readable encoding, and 10:1 compression ratios.
+OctaIndex3D provides an experimental spatial indexing system based on the Body-Centered Cubic lattice, offering superior geometric properties compared to traditional cubic grids. The system's three identifier types—Galactic128, Index64, and Route64—enable flexible multi-scale operations from global addressing to local routing. Performance benchmarks demonstrate practical efficiency: sub-10ns neighbor lookups, ~200ns human-readable encoding, and 10:1 compression ratios.
 
 The open-source implementation (MIT license) includes 60+ unit tests, comprehensive documentation, and streaming container formats with crash recovery. Applications span robotics, geospatial analysis, scientific computing, and gaming. Future work includes SIMD optimizations for Apple Silicon and x86_64, GPU acceleration, and distributed processing support.
 
