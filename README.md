@@ -17,8 +17,7 @@
 
 OctaIndex3D is a high-performance 3D spatial indexing and routing library based on a **Body-Centered Cubic (BCC) lattice** with **truncated octahedral cells**. Version 0.3.1 introduces a unified ID system with three interoperable formats, space-filling curves, and streaming container support.
 
-Notebook LM Video Overview
-https://notebooklm.google.com/notebook/61555b23-3cbd-4741-8630-82c1b4e979a4?artifactId=50e576f9-ff2a-4186-923c-53ee20ccf35f
+[Notebook LM Video Overview](https://notebooklm.google.com/notebook/61555b23-3cbd-4741-8630-82c1b4e979a4?artifactId=50e576f9-ff2a-4186-923c-53ee20ccf35f)
 
 ### Key Features
 
