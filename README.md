@@ -196,8 +196,8 @@ write_geojson_linestring(Path::new("path.geojson"), &path_ids, &opts)?;
 │                        Index64                              │
 │  64-bit Morton-encoded spatial index (Z-order curve)        │
 │  ┌────┬────────┬──────┬─────┬──────────────────────────┐    │
-│  │ Hdr│ Frame  │ Tier │ LOD │  Morton Code (48 bits)  │    │
-│  │ 2b │ 8 bits │ 2b   │ 4b  │  16b/axis interleaved   │    │
+│  │ Hdr│ Frame  │ Tier │ LOD │  Morton Code (48 bits )  │    │
+│  │ 2b │ 8 bits │ 2b   │ 4b  │  16b/axis interleaved    │    │
 │  └────┴────────┴──────┴─────┴──────────────────────────┘    │
 │  HRP: i3d1  |  BMI2 PDEP/PEXT optimized                     │
 └─────────────────────────────────────────────────────────────┘
@@ -206,8 +206,8 @@ write_geojson_linestring(Path::new("path.geojson"), &path_ids, &opts)?;
 │                        Route64                              │
 │  64-bit signed local routing coordinates                    │
 │  ┌────┬────────┬──────────────────────────────────────┐     │
-│  │ Hdr│ Parity │    X, Y, Z (20 bits each, signed)   │     │
-│  │ 2b │  2b    │    ±524k range per axis            │     │
+│  │ Hdr│ Parity │    X, Y, Z (20 bits each, signed)    │     │
+│  │ 2b │  2b    │    ±524k range per axis              │     │
 │  └────┴────────┴──────────────────────────────────────┘     │
 │  HRP: r3d1  |  Fast neighbor lookup                         │
 └─────────────────────────────────────────────────────────────┘
@@ -216,7 +216,7 @@ write_geojson_linestring(Path::new("path.geojson"), &path_ids, &opts)?;
 │                       Hilbert64                             │
 │  64-bit Hilbert curve spatial index (Gray code)             │
 │  ┌────┬────────┬──────┬─────┬──────────────────────────┐    │
-│  │ Hdr│ Frame  │ Tier │ LOD │  Hilbert Code (48 bits) │    │
+│  │ Hdr│ Frame  │ Tier │ LOD │  Hilbert Code (48 bits)  │    │
 │  │ 2b │ 8 bits │ 2b   │ 4b  │  Better locality         │    │
 │  └────┴────────┴──────┴─────┴──────────────────────────┘    │
 │  HRP: h3d1  |  Requires 'hilbert' feature                   │
