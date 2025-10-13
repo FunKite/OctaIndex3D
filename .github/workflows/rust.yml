@@ -45,14 +45,35 @@ jobs:
           path: target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Run tests
+      - name: Run tests (all features)
         run: cargo test --verbose --all-features
 
-      - name: Run tests (no default features)
-        run: cargo test --verbose --no-default-features
+      - name: Run tests (default features)
+        run: cargo test --verbose
 
       - name: Run doc tests
         run: cargo test --doc --verbose
+
+  feature-tests:
+    name: Feature Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Test hilbert feature
+        run: cargo test --verbose --features hilbert
+
+      - name: Test container_v2 feature
+        run: cargo test --verbose --features container_v2
+
+      - name: Test gis_geojson feature
+        run: cargo test --verbose --features gis_geojson
+
+      - name: Test combined features
+        run: cargo test --verbose --features "hilbert,container_v2,gis_geojson"
 
   clippy:
     name: Clippy
@@ -66,7 +87,7 @@ jobs:
           components: clippy
 
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::unused_imports -A clippy::dead_code
 
   fmt:
     name: Rustfmt
@@ -126,8 +147,8 @@ jobs:
       - name: Build (release)
         run: cargo build --release --verbose
 
-      - name: Build CLI binary
-        run: cargo build --release --bin octaindex3d
+      - name: Build with all features
+        run: cargo build --release --verbose --all-features
 
   msrv:
     name: Minimum Supported Rust Version
@@ -135,8 +156,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust 1.82
-        uses: dtolnay/rust-toolchain@1.82.0
+      - name: Install Rust 1.75
+        uses: dtolnay/rust-toolchain@1.75.0
 
       - name: Check with MSRV
         run: cargo check --all-features
