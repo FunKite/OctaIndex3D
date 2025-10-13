@@ -4,12 +4,11 @@ This directory contains documentation for the OctaIndex3D project.
 
 ## Whitepaper
 
-The comprehensive technical whitepaper is available in two formats:
+The comprehensive technical whitepaper is available in one format:
 
 - **Markdown**: [`../WHITEPAPER.md`](../WHITEPAPER.md) - Version-controlled source, best viewed on GitHub
-- **PDF**: [`whitepaper.pdf`](whitepaper.pdf) - Portable, printable format for offline reading
 
-Both formats contain identical content covering:
+It covers:
 - Mathematical foundations of BCC lattice geometry
 - Detailed system architecture and implementation
 - Performance benchmarks and analysis
