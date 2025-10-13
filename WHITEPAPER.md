@@ -4,8 +4,7 @@
 **October 2025**
 
 **Authors:**
-Michael A. McLarney
-Claude (Anthropic AI Assistant)
+Michael A. McLarney, Claude (Anthropic AI Assistant)
 
 **Abstract**
 
@@ -321,7 +320,7 @@ pub struct TocEntry {
 
 **Performance Target**: Open 100k-frame container in <50ms
 
-**Benchmark Results** (Apple M1 Pro):
+**Benchmark Results** (Apple M1 Max):
 - Write: ~50 µs per frame (LZ4 compression)
 - Checkpoint: ~2 ms for 1000 entries
 - Open: 12 ms for 10k frames, 45 ms for 100k frames
@@ -448,7 +447,7 @@ All coordinate validation occurs at construction time—successfully created IDs
 
 ### 6.1 Microbenchmarks
 
-**Test Platform**: Apple M1 Pro (10-core, 3.2 GHz), macOS 14.0, Rust 1.82
+**Test Platform**: Apple M1 Max (10-core, 3.2 GHz), macOS 26.01 Tahoe, Rust 1.82
 
 | Operation | Time | Throughput |
 |-----------|------|------------|
@@ -730,12 +729,12 @@ pub struct ConcurrentSpatialIndex {
 ### 9.1 Test Environment
 
 All benchmarks conducted on:
-- **Hardware**: Apple M1 Pro (2021)
+- **Hardware**: Apple M1 Max (2022)
   - CPU: 10-core (8 performance, 2 efficiency)
-  - RAM: 32 GB unified memory
-  - Storage: 1 TB NVMe SSD
+  - RAM: 64 GB unified memory
+  - Storage: 2 TB NVMe SSD
 - **Software**:
-  - OS: macOS 14.0 (Sonoma)
+  - OS: macOS 26.0.1 (Tahoe)
   - Rust: 1.82.0
   - Compiler flags: `-C opt-level=3 -C lto=fat -C codegen-units=1`
 
@@ -1028,5 +1027,4 @@ fn stream_sensor_data(
 
 *This whitepaper describes OctaIndex3D version 0.3.2 (October 2025). For updates and errata, see the project repository.*
 
-**DOI**: (To be assigned upon journal submission)
 **Citation**: McLarney, M. A., & Claude. (2025). OctaIndex3D: A High-Performance 3D Spatial Indexing System Based on Body-Centered Cubic Lattice. *Technical Report*.
