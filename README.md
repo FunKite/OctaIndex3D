@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.82+-orange.svg)](https://www.rust-lang.org)
 
-[Documentation](https://docs.rs/octaindex3d) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples)
+[Documentation](https://docs.rs/octaindex3d) | [Whitepaper](WHITEPAPER.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples)
 
 </div>
 
@@ -370,6 +370,27 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 Licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 Copyright (c) 2025 Michael A. McLarney
+
+## Research and Citation
+
+For an in-depth technical analysis, see the [**OctaIndex3D Whitepaper**](WHITEPAPER.md), which covers:
+- Mathematical foundations of BCC lattice geometry
+- Detailed architecture and implementation
+- Performance benchmarks and analysis
+- Applications across multiple domains
+- Future research directions
+
+If you use OctaIndex3D in academic work, please cite:
+
+```bibtex
+@techreport{mclarney2025octaindex3d,
+  title={OctaIndex3D: A High-Performance 3D Spatial Indexing System Based on Body-Centered Cubic Lattice},
+  author={McLarney, Michael A. and Claude},
+  year={2025},
+  institution={GitHub},
+  url={https://github.com/FunKite/OctaIndex3D}
+}
+```
 
 ## References
 
