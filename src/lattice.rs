@@ -1,9 +1,31 @@
-//! BCC Lattice geometry and mathematics
+//! BCC Lattice geometry and mathematics v0.3.0
 //!
 //! This module implements the core Body-Centered Cubic (BCC) lattice structure
 //! with truncated octahedral cells.
 
 use crate::error::{Error, Result};
+
+/// 14-neighbor connectivity for BCC lattice
+/// 8 parity-flipping neighbors (diagonal, distance √3)
+/// 6 parity-preserving neighbors (axis-aligned, distance 2)
+pub const BCC_NEIGHBORS_14: &[(i32, i32, i32)] = &[
+    // 8 parity-flipping (diagonal)
+    (1, 1, 1),
+    (1, 1, -1),
+    (1, -1, 1),
+    (1, -1, -1),
+    (-1, 1, 1),
+    (-1, 1, -1),
+    (-1, -1, 1),
+    (-1, -1, -1),
+    // 6 parity-preserving (axis-aligned)
+    (2, 0, 0),
+    (-2, 0, 0),
+    (0, 2, 0),
+    (0, -2, 0),
+    (0, 0, 2),
+    (0, 0, -2),
+];
 
 /// Parity type for BCC lattice coordinates
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -150,38 +172,10 @@ impl Lattice {
         Parity::from_coords(x, y, z).is_ok()
     }
 
-    /// Compute all 14 neighbor offsets for a given parity
-    /// Returns (dx, dy, dz) offsets
-    pub fn neighbor_offsets(_parity: Parity) -> Vec<(i32, i32, i32)> {
-        let mut offsets = Vec::with_capacity(14);
-
-        // 8 opposite-parity neighbors (diagonal, closer)
-        // All combinations of (±1, ±1, ±1)
-        for dx in [-1, 1] {
-            for dy in [-1, 1] {
-                for dz in [-1, 1] {
-                    offsets.push((dx, dy, dz));
-                }
-            }
-        }
-
-        // 6 same-parity neighbors (axis-aligned, farther)
-        // (±2, 0, 0), (0, ±2, 0), (0, 0, ±2)
-        offsets.push((2, 0, 0));
-        offsets.push((-2, 0, 0));
-        offsets.push((0, 2, 0));
-        offsets.push((0, -2, 0));
-        offsets.push((0, 0, 2));
-        offsets.push((0, 0, -2));
-
-        offsets
-    }
-
     /// Get all 14 neighbors of a lattice coordinate
     pub fn get_neighbors(coord: &LatticeCoord) -> Vec<LatticeCoord> {
-        let offsets = Self::neighbor_offsets(coord.parity);
-        offsets
-            .into_iter()
+        BCC_NEIGHBORS_14
+            .iter()
             .map(|(dx, dy, dz)| {
                 LatticeCoord::new_unchecked(coord.x + dx, coord.y + dy, coord.z + dz)
             })

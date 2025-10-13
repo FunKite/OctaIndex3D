@@ -1,4 +1,4 @@
-//! Error types for OctaIndex3D
+//! Error types for OctaIndex3D v0.3.0
 
 use thiserror::Error;
 
@@ -9,48 +9,72 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum Error {
     /// Invalid parity for BCC lattice coordinates
-    #[error("Invalid parity: coordinates ({x}, {y}, {z}) must have identical parity")]
+    #[error("Invalid parity: coordinates ({x}, {y}, {z}) must all have the same parity")]
     InvalidParity { x: i32, y: i32, z: i32 },
 
-    /// Invalid resolution value
-    #[error("Invalid resolution: {0} (must be 0-255)")]
-    InvalidResolution(u16),
+    /// Coordinate value out of valid range
+    #[error("Coordinate out of range: {0}")]
+    OutOfRange(String),
 
-    /// Invalid frame value
-    #[error("Invalid frame: {0} (must be 0-255)")]
-    InvalidFrame(u16),
+    /// Coordinate overflow during arithmetic
+    #[error("Coordinate overflow during operation")]
+    CoordinateOverflow,
 
-    /// Coordinate out of range for bit field
-    #[error("Coordinate out of range: {coord} (must fit in {bits} bits)")]
-    CoordinateOutOfRange { coord: i32, bits: u8 },
+    /// Invalid frame ID
+    #[error("Invalid frame ID: {0}")]
+    InvalidFrameID(u8),
 
-    /// Cell ID decoding error
-    #[error("Failed to decode cell ID: {0}")]
-    DecodingError(String),
+    /// Frame conflict - attempting to register different frame with same ID
+    #[error("Frame conflict: frame {0} already registered with different descriptor")]
+    FrameConflict(u8),
 
-    /// Cell ID encoding error
-    #[error("Failed to encode cell ID: {0}")]
-    EncodingError(String),
+    /// Invalid LOD (level of detail) value
+    #[error("Invalid LOD: {0}")]
+    InvalidLOD(String),
 
-    /// Bech32m encoding/decoding error
-    #[error("Bech32m error: {0}")]
-    Bech32Error(String),
+    /// Invalid scale tier value
+    #[error("Invalid scale tier: {0}")]
+    InvalidScaleTier(String),
 
-    /// No parent cell (already at resolution 0)
-    #[error("No parent cell: already at resolution 0")]
+    /// Bech32 encoding/decoding error
+    #[error("Bech32 error: {kind}")]
+    InvalidBech32 { kind: String },
+
+    /// Unsupported compression codec
+    #[error("Unsupported codec: {0}")]
+    UnsupportedCodec(u8),
+
+    /// Compression/decompression error
+    #[error("Codec error: {0}")]
+    Codec(String),
+
+    /// IO error
+    #[error("IO error: {0}")]
+    Io(String),
+
+    /// Invalid container format
+    #[error("Invalid container format: {0}")]
+    InvalidFormat(String),
+
+    /// CRC checksum mismatch
+    #[error("CRC mismatch: expected {expected:08x}, got {actual:08x}")]
+    CrcMismatch { expected: u32, actual: u32 },
+
+    /// No parent cell available
+    #[error("No parent cell available")]
     NoParent,
 
-    /// No children cells (already at maximum resolution)
-    #[error("No children cells: already at maximum resolution")]
+    /// No children cells available
+    #[error("No children cells available")]
     NoChildren,
 
-    /// Invalid aggregation operation
-    #[error("Invalid aggregation: {0}")]
-    InvalidAggregation(String),
+    /// Invalid Morton encoding
+    #[error("Invalid Morton encoding: {0}")]
+    InvalidMorton(String),
 
     /// Pathfinding error
     #[error("Pathfinding error: {0}")]
-    PathfindingError(String),
+    Pathfinding(String),
 
     /// No path found between cells
     #[error("No path found from {start} to {goal}")]
@@ -60,33 +84,78 @@ pub enum Error {
     #[error("Search limit exceeded: expanded {expansions} nodes (limit: {limit})")]
     SearchLimitExceeded { expansions: usize, limit: usize },
 
-    /// I/O error
-    #[error("I/O error: {0}")]
+    // Legacy error variants for compatibility
+    /// Invalid aggregation operation
+    #[error("Invalid aggregation: {0}")]
+    InvalidAggregation(String),
+
+    /// IO error (legacy)
+    #[error("IO error: {0}")]
     IoError(String),
 
-    /// Invalid input
-    #[error("Invalid input: {0}")]
-    InvalidInput(String),
+    /// Bech32m encoding/decoding error (legacy)
+    #[error("Bech32m error: {0}")]
+    Bech32Error(String),
 
-    /// Feature not implemented
-    #[error("Feature not yet implemented: {0}")]
-    NotImplemented(String),
+    /// Cell ID decoding error (legacy)
+    #[error("Failed to decode cell ID: {0}")]
+    DecodingError(String),
+
+    /// Cell ID encoding error (legacy)
+    #[error("Failed to encode cell ID: {0}")]
+    EncodingError(String),
+
+    // v0.3.1 error variants
+    /// Invalid container version
+    #[error("Invalid container version: {0}")]
+    InvalidContainerVersion(u8),
+
+    /// Footer not found during container recovery
+    #[error("Footer not found in container")]
+    FooterNotFound,
+
+    /// TOC (table of contents) corruption
+    #[error("TOC corrupt: {0}")]
+    TocCorrupt(String),
+
+    /// SHA-256 hash mismatch
+    #[error("SHA-256 mismatch")]
+    Sha256Mismatch,
 }
 
 impl From<std::io::Error> for Error {
-    fn from(err: std::io::Error) -> Self {
-        Error::IoError(err.to_string())
+    fn from(e: std::io::Error) -> Self {
+        Error::Io(e.to_string())
     }
 }
 
 impl From<bech32::DecodeError> for Error {
     fn from(err: bech32::DecodeError) -> Self {
-        Error::Bech32Error(err.to_string())
+        Error::InvalidBech32 {
+            kind: err.to_string(),
+        }
     }
 }
 
 impl From<bech32::EncodeError> for Error {
     fn from(err: bech32::EncodeError) -> Self {
-        Error::Bech32Error(err.to_string())
+        Error::InvalidBech32 {
+            kind: err.to_string(),
+        }
+    }
+}
+
+impl From<bech32::primitives::hrp::Error> for Error {
+    fn from(err: bech32::primitives::hrp::Error) -> Self {
+        Error::InvalidBech32 {
+            kind: err.to_string(),
+        }
+    }
+}
+
+#[cfg(feature = "gis_geojson")]
+impl From<serde_json::Error> for Error {
+    fn from(err: serde_json::Error) -> Self {
+        Error::Io(err.to_string())
     }
 }

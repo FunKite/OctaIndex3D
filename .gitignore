@@ -40,3 +40,12 @@ target/
 
 # Benchmarks
 criterion/
+
+# Specification files (not for public repo)
+OctaIndex3D_Spec_v*.md
+OctaIndex3D_Futures_Supplement_v*.md
+OctaIndex3D_*_Review_Notes.md
+*spec.md
+feedback.md
+# Malformed or temporary files
+                                                                                                                                                                                 .md
