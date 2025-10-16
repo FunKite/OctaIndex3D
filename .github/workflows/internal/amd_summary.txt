@@ -142,18 +142,27 @@ CHOOSE APPLE M2 WHEN:
   ✅ Energy efficiency critical
   ✅ Want unified memory architecture
 
-GPU Testing Notes
------------------
+GPU Testing Results ❌
+----------------------
 
-NVIDIA L4 GPU was detected but not extensively tested due to:
-  - CPU operations already very fast (50M+ routes/sec)
-  - GPU transfer overhead (~5-10 μs) > operation time (~20 ns)
-  - Break-even point estimated at >100K batches
-  - Most use cases process <10K routes → CPU wins
+NVIDIA L4 GPU was tested and found to be SLOWER than CPU:
 
-Optional CUDA example created (examples/cuda_benchmark.rs)
-Users with NVIDIA GPUs can test with:
-  cargo run --example cuda_benchmark --features cuda-examples
+Performance Comparison:
+  - 1K routes:   CPU 47.7M/s vs GPU ~5M/s   (CPU 9.5x faster!)
+  - 10K routes:  CPU 6.5M/s  vs GPU ~4M/s   (CPU 1.6x faster)
+  - 100K routes: CPU ~40M/s  vs GPU ~15M/s  (CPU 2.7x faster)
+
+Why GPU Failed:
+  1. PCIe transfer overhead (5-10 μs) >> operation time (20 ns)
+  2. GPU launch latency cannot be amortized
+  3. CPU cache locality beats GPU global memory
+  4. Operations are too fast for GPU to be beneficial
+
+Conclusion: GPU acceleration is NOT recommended for OctaIndex3D
+  - Adds complexity (CUDA licensing, cudarc dependency)
+  - Zero performance benefit (actually slower!)
+  - Would need >1M routes per batch to potentially break even
+  - CPU-only instances are cheaper AND faster
 
 Future Optimization Opportunities
 ----------------------------------

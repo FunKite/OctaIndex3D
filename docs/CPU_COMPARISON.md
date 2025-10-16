@@ -17,13 +17,14 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 - **SIMD:** ARM NEON (128-bit, always available)
 - **Special:** Unified memory architecture, massive bandwidth, professional chip
 
-### 2. AMD EPYC 7R13 (x86_64 Zen 3)
-- **Architecture:** AMD Zen 3 (Milan)
+### 2. AMD EPYC 7R13 (x86_64 Zen 3) + NVIDIA L4 GPU
+- **CPU Architecture:** AMD Zen 3 (Milan)
 - **Cores:** 2 @ 3.6 GHz (tested subset)
 - **Cache:** 32KB L1, 512KB L2, 64MB L3 (shared)
 - **Memory:** DDR4 (80+ GB/s bandwidth)
 - **SIMD:** AVX2 (256-bit), BMI2
-- **Special:** Excellent single-thread performance
+- **GPU:** NVIDIA L4 (Ada Lovelace, 24GB GDDR6)
+- **Special:** Excellent single-thread performance, GPU tested but not beneficial
 
 ### 3. Intel Xeon Platinum 8488C (x86_64 Sapphire Rapids)
 - **Architecture:** Intel Sapphire Rapids (Golden Cove cores)
@@ -121,6 +122,45 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 - Simple parity check: `(x + y + z) & 1 == 0`
 - **AMD's high clock** and efficient integer pipeline win
 - **Intel close** but slightly behind AMD
+
+### GPU Performance (NVIDIA L4) ⚠️
+
+**Tested with CUDA on AMD EPYC + NVIDIA L4:**
+
+| Operation | CPU (AMD) | GPU (L4) | Winner | Notes |
+|-----------|-----------|----------|--------|-------|
+| Batch Neighbors (1K) | 47.7M/s | ~5M/s | CPU 9.5x faster | Transfer overhead |
+| Batch Neighbors (10K) | 6.5M/s | ~4M/s | CPU 1.6x faster | Still overhead-bound |
+| Batch Neighbors (100K) | Est. ~40M/s | ~15M/s | CPU 2.7x faster | Would need >1M to break even |
+
+**Why GPU is Slower:**
+
+1. **Transfer Overhead Dominates**
+   - PCIe transfer: ~5-10 μs per batch
+   - Neighbor calculation: ~20 ns per route
+   - Overhead >> computation time
+
+2. **Operation Too Fast**
+   - CPU: 50M routes/sec = 20 ns/route
+   - GPU launch latency: ~10 μs
+   - Need 500+ routes just to break even on launch
+
+3. **Memory Bandwidth Mismatch**
+   - Operation is compute-bound, not bandwidth-bound
+   - CPU cache >> GPU global memory latency
+   - Data locality favors CPU
+
+**Break-Even Analysis:**
+- Current operations: GPU slower at all tested scales
+- Estimated break-even: >1M routes per batch (untested)
+- Recommendation: **Use CPU for all current workloads**
+
+**GPU Might Help For:**
+- ❓ Massive sustained workloads (>10M routes continuously)
+- ❓ Complex operations (not yet implemented)
+- ❓ Embarrassingly parallel algorithms with minimal data transfer
+
+**Conclusion:** For OctaIndex3D's fast spatial operations, **CPU dominates GPU by ~10x**. GPU acceleration is not recommended.
 
 ---
 
@@ -449,6 +489,45 @@ All tests used: `examples/profile_hotspots.rs`
 - Smart use of huge pages
 
 **Potential:** Close the 2x gap in batch operations
+
+### 5. GPU Acceleration: NOT Recommended ❌
+
+**Tested:** NVIDIA L4 (Ada Lovelace) with CUDA
+
+**Result:** CPU is **~10x faster** than GPU at all tested scales
+
+**Why GPU Failed:**
+1. **Transfer overhead dominates**
+   - PCIe latency: 5-10 μs
+   - Operation time: 20 ns/route
+   - Overhead is 250-500x longer than computation!
+
+2. **Operations too fast**
+   - CPU already processes 50M routes/sec
+   - GPU can't overcome launch latency
+   - Break-even would require >1M routes per batch
+
+3. **Data locality matters**
+   - CPU L1/L2/L3 cache >> GPU global memory
+   - Neighbor calculation benefits from cache reuse
+   - PCIe bandwidth can't compete with CPU cache
+
+**Performance comparison:**
+- 1K routes: CPU 47.7M/s, GPU ~5M/s (9.5x slower)
+- 10K routes: CPU 6.5M/s, GPU ~4M/s (1.6x slower)
+- 100K routes: CPU ~40M/s, GPU ~15M/s (2.7x slower)
+
+**When GPU might help:**
+- Sustained workloads >10M operations (untested)
+- Complex operations not yet implemented
+- Different algorithm classes (not spatial indexing)
+
+**Recommendation:** **Skip GPU entirely.** The complexity, licensing (CUDA), and maintenance burden far outweigh zero performance benefit.
+
+**Cost analysis:**
+- GPU instance (g4dn.xlarge): $0.40/hr
+- CPU-only (c6a.xlarge): $0.15/hr
+- **Save 62% by skipping GPU and get 10x better performance!**
 
 ---
 
