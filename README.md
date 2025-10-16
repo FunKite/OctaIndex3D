@@ -27,10 +27,8 @@ OctaIndex3D is a high-performance 3D spatial indexing and routing library based 
 - **Bech32m Encoding**: Human-readable IDs with checksums
 - **Compression**: LZ4 (default) and optional Zstd support
 - **Frame Registry**: Coordinate reference system management
-- **Container Formats**: Compressed spatial data storage with v2 streaming support
+- **Streaming Container Format**: Append-friendly compressed spatial data storage (v2)
 - **GeoJSON Export**: WGS84 coordinate export for GIS integration
-
-See [RELEASE_0.4.0.md](RELEASE_0.4.0.md) for latest release details.
 
 ## Why BCC Lattice?
 
@@ -134,13 +132,13 @@ let coords = vec![(0, 0, 0), (1, 1, 1), (2, 2, 2)];
 let hilbert_ids = Hilbert64::encode_batch(&coords, 0, 0, 5)?;
 ```
 
-### Container Storage (v2)
+### Streaming Container Storage
 
 ```rust
 use octaindex3d::container_v2::{ContainerWriterV2, StreamConfig};
 use std::fs::File;
 
-// Create streaming container
+// Create streaming container with append support
 let file = File::create("data.octa3d")?;
 let config = StreamConfig {
     checkpoint_frames: 1000,
@@ -291,35 +289,21 @@ let frame = FrameDescriptor {
 register_frame(frame)?;
 ```
 
-## Container Formats
+## Streaming Container Format
 
-### Container v1 (Default)
-
-Simple compressed format with frame headers and CRC32 checksums:
-
-```
-[Header] [Frame 1] [Frame 2] ... [Frame N]
-```
-
-- Fixed header with metadata
-- Per-frame compression (LZ4 or Zstd)
-- Sequential write/read
-- CRC32 integrity checking
-
-### Container v2 (Feature: `container_v2`)
-
-Append-friendly streaming format:
+The container format provides efficient storage for spatial data with streaming support:
 
 ```
 [Header] [Frame 1] [Frame 2] ... [TOC] [Footer]
 ```
 
 **Features:**
-- Append without full rewrite
-- Fast open via footer + TOC (target: <50ms for 100k frames)
-- Checkpoint-based crash recovery
-- Optional SHA-256 integrity
-- Configurable checkpoint intervals (frames/bytes)
+- **Append-friendly**: Add data without full rewrite
+- **Fast loading**: Footer + TOC enables <50ms open time for 100k frames
+- **Crash recovery**: Checkpoint-based resilience
+- **Compression**: LZ4 (default) or Zstd per-frame compression
+- **Integrity**: Optional SHA-256 checksums
+- **Configurable**: Adjust checkpoint intervals (frames/bytes)
 
 **Use Cases:**
 - Real-time sensor data streaming
