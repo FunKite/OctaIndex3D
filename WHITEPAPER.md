@@ -1,6 +1,6 @@
 # OctaIndex3D: A High-Performance 3D Spatial Indexing System Based on Body-Centered Cubic Lattice
 
-**Version 0.3.2**
+**Version 0.4.0**
 **October 2025**
 
 **Authors:**
@@ -1025,6 +1025,6 @@ fn stream_sensor_data(
 
 ---
 
-*This whitepaper describes OctaIndex3D version 0.3.2 (October 2025). For updates and errata, see the project repository.*
+*This whitepaper describes OctaIndex3D version 0.4.0 (October 2025). For updates and errata, see the project repository.*
 
 **Citation**: McLarney, M. A., & Claude. (2025). OctaIndex3D: A High-Performance 3D Spatial Indexing System Based on Body-Centered Cubic Lattice. *Technical Report*.

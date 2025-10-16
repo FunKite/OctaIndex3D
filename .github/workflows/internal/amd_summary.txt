@@ -262,5 +262,5 @@ RECOMMENDED FOR: Most production deployments
 ---
 Testing completed: 2025-10-15
 Platform: AMD EPYC 7R13 (Zen 3 Milan) + NVIDIA L4
-Library: OctaIndex3D v0.3.2
+Library: OctaIndex3D v0.4.0
 Note: Results reconstructed from captured output (VMs deleted)

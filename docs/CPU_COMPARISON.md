@@ -551,4 +551,4 @@ All three architectures are **excellent** for OctaIndex3D:
 
 *Testing completed: 2025-10-15*
 *Platforms: Apple M1 Max (2022), AMD EPYC 7R13, Intel Xeon Platinum 8488C*
-*Library version: OctaIndex3D v0.3.2*
+*Library version: OctaIndex3D v0.4.0*

@@ -180,4 +180,4 @@ Git Status:
 ---
 Testing completed: 2025-10-15
 Platform: Intel Xeon Platinum 8488C (Sapphire Rapids)
-Library: OctaIndex3D v0.3.2
+Library: OctaIndex3D v0.4.0

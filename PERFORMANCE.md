@@ -1,6 +1,6 @@
 # OctaIndex3D Performance Optimizations
 
-This document summarizes the comprehensive performance optimizations implemented for OctaIndex3D v0.3.2+.
+This document summarizes the comprehensive performance optimizations implemented for OctaIndex3D v0.4.0.
 
 ## Overview
 
