@@ -31,6 +31,15 @@ If you use OctaIndex3D in your research, please cite:
 
 ## Additional Documentation
 
+### Performance and Optimization
+- [CPU Comparison](CPU_COMPARISON.md) - Cross-platform performance analysis
+- [GPU Acceleration](GPU_ACCELERATION.md) - GPU vs CPU performance analysis
+- [Apple Silicon Optimizations](APPLE_SILICON_OPTIMIZATIONS.md) - M-series chip optimizations
+
+### Migration Guides
+- [Migration v0.2 to v0.3](MIGRATION_v0.2_to_v0.3.md) - Upgrading from legacy CellID API
+
+### API and Examples
 - [API Documentation](https://docs.rs/octaindex3d) - Generated from source code
 - [Examples](../examples/) - Code examples and tutorials
 - [README](../README.md) - Quick start and overview

@@ -332,23 +332,6 @@ For detailed performance analysis and benchmarks, see:
 - **Urban Planning**: 3D city models, airspace management, building information
 - **GIS Integration**: Export to WGS84 for visualization in QGIS, ArcGIS, etc.
 
-## Migration from v0.2.0
-
-Version 0.3.0+ introduces a new ID system while maintaining backward compatibility:
-
-```rust
-// Old API (still works)
-use octaindex3d::CellID;
-let cell = CellID::from_coords(0, 5, 100, 200, 300)?;
-
-// New API (recommended)
-use octaindex3d::{Galactic128, Index64};
-let galactic = Galactic128::new(0, 5, 0, 0, 0, 100, 200, 300)?;
-let index = Index64::new(0, 0, 5, 100, 200, 300)?;
-```
-
-The legacy `CellID` API remains available for compatibility but new projects should use the v0.3.0+ ID types.
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
