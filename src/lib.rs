@@ -46,6 +46,7 @@ pub mod ids;
 pub mod lattice;
 pub mod morton;
 pub mod neighbors;
+pub mod performance;
 
 // v0.3.1 modules (feature-gated)
 #[cfg(feature = "hilbert")]
@@ -68,6 +69,15 @@ pub use crate::error::{Error, Result};
 pub use crate::ids::{Galactic128, Index64, Route64, FrameId};
 pub use crate::lattice::{Lattice, LatticeCoord, Parity, BCC_NEIGHBORS_14};
 pub use crate::frame::{FrameDescriptor, register_frame, get_frame, list_frames};
+
+// Performance module re-exports
+pub use crate::performance::{Backend, BatchIndexBuilder, BatchNeighborCalculator, BatchResult};
+
+#[cfg(feature = "parallel")]
+pub use crate::performance::{ParallelBatchIndexBuilder, ParallelBatchNeighborCalculator};
+
+#[cfg(any(feature = "gpu-metal", feature = "gpu-vulkan"))]
+pub use crate::performance::{GpuBackend, GpuBatchProcessor};
 
 // v0.3.1 re-exports (feature-gated)
 #[cfg(feature = "hilbert")]

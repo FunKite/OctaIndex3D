@@ -1,6 +1,5 @@
 //! Neighbor operations for spatial IDs
 
-use crate::error::Result;
 use crate::ids::{Galactic128, Route64};
 use crate::lattice::BCC_NEIGHBORS_14;
 

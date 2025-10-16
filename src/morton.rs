@@ -78,24 +78,43 @@ fn morton_decode_lut(morton: u64) -> (u16, u16, u16) {
     let mut y = 0u16;
     let mut z = 0u16;
 
-    // Process 8 bits at a time using lookup table
+    // Process 24 bits at a time, split into three 8-bit chunks
+    // Use byte-specific lookup tables since bit positions shift after >> 8 and >> 16
     for i in 0..2 {
-        let shift = i * 24; // 8 bits * 3 axes
-        let bits = (morton >> shift) & 0xFFFFFF;
+        let shift = i * 24; // Process 24 bits (8 bits per axis)
+        let bits = ((morton >> shift) & 0xFFFFFF) as u32;
 
-        // Extract every third bit starting at offset 0, 1, 2
-        let xb = extract_every_third(bits, 0);
-        let yb = extract_every_third(bits, 1);
-        let zb = extract_every_third(bits, 2);
+        // Extract bytes and use appropriate lookup table for each byte position
+        let byte0 = ((bits >> 0) & 0xFF) as usize;
+        let byte1 = ((bits >> 8) & 0xFF) as usize;
+        let byte2 = ((bits >> 16) & 0xFF) as usize;
 
-        x |= (xb as u16) << (i * 8);
-        y |= (yb as u16) << (i * 8);
-        z |= (zb as u16) << (i * 8);
+        // Combine results from three bytes, each contributing 2-3 bits
+        // The shift amounts differ per axis because each byte contributes a different number of bits:
+        // X: 3 bits from byte0, 3 bits from byte1, 2 bits from byte2 → shifts: 0, 3, 6
+        // Y: 3 bits from byte0, 2 bits from byte1, 3 bits from byte2 → shifts: 0, 3, 5
+        // Z: 2 bits from byte0, 3 bits from byte1, 3 bits from byte2 → shifts: 0, 2, 5
+        let xb = (MORTON_DECODE_X_TABLE_B0[byte0] as u16) |
+                 ((MORTON_DECODE_X_TABLE_B1[byte1] as u16) << 3) |
+                 ((MORTON_DECODE_X_TABLE_B2[byte2] as u16) << 6);
+
+        let yb = (MORTON_DECODE_Y_TABLE_B0[byte0] as u16) |
+                 ((MORTON_DECODE_Y_TABLE_B1[byte1] as u16) << 3) |
+                 ((MORTON_DECODE_Y_TABLE_B2[byte2] as u16) << 5);
+
+        let zb = (MORTON_DECODE_Z_TABLE_B0[byte0] as u16) |
+                 ((MORTON_DECODE_Z_TABLE_B1[byte1] as u16) << 2) |
+                 ((MORTON_DECODE_Z_TABLE_B2[byte2] as u16) << 5);
+
+        x |= xb << (i * 8);
+        y |= yb << (i * 8);
+        z |= zb << (i * 8);
     }
 
     (x, y, z)
 }
 
+// Helper function for generating decode tables (kept for clarity)
 #[inline]
 fn extract_every_third(bits: u64, offset: u32) -> u8 {
     let mut result = 0u8;
@@ -108,9 +127,9 @@ fn extract_every_third(bits: u64, offset: u32) -> u8 {
 
 // Morton encode lookup table for 8-bit values
 // Each entry spreads 8 bits across every third bit position
-const MORTON_ENCODE_TABLE: [u64; 256] = generate_morton_lut();
+const MORTON_ENCODE_TABLE: [u64; 256] = generate_morton_encode_lut();
 
-const fn generate_morton_lut() -> [u64; 256] {
+const fn generate_morton_encode_lut() -> [u64; 256] {
     let mut table = [0u64; 256];
     let mut i = 0;
     while i < 256 {
@@ -119,6 +138,46 @@ const fn generate_morton_lut() -> [u64; 256] {
         while j < 8 {
             if (i & (1 << j)) != 0 {
                 result |= 1u64 << (j * 3);
+            }
+            j += 1;
+        }
+        table[i] = result;
+        i += 1;
+    }
+    table
+}
+
+// Morton decode lookup tables for extracting X, Y, Z from interleaved bits
+// We need separate tables for each byte position because bit positions shift after >> 8 and >> 16
+//
+// For byte 0 (bits 0-7):   X at 0,3,6   Y at 1,4,7   Z at 2,5
+// For byte 1 (bits 8-15):  X at 1,4,7   Y at 2,5     Z at 0,3,6  (after >> 8)
+// For byte 2 (bits 16-23): X at 2,5     Y at 0,3,6   Z at 1,4,7  (after >> 16)
+
+// Byte 0 tables
+const MORTON_DECODE_X_TABLE_B0: [u8; 256] = generate_morton_decode_lut(0);
+const MORTON_DECODE_Y_TABLE_B0: [u8; 256] = generate_morton_decode_lut(1);
+const MORTON_DECODE_Z_TABLE_B0: [u8; 256] = generate_morton_decode_lut(2);
+
+// Byte 1 tables (after >> 8, bit positions are shifted by 1)
+const MORTON_DECODE_X_TABLE_B1: [u8; 256] = generate_morton_decode_lut(1);
+const MORTON_DECODE_Y_TABLE_B1: [u8; 256] = generate_morton_decode_lut(2);
+const MORTON_DECODE_Z_TABLE_B1: [u8; 256] = generate_morton_decode_lut(0);
+
+// Byte 2 tables (after >> 16, bit positions are shifted by 2)
+const MORTON_DECODE_X_TABLE_B2: [u8; 256] = generate_morton_decode_lut(2);
+const MORTON_DECODE_Y_TABLE_B2: [u8; 256] = generate_morton_decode_lut(0);
+const MORTON_DECODE_Z_TABLE_B2: [u8; 256] = generate_morton_decode_lut(1);
+
+const fn generate_morton_decode_lut(offset: u32) -> [u8; 256] {
+    let mut table = [0u8; 256];
+    let mut i = 0;
+    while i < 256 {
+        let mut result = 0u8;
+        let mut j = 0;
+        while j < 3 {  // Extract up to 3 bits at stride 3
+            if (i & (1 << (offset + j * 3))) != 0 {
+                result |= 1u8 << j;
             }
             j += 1;
         }

@@ -370,6 +370,7 @@ pub struct Route64 {
 
 impl Route64 {
     const HDR: u64 = 0b01;
+    #[allow(dead_code)]  // Reserved for future bit manipulation utilities
     const COORD_BITS: u32 = 20;
     const COORD_MAX: i32 = (1 << 19) - 1; // 524287
     const COORD_MIN: i32 = -(1 << 19); // -524288
@@ -465,6 +466,52 @@ impl Route64 {
     /// Get raw value
     pub fn raw(&self) -> u64 {
         self.value
+    }
+
+    /// Alias for `raw()` - returns the underlying u64 value
+    pub fn value(&self) -> u64 {
+        self.value
+    }
+
+    /// Create Route64 from raw u64 value (unsafe - does not validate)
+    ///
+    /// This is primarily used for GPU/SIMD operations where validation
+    /// has already been performed. Use `new()` for general construction.
+    pub fn from_value(value: u64) -> Result<Self> {
+        // Basic header validation
+        let header = (value >> 62) & 0x3;
+        if header != Self::HDR {
+            return Err(Error::DecodingError(
+                format!("Invalid Route64 header: expected 0x01, got 0x{:02x}", header)
+            ));
+        }
+
+        // Extract and validate coordinates
+        let route = Self { value };
+        let (x, y, z) = (route.x(), route.y(), route.z());
+
+        // Validate parity
+        Parity::from_coords(x, y, z)?;
+
+        Ok(route)
+    }
+
+    /// Create new Route64 without validation (unsafe, for hot paths only)
+    ///
+    /// # Safety
+    /// Caller must ensure:
+    /// - tier is in range 0-3
+    /// - coordinates are within 20-bit signed range
+    /// - coordinates have valid parity (all even or all odd)
+    #[inline(always)]
+    pub unsafe fn new_unchecked(tier: u8, x: i32, y: i32, z: i32) -> Self {
+        let mut value = 0u64;
+        value |= Self::HDR << 62;
+        value |= ((tier as u64) & 0x3) << 60;
+        value |= ((x as u32 as u64) & 0xFFFFF) << 40;
+        value |= ((y as u32 as u64) & 0xFFFFF) << 20;
+        value |= (z as u32 as u64) & 0xFFFFF;
+        Self { value }
     }
 }
 
