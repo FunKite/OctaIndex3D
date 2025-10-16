@@ -5,9 +5,9 @@
 //! large batches (>1000 items) where the workload can be distributed across
 //! multiple CPU cores.
 
-use crate::{Index64, Route64};
-use crate::neighbors;
 use super::batch::BatchResult;
+use crate::neighbors;
+use crate::{Index64, Route64};
 
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
@@ -197,8 +197,12 @@ mod tests {
         let z_coords: Vec<u16> = (0..n).map(|i| ((i + 200) % 65536) as u16).collect();
 
         let result = builder.build(
-            &frame_ids, &dimension_ids, &lods,
-            &x_coords, &y_coords, &z_coords
+            &frame_ids,
+            &dimension_ids,
+            &lods,
+            &x_coords,
+            &y_coords,
+            &z_coords,
         );
 
         assert_eq!(result.items.len(), n);

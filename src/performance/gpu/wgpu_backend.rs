@@ -6,9 +6,9 @@
 //! - DirectX 12 (Windows)
 //! - WebGPU (browsers)
 
-use crate::{Route64};
-use crate::error::{Result, Error};
 use super::GpuBackend;
+use crate::error::{Error, Result};
+use crate::Route64;
 
 #[cfg(feature = "gpu-vulkan")]
 use wgpu;
@@ -57,7 +57,12 @@ impl WgpuBackend {
             },
             None,
         ))
-        .map_err(|e| Error::InvalidFormat(format!("Failed to create device (SHADER_INT64 may not be supported): {}", e)))?;
+        .map_err(|e| {
+            Error::InvalidFormat(format!(
+                "Failed to create device (SHADER_INT64 may not be supported): {}",
+                e
+            ))
+        })?;
 
         // Load and compile compute shader
         let shader_source = include_str!("shaders/neighbors.wgsl");
@@ -105,8 +110,6 @@ impl GpuBackend for WgpuBackend {
     }
 
     fn batch_neighbors(&self, routes: &[Route64]) -> Result<Vec<Route64>> {
-        use pollster;
-
         let input_count = routes.len();
         let output_count = input_count * 14;
 
@@ -157,9 +160,11 @@ impl GpuBackend for WgpuBackend {
         });
 
         // Create and submit command encoder
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Compute Encoder"),
-        });
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Compute Encoder"),
+            });
 
         {
             let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
@@ -196,7 +201,8 @@ impl GpuBackend for WgpuBackend {
 
         self.device.poll(wgpu::Maintain::Wait);
 
-        receiver.recv()
+        receiver
+            .recv()
             .map_err(|e| Error::InvalidFormat(format!("Failed to receive buffer mapping: {}", e)))?
             .map_err(|e| Error::InvalidFormat(format!("Failed to map buffer: {}", e)))?;
 

@@ -53,6 +53,9 @@ feedback.md
 # Disabled CLI (work in progress)
 disabled_cli/
 
+# Development logs (local only, not for public repo)
+CLAUDE.md
+
 # Internal optimization results (instructions are tracked, results are not)
 .github/workflows/internal/*_results.txt
 .github/workflows/internal/*_baseline.txt

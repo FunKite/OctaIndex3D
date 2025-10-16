@@ -48,6 +48,7 @@ pub struct Galactic128 {
 
 impl Galactic128 {
     /// Create new Galactic128 ID
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         frame: FrameId,
         scale_mant: u8,
@@ -370,7 +371,7 @@ pub struct Route64 {
 
 impl Route64 {
     const HDR: u64 = 0b01;
-    #[allow(dead_code)]  // Reserved for future bit manipulation utilities
+    #[allow(dead_code)] // Reserved for future bit manipulation utilities
     const COORD_BITS: u32 = 20;
     const COORD_MAX: i32 = (1 << 19) - 1; // 524287
     const COORD_MIN: i32 = -(1 << 19); // -524288
@@ -387,13 +388,13 @@ impl Route64 {
                 tier
             )));
         }
-        if x < Self::COORD_MIN || x > Self::COORD_MAX {
+        if !(Self::COORD_MIN..=Self::COORD_MAX).contains(&x) {
             return Err(Error::OutOfRange(format!("x={} out of 20-bit range", x)));
         }
-        if y < Self::COORD_MIN || y > Self::COORD_MAX {
+        if !(Self::COORD_MIN..=Self::COORD_MAX).contains(&y) {
             return Err(Error::OutOfRange(format!("y={} out of 20-bit range", y)));
         }
-        if z < Self::COORD_MIN || z > Self::COORD_MAX {
+        if !(Self::COORD_MIN..=Self::COORD_MAX).contains(&z) {
             return Err(Error::OutOfRange(format!("z={} out of 20-bit range", z)));
         }
 
@@ -481,9 +482,10 @@ impl Route64 {
         // Basic header validation
         let header = (value >> 62) & 0x3;
         if header != Self::HDR {
-            return Err(Error::DecodingError(
-                format!("Invalid Route64 header: expected 0x01, got 0x{:02x}", header)
-            ));
+            return Err(Error::DecodingError(format!(
+                "Invalid Route64 header: expected 0x01, got 0x{:02x}",
+                header
+            )));
         }
 
         // Extract and validate coordinates

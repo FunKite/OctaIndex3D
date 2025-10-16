@@ -1,7 +1,7 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use octaindex3d::{Index64, Route64, Galactic128, morton, lattice, neighbors};
-use rand::{SeedableRng, Rng};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use octaindex3d::{lattice, morton, neighbors, Galactic128, Index64, Route64};
 use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
 
 // Benchmark Morton encoding/decoding
 fn bench_morton_encode(c: &mut Criterion) {
@@ -22,12 +22,10 @@ fn bench_morton_encode(c: &mut Criterion) {
 
     for (x, y, z) in coords {
         group.bench_with_input(
-            BenchmarkId::new("encode", format!("{}_{}_{}",x, y, z)),
+            BenchmarkId::new("encode", format!("{}_{}_{}", x, y, z)),
             &(x, y, z),
             |b, &(x, y, z)| {
-                b.iter(|| {
-                    morton::morton_encode(black_box(x), black_box(y), black_box(z))
-                });
+                b.iter(|| morton::morton_encode(black_box(x), black_box(y), black_box(z)));
             },
         );
     }
@@ -50,20 +48,14 @@ fn bench_morton_decode(c: &mut Criterion) {
         codes.push(morton::morton_encode(
             rng.gen::<u16>(),
             rng.gen::<u16>(),
-            rng.gen::<u16>()
+            rng.gen::<u16>(),
         ));
     }
 
     for code in codes {
-        group.bench_with_input(
-            BenchmarkId::new("decode", code),
-            &code,
-            |b, &code| {
-                b.iter(|| {
-                    morton::morton_decode(black_box(code))
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("decode", code), &code, |b, &code| {
+            b.iter(|| morton::morton_decode(black_box(code)));
+        });
     }
     group.finish();
 }
@@ -84,7 +76,7 @@ fn bench_index64_creation(c: &mut Criterion) {
                 black_box(lod),
                 black_box(x),
                 black_box(y),
-                black_box(z)
+                black_box(z),
             )
         });
     });
@@ -115,12 +107,7 @@ fn bench_route64_creation(c: &mut Criterion) {
             let x = (rng.gen::<i32>() % 10000) * 2;
             let y = (rng.gen::<i32>() % 10000) * 2;
             let z = (rng.gen::<i32>() % 10000) * 2;
-            Route64::new(
-                black_box(0),
-                black_box(x),
-                black_box(y),
-                black_box(z)
-            )
+            Route64::new(black_box(0), black_box(x), black_box(y), black_box(z))
         });
     });
 }
@@ -143,12 +130,13 @@ fn bench_neighbors_route64(c: &mut Criterion) {
 
     for route in routes {
         group.bench_with_input(
-            BenchmarkId::new("route64", format!("{}_{}_{}", route.x(), route.y(), route.z())),
+            BenchmarkId::new(
+                "route64",
+                format!("{}_{}_{}", route.x(), route.y(), route.z()),
+            ),
             &route,
             |b, &route| {
-                b.iter(|| {
-                    neighbors::neighbors_route64(black_box(route))
-                });
+                b.iter(|| neighbors::neighbors_route64(black_box(route)));
             },
         );
     }
@@ -165,11 +153,7 @@ fn bench_lattice_coord_creation(c: &mut Criterion) {
             let x = (rng.gen_range(-5000..5000)) * 2;
             let y = (rng.gen_range(-5000..5000)) * 2;
             let z = (rng.gen_range(-5000..5000)) * 2;
-            lattice::LatticeCoord::new(
-                black_box(x),
-                black_box(y),
-                black_box(z)
-            )
+            lattice::LatticeCoord::new(black_box(x), black_box(y), black_box(z))
         });
     });
 }
@@ -180,18 +164,18 @@ fn bench_lattice_distance(c: &mut Criterion) {
     let coord1 = lattice::LatticeCoord::new(
         (rng.gen_range(-2500..2500)) * 2,
         (rng.gen_range(-2500..2500)) * 2,
-        (rng.gen_range(-2500..2500)) * 2
-    ).unwrap();
+        (rng.gen_range(-2500..2500)) * 2,
+    )
+    .unwrap();
     let coord2 = lattice::LatticeCoord::new(
         (rng.gen_range(-2500..2500)) * 2,
         (rng.gen_range(-2500..2500)) * 2,
-        (rng.gen_range(-2500..2500)) * 2
-    ).unwrap();
+        (rng.gen_range(-2500..2500)) * 2,
+    )
+    .unwrap();
 
     c.bench_function("lattice_distance", |b| {
-        b.iter(|| {
-            black_box(coord1).distance_to(&black_box(coord2))
-        });
+        b.iter(|| black_box(coord1).distance_to(&black_box(coord2)));
     });
 }
 
@@ -214,9 +198,7 @@ fn bench_batch_index_creation(c: &mut Criterion) {
                 b.iter(|| {
                     let mut results = Vec::with_capacity(coords.len());
                     for &(x, y, z) in coords {
-                        results.push(
-                            Index64::new(0, 0, 5, x, y, z).unwrap()
-                        );
+                        results.push(Index64::new(0, 0, 5, x, y, z).unwrap());
                     }
                     black_box(results)
                 });
@@ -284,7 +266,7 @@ fn bench_galactic128_creation(c: &mut Criterion) {
                 black_box(attr_usr),
                 black_box(x),
                 black_box(y),
-                black_box(z)
+                black_box(z),
             )
         });
     });

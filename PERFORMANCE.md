@@ -1,6 +1,6 @@
 # OctaIndex3D Performance Optimizations
 
-This document summarizes the comprehensive performance optimizations implemented for OctaIndex3D v0.4.0.
+This document summarizes the comprehensive performance optimizations implemented for OctaIndex3D v0.4.2.
 
 ## Overview
 
@@ -131,11 +131,11 @@ Enable optimizations via Cargo features:
 
 ```toml
 [dependencies]
-octaindex3d = { version = "0.3", features = ["simd", "parallel"] }
+octaindex3d = { version = "0.4", features = ["simd", "parallel"] }
 
 # GPU acceleration (platform-specific)
-octaindex3d = { version = "0.3", features = ["gpu-metal"] }  # macOS
-octaindex3d = { version = "0.3", features = ["gpu-vulkan"] } # Cross-platform
+octaindex3d = { version = "0.4", features = ["gpu-metal"] }  # macOS
+octaindex3d = { version = "0.4", features = ["gpu-vulkan"] } # Cross-platform
 ```
 
 Default features include `simd` and `parallel`.

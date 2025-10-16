@@ -70,13 +70,7 @@ impl FrameRegistry {
         };
 
         // Register default frames
-        let ecef = FrameDescriptor::new(
-            "ECEF",
-            "WGS-84",
-            "Earth-Centered Earth-Fixed",
-            true,
-            1.0,
-        );
+        let ecef = FrameDescriptor::new("ECEF", "WGS-84", "Earth-Centered Earth-Fixed", true, 1.0);
         registry
             .frames
             .insert(0, (Arc::new(ecef.clone()), ecef.compute_hash()));
@@ -87,7 +81,7 @@ impl FrameRegistry {
     fn register(&mut self, id: FrameId, desc: FrameDescriptor) -> Result<()> {
         let hash = desc.compute_hash();
 
-        if let Some((existing, existing_hash)) = self.frames.get(&id) {
+        if let Some((_existing, existing_hash)) = self.frames.get(&id) {
             if *existing_hash == hash {
                 // Idempotent registration with identical descriptor
                 return Ok(());

@@ -3,9 +3,9 @@
 //! This module provides Metal compute shader acceleration for batch operations.
 //! Metal is Apple's high-performance graphics and compute API.
 
-use crate::{Route64};
-use crate::error::{Result, Error};
 use super::GpuBackend;
+use crate::error::{Error, Result};
+use crate::Route64;
 
 #[cfg(feature = "gpu-metal")]
 use metal::*;
@@ -35,15 +35,18 @@ impl MetalBackend {
         // Compile the compute shader
         let library_source = include_str!("shaders/neighbors.metal");
         let options = CompileOptions::new();
-        let library = device.new_library_with_source(library_source, &options)
+        let library = device
+            .new_library_with_source(library_source, &options)
             .map_err(|e| Error::InvalidFormat(format!("Failed to compile Metal shader: {}", e)))?;
 
         // Get the kernel function
-        let kernel_function = library.get_function("batch_neighbors", None)
+        let kernel_function = library
+            .get_function("batch_neighbors", None)
             .map_err(|e| Error::InvalidFormat(format!("Failed to get kernel function: {}", e)))?;
 
         // Create compute pipeline
-        let neighbor_pipeline = device.new_compute_pipeline_state_with_function(&kernel_function)
+        let neighbor_pipeline = device
+            .new_compute_pipeline_state_with_function(&kernel_function)
             .map_err(|e| Error::InvalidFormat(format!("Failed to create pipeline: {}", e)))?;
 
         Ok(Self {
@@ -120,9 +123,7 @@ impl GpuBackend for MetalBackend {
 
         // Read results back
         let output_ptr = output_buffer.contents() as *const u64;
-        let output_slice = unsafe {
-            std::slice::from_raw_parts(output_ptr, output_count)
-        };
+        let output_slice = unsafe { std::slice::from_raw_parts(output_ptr, output_count) };
 
         // Convert back to Route64
         let mut results = Vec::with_capacity(output_count);
@@ -148,7 +149,9 @@ pub struct MetalBackend;
 #[cfg(not(feature = "gpu-metal"))]
 impl MetalBackend {
     pub fn new() -> Result<Self> {
-        Err(Error::InvalidFormat("Metal feature not enabled".to_string()))
+        Err(Error::InvalidFormat(
+            "Metal feature not enabled".to_string(),
+        ))
     }
 }
 

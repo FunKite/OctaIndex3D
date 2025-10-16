@@ -6,13 +6,13 @@
 //! - Multi-threading (Rayon)
 //! - GPU acceleration (Metal, Vulkan via wgpu)
 
-pub mod batch;
-pub mod simd;
-pub mod simd_batch;
-pub mod morton_batch;
 pub mod arch_optimized;
+pub mod batch;
 pub mod fast_neighbors;
 pub mod memory;
+pub mod morton_batch;
+pub mod simd;
+pub mod simd_batch;
 
 #[cfg(feature = "hilbert")]
 pub mod hilbert_batch;
@@ -23,25 +23,30 @@ pub mod avx512;
 #[cfg(feature = "parallel")]
 pub mod parallel;
 
-#[cfg(any(feature = "gpu-metal", feature = "gpu-vulkan", feature = "gpu-cuda", feature = "gpu-rocm"))]
+#[cfg(any(
+    feature = "gpu-metal",
+    feature = "gpu-vulkan",
+    feature = "gpu-cuda",
+    feature = "gpu-rocm"
+))]
 pub mod gpu;
 
 // Re-export commonly used items
+pub use arch_optimized::{has_bmi2, ArchInfo};
 pub use batch::{BatchIndexBuilder, BatchNeighborCalculator, BatchResult};
-pub use arch_optimized::{ArchInfo, has_bmi2};
-pub use fast_neighbors::{neighbors_route64_fast, batch_neighbors_auto, NeighborStream};
-pub use memory::{AlignedVec, AlignedBatchProcessor, NumaInfo, CACHE_LINE_SIZE};
+pub use fast_neighbors::{batch_neighbors_auto, neighbors_route64_fast, NeighborStream};
+pub use memory::{AlignedBatchProcessor, AlignedVec, NumaInfo, CACHE_LINE_SIZE};
+pub use morton_batch::{batch_morton_decode, batch_morton_encode};
 pub use simd_batch::{
-    batch_index64_encode, batch_index64_decode, batch_validate_routes,
-    batch_manhattan_distance, batch_euclidean_distance_squared, batch_bounding_box_query,
+    batch_bounding_box_query, batch_euclidean_distance_squared, batch_index64_decode,
+    batch_index64_encode, batch_manhattan_distance, batch_validate_routes,
 };
-pub use morton_batch::{batch_morton_encode, batch_morton_decode};
 
 #[cfg(feature = "hilbert")]
-pub use hilbert_batch::{batch_hilbert_encode, batch_hilbert_decode};
+pub use hilbert_batch::{batch_hilbert_decode, batch_hilbert_encode};
 
 #[cfg(target_arch = "x86_64")]
-pub use avx512::{has_avx512f, batch_neighbors_avx512, Avx512Info};
+pub use avx512::{batch_neighbors_avx512, has_avx512f, Avx512Info};
 
 #[cfg(feature = "parallel")]
 pub use parallel::{ParallelBatchIndexBuilder, ParallelBatchNeighborCalculator};
@@ -106,10 +111,9 @@ impl Backend {
         }
 
         #[cfg(feature = "parallel")]
-        {
-            return Backend::CpuParallel;
-        }
+        return Backend::CpuParallel;
 
+        #[cfg(not(feature = "parallel"))]
         Backend::CpuSingleThreaded
     }
 

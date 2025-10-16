@@ -5,9 +5,9 @@
 //! - x86 AVX2 (Intel/AMD)
 //! - x86 AVX-512 (newer Intel/AMD CPUs)
 
-use crate::{Index64, Route64};
-use crate::neighbors;
 use super::batch::BatchResult;
+use crate::neighbors;
+use crate::{Index64, Route64};
 
 /// Check if SIMD acceleration is available on this platform
 pub fn is_available() -> bool {
@@ -62,6 +62,7 @@ pub fn batch_index64_new(
     y_coords: &[u16],
     z_coords: &[u16],
 ) -> BatchResult<Index64> {
+    #[allow(unused_variables)]
     let len = frame_ids.len();
 
     #[cfg(target_arch = "aarch64")]
@@ -73,7 +74,14 @@ pub fn batch_index64_new(
     {
         if is_x86_feature_detected!("avx2") {
             unsafe {
-                avx2::batch_index64_new(frame_ids, dimension_ids, lods, x_coords, y_coords, z_coords)
+                avx2::batch_index64_new(
+                    frame_ids,
+                    dimension_ids,
+                    lods,
+                    x_coords,
+                    y_coords,
+                    z_coords,
+                )
             }
         } else {
             // Fallback to scalar
@@ -132,7 +140,7 @@ pub fn batch_neighbors_grouped(routes: &[Route64]) -> Vec<Vec<Route64>> {
 }
 
 // Scalar fallback implementations
-#[allow(dead_code)]  // Used conditionally based on architecture
+#[allow(dead_code)] // Used conditionally based on architecture
 fn scalar_batch_index64_new(
     frame_ids: &[u8],
     dimension_ids: &[u8],
@@ -161,7 +169,7 @@ fn scalar_batch_index64_new(
     result
 }
 
-#[allow(dead_code)]  // Used conditionally based on architecture
+#[allow(dead_code)] // Used conditionally based on architecture
 fn scalar_batch_neighbors(routes: &[Route64]) -> Vec<Route64> {
     let mut result = Vec::with_capacity(routes.len() * 14);
     for &route in routes {
@@ -170,9 +178,10 @@ fn scalar_batch_neighbors(routes: &[Route64]) -> Vec<Route64> {
     result
 }
 
-#[allow(dead_code)]  // Used as fallback on some architectures
+#[allow(dead_code)] // Used as fallback on some architectures
 fn scalar_batch_neighbors_grouped(routes: &[Route64]) -> Vec<Vec<Route64>> {
-    routes.iter()
+    routes
+        .iter()
         .map(|&route| neighbors::neighbors_route64(route).to_vec())
         .collect()
 }
@@ -181,7 +190,6 @@ fn scalar_batch_neighbors_grouped(routes: &[Route64]) -> Vec<Vec<Route64>> {
 #[cfg(target_arch = "aarch64")]
 mod neon {
     use super::*;
-    
 
     pub fn batch_index64_new(
         frame_ids: &[u8],
@@ -229,7 +237,8 @@ mod neon {
     }
 
     pub fn batch_neighbors_grouped(routes: &[Route64]) -> Vec<Vec<Route64>> {
-        routes.iter()
+        routes
+            .iter()
             .map(|&route| neighbors::neighbors_route64(route).to_vec())
             .collect()
     }
@@ -288,7 +297,8 @@ mod avx2 {
 
     #[target_feature(enable = "avx2")]
     pub unsafe fn batch_neighbors_grouped(routes: &[Route64]) -> Vec<Vec<Route64>> {
-        routes.iter()
+        routes
+            .iter()
             .map(|&route| neighbors::neighbors_route64(route).to_vec())
             .collect()
     }
@@ -324,8 +334,12 @@ mod tests {
         let z_coords: Vec<u16> = (0..16).map(|i| i * 100 + 100).collect();
 
         let result = batch_index64_new(
-            &frame_ids, &dimension_ids, &lods,
-            &x_coords, &y_coords, &z_coords
+            &frame_ids,
+            &dimension_ids,
+            &lods,
+            &x_coords,
+            &y_coords,
+            &z_coords,
         );
 
         assert_eq!(result.items.len(), 16);

@@ -8,10 +8,10 @@
 
 #![cfg(feature = "container_v2")]
 
-use crate::compression::{get_compression, Compression};
+use crate::compression::Compression;
 use crate::error::{Error, Result};
 use crc32fast::Hasher;
-use std::io::{Read, Seek, SeekFrom, Write};
+use std::io::{Seek, Write};
 
 #[cfg(feature = "container_v2")]
 use sha2::{Digest, Sha256};
@@ -195,10 +195,7 @@ impl<W: Write + Seek> ContainerWriterV2<W> {
         })
     }
 
-    pub fn with_compression(
-        mut self,
-        compression: Box<dyn Compression>,
-    ) -> Result<Self> {
+    pub fn with_compression(mut self, compression: Box<dyn Compression>) -> Result<Self> {
         self.compression = compression;
         Ok(self)
     }

@@ -6,8 +6,8 @@
 //! - Batch distance calculations
 //! - Batch bounding box queries
 
-use crate::{Index64, Route64, FrameId};
-use crate::error::{Result, Error};
+use crate::error::{Error, Result};
+use crate::{FrameId, Index64, Route64};
 
 /// Batch encode Index64 from coordinates
 ///
@@ -24,10 +24,7 @@ pub fn batch_index64_encode(
     lods: &[u8],
     coords: &[(u16, u16, u16)],
 ) -> Result<Vec<Index64>> {
-    if frame_ids.len() != tiers.len()
-        || tiers.len() != lods.len()
-        || lods.len() != coords.len()
-    {
+    if frame_ids.len() != tiers.len() || tiers.len() != lods.len() || lods.len() != coords.len() {
         return Err(Error::InvalidFormat(
             "All input arrays must have the same length".to_string(),
         ));
@@ -53,7 +50,14 @@ pub fn batch_index64_encode(
 
     // Scalar fallback
     for i in 0..len {
-        let idx = Index64::new(frame_ids[i], tiers[i], lods[i], coords[i].0, coords[i].1, coords[i].2)?;
+        let idx = Index64::new(
+            frame_ids[i],
+            tiers[i],
+            lods[i],
+            coords[i].0,
+            coords[i].1,
+            coords[i].2,
+        )?;
         results.push(idx);
     }
 
@@ -194,6 +198,7 @@ pub fn batch_bounding_box_query(
     min_z: i32,
     max_z: i32,
 ) -> Vec<usize> {
+    #[allow(unused_variables)]
     let len = routes.len();
     let mut results = Vec::new();
 
@@ -239,7 +244,14 @@ unsafe fn batch_index64_encode_avx2(
     // Process in scalar for now - Morton encoding with BMI2 is already optimized
     // Full SIMD implementation would require vectorized Morton encoding
     for i in 0..len {
-        let idx = Index64::new(frame_ids[i], tiers[i], lods[i], coords[i].0, coords[i].1, coords[i].2)?;
+        let idx = Index64::new(
+            frame_ids[i],
+            tiers[i],
+            lods[i],
+            coords[i].0,
+            coords[i].1,
+            coords[i].2,
+        )?;
         results.push(idx);
     }
 
@@ -324,7 +336,12 @@ unsafe fn batch_validate_routes_avx2(routes: &[Route64]) -> Vec<bool> {
 
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
-unsafe fn batch_manhattan_distance_avx2(sx: i32, sy: i32, sz: i32, targets: &[Route64]) -> Vec<i32> {
+unsafe fn batch_manhattan_distance_avx2(
+    sx: i32,
+    sy: i32,
+    sz: i32,
+    targets: &[Route64],
+) -> Vec<i32> {
     use std::arch::x86_64::*;
 
     let len = targets.len();
@@ -554,7 +571,14 @@ fn batch_index64_encode_neon(
     let mut results = Vec::with_capacity(len);
 
     for i in 0..len {
-        let idx = Index64::new(frame_ids[i], tiers[i], lods[i], coords[i].0, coords[i].1, coords[i].2)?;
+        let idx = Index64::new(
+            frame_ids[i],
+            tiers[i],
+            lods[i],
+            coords[i].0,
+            coords[i].1,
+            coords[i].2,
+        )?;
         results.push(idx);
     }
 
@@ -583,7 +607,15 @@ mod tests {
 
         // Verify each encoding matches individual encoding
         for i in 0..4 {
-            let expected = Index64::new(frame_ids[i], tiers[i], lods[i], coords[i].0, coords[i].1, coords[i].2).unwrap();
+            let expected = Index64::new(
+                frame_ids[i],
+                tiers[i],
+                lods[i],
+                coords[i].0,
+                coords[i].1,
+                coords[i].2,
+            )
+            .unwrap();
             assert_eq!(result[i], expected);
         }
     }
@@ -606,9 +638,9 @@ mod tests {
     #[test]
     fn test_batch_validate_routes() {
         let routes = vec![
-            Route64::new(0, 0, 0, 0).unwrap(),  // Valid (sum=0, even)
-            Route64::new(0, 2, 2, 2).unwrap(),  // Valid (sum=6, even)
-            Route64::new(0, 2, 2, 0).unwrap(),  // Valid (sum=4, even)
+            Route64::new(0, 0, 0, 0).unwrap(), // Valid (sum=0, even)
+            Route64::new(0, 2, 2, 2).unwrap(), // Valid (sum=6, even)
+            Route64::new(0, 2, 2, 0).unwrap(), // Valid (sum=4, even)
         ];
 
         let result = batch_validate_routes(&routes);
@@ -622,10 +654,10 @@ mod tests {
     fn test_batch_manhattan_distance() {
         let source = Route64::new(0, 0, 0, 0).unwrap();
         let targets = vec![
-            Route64::new(0, 0, 0, 0).unwrap(),  // distance 0
-            Route64::new(0, 2, 0, 0).unwrap(),  // distance 2
-            Route64::new(0, 2, 2, 0).unwrap(),  // distance 4
-            Route64::new(0, 2, 2, 2).unwrap(),  // distance 6
+            Route64::new(0, 0, 0, 0).unwrap(), // distance 0
+            Route64::new(0, 2, 0, 0).unwrap(), // distance 2
+            Route64::new(0, 2, 2, 0).unwrap(), // distance 4
+            Route64::new(0, 2, 2, 2).unwrap(), // distance 6
         ];
 
         let result = batch_manhattan_distance(source, &targets);
@@ -636,10 +668,10 @@ mod tests {
     fn test_batch_euclidean_distance_squared() {
         let source = Route64::new(0, 0, 0, 0).unwrap();
         let targets = vec![
-            Route64::new(0, 0, 0, 0).unwrap(),  // distance² 0
-            Route64::new(0, 2, 0, 0).unwrap(),  // distance² 4
-            Route64::new(0, 2, 2, 0).unwrap(),  // distance² 8
-            Route64::new(0, 2, 2, 2).unwrap(),  // distance² 12
+            Route64::new(0, 0, 0, 0).unwrap(), // distance² 0
+            Route64::new(0, 2, 0, 0).unwrap(), // distance² 4
+            Route64::new(0, 2, 2, 0).unwrap(), // distance² 8
+            Route64::new(0, 2, 2, 2).unwrap(), // distance² 12
         ];
 
         let result = batch_euclidean_distance_squared(source, &targets);
@@ -658,7 +690,7 @@ mod tests {
 
         // Query box [0,4] x [0,4] x [0,4]
         let result = batch_bounding_box_query(&routes, 0, 4, 0, 4, 0, 4);
-        assert_eq!(result, vec![0, 1, 2]);  // Indices 0, 1, 2 are inside
+        assert_eq!(result, vec![0, 1, 2]); // Indices 0, 1, 2 are inside
     }
 
     #[test]
@@ -672,6 +704,6 @@ mod tests {
 
         // Query box [0,20] x [0,20] x [0,20]
         let result = batch_bounding_box_query(&routes, 0, 20, 0, 20, 0, 20);
-        assert_eq!(result.len(), 11);  // Routes 0-10 are inside
+        assert_eq!(result.len(), 11); // Routes 0-10 are inside
     }
 }

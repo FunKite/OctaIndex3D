@@ -10,9 +10,9 @@
 //! - GTX 16-series
 //! - Tesla/Quadro data center GPUs
 
-use crate::Route64;
-use crate::error::{Result, Error};
 use super::GpuBackend;
+use crate::error::{Error, Result};
+use crate::Route64;
 
 #[cfg(feature = "gpu-cuda")]
 use cudarc::driver::CudaDevice;
@@ -22,7 +22,7 @@ use std::sync::Arc;
 /// CUDA GPU backend implementation
 #[cfg(feature = "gpu-cuda")]
 pub struct CudaBackend {
-    #[allow(dead_code)]  // Will be used when kernel execution is implemented
+    #[allow(dead_code)] // Will be used when kernel execution is implemented
     device: Arc<CudaDevice>,
 }
 
@@ -31,8 +31,9 @@ impl CudaBackend {
     /// Create a new CUDA backend
     pub fn new() -> Result<Self> {
         // Initialize CUDA
-        let device = CudaDevice::new(0)
-            .map_err(|e| Error::InvalidFormat(format!("Failed to initialize CUDA device: {:?}", e)))?;
+        let device = CudaDevice::new(0).map_err(|e| {
+            Error::InvalidFormat(format!("Failed to initialize CUDA device: {:?}", e))
+        })?;
 
         Ok(Self { device })
     }

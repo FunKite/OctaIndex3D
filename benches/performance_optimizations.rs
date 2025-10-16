@@ -1,13 +1,13 @@
 //! Benchmarks for performance optimizations (SIMD, parallel, GPU)
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use octaindex3d::{Route64, BatchIndexBuilder, BatchNeighborCalculator};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use octaindex3d::{BatchIndexBuilder, BatchNeighborCalculator, Route64};
 
 #[cfg(feature = "parallel")]
 use octaindex3d::{ParallelBatchIndexBuilder, ParallelBatchNeighborCalculator};
 
-use rand::{SeedableRng, Rng};
 use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
 
 // Generate test routes with proper parity
 fn generate_test_routes(count: usize, seed: u64) -> Vec<Route64> {
@@ -37,25 +37,17 @@ fn bench_batch_neighbors_comparison(c: &mut Criterion) {
             &routes,
             |b, routes| {
                 let calc = BatchNeighborCalculator::new();
-                b.iter(|| {
-                    black_box(calc.calculate(black_box(routes)))
-                });
+                b.iter(|| black_box(calc.calculate(black_box(routes))));
             },
         );
 
         // Parallel with Rayon
         #[cfg(feature = "parallel")]
         {
-            group.bench_with_input(
-                BenchmarkId::new("parallel", size),
-                &routes,
-                |b, routes| {
-                    let calc = ParallelBatchNeighborCalculator::new();
-                    b.iter(|| {
-                        black_box(calc.calculate(black_box(routes)))
-                    });
-                },
-            );
+            group.bench_with_input(BenchmarkId::new("parallel", size), &routes, |b, routes| {
+                let calc = ParallelBatchNeighborCalculator::new();
+                b.iter(|| black_box(calc.calculate(black_box(routes))));
+            });
         }
     }
 
@@ -79,11 +71,25 @@ fn bench_batch_index_creation_comparison(c: &mut Criterion) {
         group.throughput(Throughput::Elements(size as u64));
 
         // Single-threaded baseline
-        group.bench_with_input(
-            BenchmarkId::new("single_threaded", size),
-            &size,
-            |b, _| {
-                let builder = BatchIndexBuilder::new();
+        group.bench_with_input(BenchmarkId::new("single_threaded", size), &size, |b, _| {
+            let builder = BatchIndexBuilder::new();
+            b.iter(|| {
+                black_box(builder.build(
+                    black_box(&frame_ids),
+                    black_box(&dimension_ids),
+                    black_box(&lods),
+                    black_box(&x_coords),
+                    black_box(&y_coords),
+                    black_box(&z_coords),
+                ))
+            });
+        });
+
+        // Parallel with Rayon
+        #[cfg(feature = "parallel")]
+        {
+            group.bench_with_input(BenchmarkId::new("parallel", size), &size, |b, _| {
+                let builder = ParallelBatchIndexBuilder::new();
                 b.iter(|| {
                     black_box(builder.build(
                         black_box(&frame_ids),
@@ -94,29 +100,7 @@ fn bench_batch_index_creation_comparison(c: &mut Criterion) {
                         black_box(&z_coords),
                     ))
                 });
-            },
-        );
-
-        // Parallel with Rayon
-        #[cfg(feature = "parallel")]
-        {
-            group.bench_with_input(
-                BenchmarkId::new("parallel", size),
-                &size,
-                |b, _| {
-                    let builder = ParallelBatchIndexBuilder::new();
-                    b.iter(|| {
-                        black_box(builder.build(
-                            black_box(&frame_ids),
-                            black_box(&dimension_ids),
-                            black_box(&lods),
-                            black_box(&x_coords),
-                            black_box(&y_coords),
-                            black_box(&z_coords),
-                        ))
-                    });
-                },
-            );
+            });
         }
     }
 
@@ -139,23 +123,20 @@ fn bench_scaling(c: &mut Criterion) {
             &routes,
             |b, routes| {
                 let calc = BatchNeighborCalculator::new();
-                b.iter(|| {
-                    black_box(calc.calculate(black_box(routes)))
-                });
+                b.iter(|| black_box(calc.calculate(black_box(routes))));
             },
         );
 
         #[cfg(feature = "parallel")]
         {
-            if size >= 500 {  // Only benchmark parallel for larger sizes
+            if size >= 500 {
+                // Only benchmark parallel for larger sizes
                 group.bench_with_input(
                     BenchmarkId::new("neighbors_parallel", size),
                     &routes,
                     |b, routes| {
                         let calc = ParallelBatchNeighborCalculator::new();
-                        b.iter(|| {
-                            black_box(calc.calculate(black_box(routes)))
-                        });
+                        b.iter(|| black_box(calc.calculate(black_box(routes))));
                     },
                 );
             }
@@ -177,16 +158,12 @@ fn bench_memory_patterns(c: &mut Criterion) {
 
     group.bench_function("neighbors_flat", |b| {
         let calc = BatchNeighborCalculator::new();
-        b.iter(|| {
-            black_box(calc.calculate(black_box(&routes)))
-        });
+        b.iter(|| black_box(calc.calculate(black_box(&routes))));
     });
 
     group.bench_function("neighbors_grouped", |b| {
         let calc = BatchNeighborCalculator::new();
-        b.iter(|| {
-            black_box(calc.calculate_grouped(black_box(&routes)))
-        });
+        b.iter(|| black_box(calc.calculate_grouped(black_box(&routes))));
     });
 
     group.finish();

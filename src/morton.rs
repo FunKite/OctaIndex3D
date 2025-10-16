@@ -85,7 +85,7 @@ fn morton_decode_lut(morton: u64) -> (u16, u16, u16) {
         let bits = ((morton >> shift) & 0xFFFFFF) as u32;
 
         // Extract bytes and use appropriate lookup table for each byte position
-        let byte0 = ((bits >> 0) & 0xFF) as usize;
+        let byte0 = (bits & 0xFF) as usize;
         let byte1 = ((bits >> 8) & 0xFF) as usize;
         let byte2 = ((bits >> 16) & 0xFF) as usize;
 
@@ -94,17 +94,17 @@ fn morton_decode_lut(morton: u64) -> (u16, u16, u16) {
         // X: 3 bits from byte0, 3 bits from byte1, 2 bits from byte2 → shifts: 0, 3, 6
         // Y: 3 bits from byte0, 2 bits from byte1, 3 bits from byte2 → shifts: 0, 3, 5
         // Z: 2 bits from byte0, 3 bits from byte1, 3 bits from byte2 → shifts: 0, 2, 5
-        let xb = (MORTON_DECODE_X_TABLE_B0[byte0] as u16) |
-                 ((MORTON_DECODE_X_TABLE_B1[byte1] as u16) << 3) |
-                 ((MORTON_DECODE_X_TABLE_B2[byte2] as u16) << 6);
+        let xb = (MORTON_DECODE_X_TABLE_B0[byte0] as u16)
+            | ((MORTON_DECODE_X_TABLE_B1[byte1] as u16) << 3)
+            | ((MORTON_DECODE_X_TABLE_B2[byte2] as u16) << 6);
 
-        let yb = (MORTON_DECODE_Y_TABLE_B0[byte0] as u16) |
-                 ((MORTON_DECODE_Y_TABLE_B1[byte1] as u16) << 3) |
-                 ((MORTON_DECODE_Y_TABLE_B2[byte2] as u16) << 5);
+        let yb = (MORTON_DECODE_Y_TABLE_B0[byte0] as u16)
+            | ((MORTON_DECODE_Y_TABLE_B1[byte1] as u16) << 3)
+            | ((MORTON_DECODE_Y_TABLE_B2[byte2] as u16) << 5);
 
-        let zb = (MORTON_DECODE_Z_TABLE_B0[byte0] as u16) |
-                 ((MORTON_DECODE_Z_TABLE_B1[byte1] as u16) << 2) |
-                 ((MORTON_DECODE_Z_TABLE_B2[byte2] as u16) << 5);
+        let zb = (MORTON_DECODE_Z_TABLE_B0[byte0] as u16)
+            | ((MORTON_DECODE_Z_TABLE_B1[byte1] as u16) << 2)
+            | ((MORTON_DECODE_Z_TABLE_B2[byte2] as u16) << 5);
 
         x |= xb << (i * 8);
         y |= yb << (i * 8);
@@ -115,6 +115,7 @@ fn morton_decode_lut(morton: u64) -> (u16, u16, u16) {
 }
 
 // Helper function for generating decode tables (kept for clarity)
+#[allow(dead_code)]
 #[inline]
 fn extract_every_third(bits: u64, offset: u32) -> u8 {
     let mut result = 0u8;
@@ -175,7 +176,8 @@ const fn generate_morton_decode_lut(offset: u32) -> [u8; 256] {
     while i < 256 {
         let mut result = 0u8;
         let mut j = 0;
-        while j < 3 {  // Extract up to 3 bits at stride 3
+        while j < 3 {
+            // Extract up to 3 bits at stride 3
             if (i & (1 << (offset + j * 3))) != 0 {
                 result |= 1u8 << j;
             }

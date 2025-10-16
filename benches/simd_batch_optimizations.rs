@@ -136,7 +136,8 @@ fn bench_batch_euclidean_distance_squared(c: &mut Criterion) {
 
         group.bench_with_input(BenchmarkId::from_parameter(size), &size, |b, _| {
             b.iter(|| {
-                let result = batch_euclidean_distance_squared(black_box(source), black_box(&targets));
+                let result =
+                    batch_euclidean_distance_squared(black_box(source), black_box(&targets));
                 black_box(result)
             })
         });

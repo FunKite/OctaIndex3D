@@ -9,9 +9,9 @@
 //! - Radeon RX 5000 series (RDNA 1)
 //! - Radeon Instinct MI series (CDNA - data center)
 
-use crate::Route64;
-use crate::error::{Result, Error};
 use super::GpuBackend;
+use crate::error::{Error, Result};
+use crate::Route64;
 
 /// AMD ROCm/HIP backend implementation
 ///
@@ -21,7 +21,7 @@ use super::GpuBackend;
 pub struct RocmBackend {
     // ROCm device handle would go here
     // For now, we'll use a placeholder structure
-    #[allow(dead_code)]  // Will be used when HIP kernel is implemented
+    #[allow(dead_code)] // Will be used when HIP kernel is implemented
     device_id: i32,
 }
 
@@ -35,13 +35,11 @@ impl RocmBackend {
         // Check if ROCm is available
         if !is_rocm_available() {
             return Err(Error::InvalidFormat(
-                "ROCm runtime not available. Install ROCm drivers for AMD GPUs.".to_string()
+                "ROCm runtime not available. Install ROCm drivers for AMD GPUs.".to_string(),
             ));
         }
 
-        Ok(Self {
-            device_id: 0,
-        })
+        Ok(Self { device_id: 0 })
     }
 
     /// Get device name

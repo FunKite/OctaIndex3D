@@ -1,4 +1,4 @@
-//! # OctaIndex3D v0.3.0
+//! # OctaIndex3D v0.4.2
 //!
 //! A 3D Spatial Indexing and Routing System based on Body-Centered Cubic (BCC) lattice
 //! with truncated octahedral cells.
@@ -66,9 +66,9 @@ pub mod path;
 
 // Re-export commonly used types
 pub use crate::error::{Error, Result};
-pub use crate::ids::{Galactic128, Index64, Route64, FrameId};
+pub use crate::frame::{get_frame, list_frames, register_frame, FrameDescriptor};
+pub use crate::ids::{FrameId, Galactic128, Index64, Route64};
 pub use crate::lattice::{Lattice, LatticeCoord, Parity, BCC_NEIGHBORS_14};
-pub use crate::frame::{FrameDescriptor, register_frame, get_frame, list_frames};
 
 // Performance module re-exports
 pub use crate::performance::{Backend, BatchIndexBuilder, BatchNeighborCalculator, BatchResult};
@@ -84,10 +84,12 @@ pub use crate::performance::{GpuBackend, GpuBatchProcessor};
 pub use crate::hilbert::Hilbert64;
 
 #[cfg(feature = "container_v2")]
-pub use crate::container_v2::{ContainerWriterV2, StreamConfig, HeaderV2};
+pub use crate::container_v2::{ContainerWriterV2, HeaderV2, StreamConfig};
 
 #[cfg(feature = "gis_geojson")]
-pub use crate::geojson::{to_geojson_points, write_geojson_linestring, write_geojson_polygon, GeoJsonOptions};
+pub use crate::geojson::{
+    to_geojson_points, write_geojson_linestring, write_geojson_polygon, GeoJsonOptions,
+};
 
 // Legacy re-export
 pub use crate::id::CellID;
@@ -101,7 +103,7 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert_eq!(VERSION, "0.3.2");
+        assert_eq!(VERSION, "0.4.2");
     }
 
     #[test]

@@ -5,7 +5,7 @@
 
 #![cfg(feature = "hilbert")]
 
-use crate::hilbert::{hilbert3d_encode, hilbert3d_decode};
+use crate::hilbert::{hilbert3d_decode, hilbert3d_encode};
 
 /// Batch Hilbert encode multiple coordinates
 ///
@@ -150,7 +150,11 @@ mod tests {
         // Verify each matches individual encoding
         for (i, &(x, y, z)) in coords.iter().enumerate() {
             let expected = hilbert3d_encode(x, y, z);
-            assert_eq!(results[i], expected, "Batch encoding mismatch at index {}", i);
+            assert_eq!(
+                results[i], expected,
+                "Batch encoding mismatch at index {}",
+                i
+            );
         }
     }
 
@@ -190,7 +194,13 @@ mod tests {
     fn test_batch_hilbert_large() {
         // Test with large batch to trigger SIMD paths
         let coords: Vec<(u16, u16, u16)> = (0..1000)
-            .map(|i| ((i % 65536) as u16, ((i * 2) % 65536) as u16, ((i * 3) % 65536) as u16))
+            .map(|i| {
+                (
+                    (i % 65536) as u16,
+                    ((i * 2) % 65536) as u16,
+                    ((i * 3) % 65536) as u16,
+                )
+            })
             .collect();
 
         let encoded = batch_hilbert_encode(&coords);
@@ -216,7 +226,9 @@ mod tests {
         let dist_nearby = if h2 > h1 { h2 - h1 } else { h1 - h2 };
         let dist_far = if h3 > h1 { h3 - h1 } else { h1 - h3 };
 
-        assert!(dist_nearby < dist_far,
-            "Hilbert curve should preserve spatial locality");
+        assert!(
+            dist_nearby < dist_far,
+            "Hilbert curve should preserve spatial locality"
+        );
     }
 }

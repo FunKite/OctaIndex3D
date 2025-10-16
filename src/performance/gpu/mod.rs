@@ -20,8 +20,8 @@ pub mod cuda;
 #[cfg(feature = "gpu-rocm")]
 pub mod rocm;
 
-use crate::{Index64, Route64};
 use crate::error::Result;
+use crate::Route64;
 
 /// GPU backend trait for batch operations
 pub trait GpuBackend: Send + Sync {
@@ -111,7 +111,7 @@ impl GpuBatchProcessor {
         }
 
         Err(crate::error::Error::InvalidFormat(
-            "No GPU backend available".to_string()
+            "No GPU backend available".to_string(),
         ))
     }
 
@@ -122,19 +122,18 @@ impl GpuBatchProcessor {
 
     /// Check if GPU acceleration should be used for this batch size
     pub fn should_use_gpu(&self, batch_size: usize) -> bool {
-        batch_size >= self.backend.min_batch_size()
-            && batch_size <= self.backend.max_batch_size()
+        batch_size >= self.backend.min_batch_size() && batch_size <= self.backend.max_batch_size()
     }
 
     /// Calculate neighbors for a batch of routes on the GPU
     pub fn batch_neighbors(&self, routes: &[Route64]) -> Result<Vec<Route64>> {
         if !self.should_use_gpu(routes.len()) {
-            return Err(crate::error::Error::InvalidFormat(
-                format!("Batch size {} outside GPU optimal range [{}, {}]",
-                    routes.len(),
-                    self.backend.min_batch_size(),
-                    self.backend.max_batch_size())
-            ));
+            return Err(crate::error::Error::InvalidFormat(format!(
+                "Batch size {} outside GPU optimal range [{}, {}]",
+                routes.len(),
+                self.backend.min_batch_size(),
+                self.backend.max_batch_size()
+            )));
         }
 
         self.backend.batch_neighbors(routes)
@@ -197,9 +196,17 @@ mod tests {
         println!("Vulkan available: {}", is_vulkan_available());
 
         // At least one should be available on supported platforms
-        #[cfg(any(feature = "gpu-cuda", feature = "gpu-rocm", feature = "gpu-metal", feature = "gpu-vulkan"))]
+        #[cfg(any(
+            feature = "gpu-cuda",
+            feature = "gpu-rocm",
+            feature = "gpu-metal",
+            feature = "gpu-vulkan"
+        ))]
         {
-            let has_gpu = is_cuda_available() || is_rocm_available() || is_metal_available() || is_vulkan_available();
+            let has_gpu = is_cuda_available()
+                || is_rocm_available()
+                || is_metal_available()
+                || is_vulkan_available();
             if !has_gpu {
                 println!("Warning: No GPU backend available");
             }

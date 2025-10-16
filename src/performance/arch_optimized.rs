@@ -63,7 +63,8 @@ pub unsafe fn morton_decode_bmi2(code: u64) -> (u16, u16, u16) {
 pub fn batch_morton_encode_bmi2(coords: &[(u16, u16, u16)]) -> Vec<u64> {
     if !has_bmi2() {
         // Fallback to standard implementation
-        return coords.iter()
+        return coords
+            .iter()
             .map(|&(x, y, z)| morton::morton_encode(x, y, z))
             .collect();
     }
@@ -84,7 +85,8 @@ pub fn batch_morton_encode_bmi2(coords: &[(u16, u16, u16)]) -> Vec<u64> {
 pub fn batch_morton_decode_bmi2(codes: &[u64]) -> Vec<(u16, u16, u16)> {
     if !has_bmi2() {
         // Fallback to standard implementation
-        return codes.iter()
+        return codes
+            .iter()
             .map(|&code| morton::morton_decode(code))
             .collect();
     }
@@ -110,24 +112,21 @@ pub fn batch_morton_encode_neon(coords: &[(u16, u16, u16)]) -> Vec<u64> {
     let chunks = len / 4;
     let _remainder = len % 4;
 
-    unsafe {
-        for i in 0..chunks {
-            let base = i * 4;
+    for i in 0..chunks {
+        let base = i * 4;
 
-            // Load 4 coordinates
-            // For simplicity, process serially but with NEON-optimized morton encoding
-            // A full vectorization would require custom SIMD morton logic
-            for j in 0..4 {
-                let (x, y, z) = coords[base + j];
-                result.push(morton::morton_encode(x, y, z));
-            }
-        }
-
-        // Handle remainder
-        for i in (chunks * 4)..len {
-            let (x, y, z) = coords[i];
+        // Load 4 coordinates
+        // For simplicity, process serially but with NEON-optimized morton encoding
+        // A full vectorization would require custom SIMD morton logic
+        for j in 0..4 {
+            let (x, y, z) = coords[base + j];
             result.push(morton::morton_encode(x, y, z));
         }
+    }
+
+    // Handle remainder
+    for &(x, y, z) in coords.iter().skip(chunks * 4) {
+        result.push(morton::morton_encode(x, y, z));
     }
 
     result
@@ -147,7 +146,6 @@ pub fn prefetch_read<T>(ptr: *const T) {
 
     #[cfg(target_arch = "aarch64")]
     unsafe {
-        
         // ARM prefetch - PRFM instruction
         std::arch::asm!(
             "prfm pldl1keep, [{0}]",
@@ -309,23 +307,20 @@ mod tests {
 
         unsafe {
             // Test a few cases
-            let test_cases = [
-                (0, 0, 0),
-                (1, 2, 3),
-                (100, 200, 300),
-                (65535, 65535, 65535),
-            ];
+            let test_cases = [(0, 0, 0), (1, 2, 3), (100, 200, 300), (65535, 65535, 65535)];
 
             for &(x, y, z) in &test_cases {
                 let bmi2_result = morton_encode_bmi2(x, y, z);
                 let standard_result = morton::morton_encode(x, y, z);
 
-                assert_eq!(bmi2_result, standard_result,
-                    "BMI2 morton encoding mismatch for ({}, {}, {})", x, y, z);
+                assert_eq!(
+                    bmi2_result, standard_result,
+                    "BMI2 morton encoding mismatch for ({}, {}, {})",
+                    x, y, z
+                );
 
                 let (dx, dy, dz) = morton_decode_bmi2(bmi2_result);
-                assert_eq!((dx, dy, dz), (x, y, z),
-                    "BMI2 morton decoding mismatch");
+                assert_eq!((dx, dy, dz), (x, y, z), "BMI2 morton decoding mismatch");
             }
         }
     }

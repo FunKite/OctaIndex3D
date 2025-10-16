@@ -33,10 +33,9 @@ fn generate_hilbert_tables(f: &mut File) -> std::io::Result<()> {
     // Based on Butz algorithm with 12 states (we use 24 for extended symmetry)
     let state_table = generate_proper_state_table();
 
-    for state in 0..24 {
+    for (state, state_row) in state_table.iter().enumerate().take(24) {
         write!(f, "    [")?;
-        for octant in 0..8 {
-            let (next_state, hilbert_idx) = state_table[state][octant];
+        for (octant, &(next_state, hilbert_idx)) in state_row.iter().enumerate() {
             write!(f, "({}, {})", next_state, hilbert_idx)?;
             if octant < 7 {
                 write!(f, ", ")?;
@@ -96,7 +95,7 @@ fn generate_proper_state_table() -> Vec<Vec<(u8, u8)>> {
     for state in 1..24 {
         for octant in 0..8 {
             // Apply rotation/reflection based on state
-            let transformed = transform_octant(state, octant);
+            let _transformed = transform_octant(state, octant);
             let base_next = table[0][octant].0;
             let base_idx = table[0][octant].1;
 
@@ -117,23 +116,37 @@ fn transform_octant(state: usize, octant: usize) -> usize {
     let rotation = state % 6;
     let reflection = state / 6;
 
-    let mut x = (octant >> 0) & 1;
+    let mut x = octant & 1;
     let mut y = (octant >> 1) & 1;
     let mut z = (octant >> 2) & 1;
 
     // Apply rotation
     match rotation {
-        1 => { let t = x; x = y; y = z; z = t; },
-        2 => { let t = x; x = z; z = y; y = t; },
-        3 => { let t = y; y = z; z = t; },
-        4 => { let t = x; x = z; z = t; },
-        5 => { let t = x; x = y; y = t; },
-        _ => {},
+        1 => {
+            let t = x;
+            x = y;
+            y = z;
+            z = t;
+        }
+        2 => {
+            let t = x;
+            x = z;
+            z = y;
+            y = t;
+        }
+        3 => std::mem::swap(&mut y, &mut z),
+        4 => std::mem::swap(&mut x, &mut z),
+        5 => std::mem::swap(&mut x, &mut y),
+        _ => {}
     }
 
     // Apply reflection
-    if reflection & 1 != 0 { x ^= 1; }
-    if reflection & 2 != 0 { y ^= 1; }
+    if reflection & 1 != 0 {
+        x ^= 1;
+    }
+    if reflection & 2 != 0 {
+        y ^= 1;
+    }
 
     (z << 2) | (y << 1) | x
 }

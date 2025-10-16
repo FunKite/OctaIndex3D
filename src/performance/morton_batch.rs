@@ -148,7 +148,11 @@ mod tests {
         // Verify each matches individual encoding
         for (i, &(x, y, z)) in coords.iter().enumerate() {
             let expected = morton::morton_encode(x, y, z);
-            assert_eq!(results[i], expected, "Batch encoding mismatch at index {}", i);
+            assert_eq!(
+                results[i], expected,
+                "Batch encoding mismatch at index {}",
+                i
+            );
         }
     }
 
@@ -188,7 +192,13 @@ mod tests {
     fn test_batch_morton_large() {
         // Test with large batch to trigger SIMD paths
         let coords: Vec<(u16, u16, u16)> = (0..1000)
-            .map(|i| ((i % 65536) as u16, ((i * 2) % 65536) as u16, ((i * 3) % 65536) as u16))
+            .map(|i| {
+                (
+                    (i % 65536) as u16,
+                    ((i * 2) % 65536) as u16,
+                    ((i * 3) % 65536) as u16,
+                )
+            })
             .collect();
 
         let encoded = batch_morton_encode(&coords);

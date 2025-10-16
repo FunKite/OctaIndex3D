@@ -3,8 +3,8 @@
 //! This module provides optimized batch processing capabilities with automatic
 //! SIMD vectorization where available.
 
-use crate::{Index64, Route64};
 use crate::neighbors;
+use crate::{Index64, Route64};
 
 #[cfg(feature = "simd")]
 use super::simd;
@@ -92,8 +92,12 @@ impl BatchIndexBuilder {
         #[cfg(feature = "simd")]
         if self.use_simd && simd::is_available() {
             return simd::batch_index64_new(
-                frame_ids, dimension_ids, lods,
-                x_coords, y_coords, z_coords
+                frame_ids,
+                dimension_ids,
+                lods,
+                x_coords,
+                y_coords,
+                z_coords,
             );
         }
 
@@ -174,7 +178,8 @@ impl BatchNeighborCalculator {
         }
 
         // Fallback: scalar implementation
-        routes.iter()
+        routes
+            .iter()
             .map(|&route| neighbors::neighbors_route64(route).to_vec())
             .collect()
     }
@@ -202,8 +207,12 @@ mod tests {
         let z_coords = vec![200, 300, 400];
 
         let result = builder.build(
-            &frame_ids, &dimension_ids, &lods,
-            &x_coords, &y_coords, &z_coords
+            &frame_ids,
+            &dimension_ids,
+            &lods,
+            &x_coords,
+            &y_coords,
+            &z_coords,
         );
 
         assert_eq!(result.len(), 3);

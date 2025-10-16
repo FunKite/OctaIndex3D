@@ -5,8 +5,8 @@
 #![cfg(feature = "gis_geojson")]
 
 use crate::error::Result;
-use crate::ids::Galactic128;
 use crate::frame::get_frame;
+use crate::ids::Galactic128;
 use serde_json::{json, Value};
 use std::fs::File;
 use std::io::Write;

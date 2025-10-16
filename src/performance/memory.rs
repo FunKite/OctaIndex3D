@@ -32,11 +32,8 @@ impl<T> AlignedVec<T> {
         assert!(alignment.is_power_of_two());
         assert!(alignment >= std::mem::align_of::<T>());
 
-        let layout = Layout::from_size_align(
-            capacity * std::mem::size_of::<T>(),
-            alignment,
-        )
-        .expect("Invalid layout");
+        let layout = Layout::from_size_align(capacity * std::mem::size_of::<T>(), alignment)
+            .expect("Invalid layout");
 
         let ptr = unsafe {
             let raw_ptr = alloc(layout) as *mut T;
@@ -100,11 +97,9 @@ impl<T> AlignedVec<T> {
 
 impl<T> Drop for AlignedVec<T> {
     fn drop(&mut self) {
-        let layout = Layout::from_size_align(
-            self.capacity * std::mem::size_of::<T>(),
-            self.alignment,
-        )
-        .expect("Invalid layout");
+        let layout =
+            Layout::from_size_align(self.capacity * std::mem::size_of::<T>(), self.alignment)
+                .expect("Invalid layout");
 
         unsafe {
             dealloc(self.ptr.as_ptr() as *mut u8, layout);
@@ -194,7 +189,7 @@ impl MemoryAccessAnalyzer {
     /// Calculate optimal stride for accessing array
     pub fn optimal_stride<T>(&self) -> usize {
         let type_size = std::mem::size_of::<T>();
-        (self.cache_line_size + type_size - 1) / type_size
+        self.cache_line_size.div_ceil(type_size)
     }
 
     /// Check if pointer is aligned

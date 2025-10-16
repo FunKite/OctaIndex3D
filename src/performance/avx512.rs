@@ -90,9 +90,7 @@ pub fn batch_neighbors_avx512(routes: &[Route64]) -> Vec<Route64> {
         // Fallback to standard implementation
         return routes
             .iter()
-            .flat_map(|&route| {
-                crate::performance::fast_neighbors::neighbors_route64_fast(route)
-            })
+            .flat_map(|&route| crate::performance::fast_neighbors::neighbors_route64_fast(route))
             .collect();
     }
 
@@ -114,9 +112,9 @@ pub fn batch_neighbors_avx512(routes: &[Route64]) -> Vec<Route64> {
 
         // Handle remainder with scalar code
         for i in (chunks * 8)..routes.len() {
-            result.extend_from_slice(
-                &crate::performance::fast_neighbors::neighbors_route64_fast(routes[i])
-            );
+            result.extend_from_slice(&crate::performance::fast_neighbors::neighbors_route64_fast(
+                routes[i],
+            ));
         }
     }
 
@@ -160,12 +158,12 @@ pub unsafe fn batch_morton_encode_avx512(coords: &[(u16, u16, u16)]) -> Vec<u64>
 
 /// Get AVX-512 feature availability summary
 pub struct Avx512Info {
-    pub has_f: bool,      // Foundation
-    pub has_cd: bool,     // Conflict Detection
-    pub has_dq: bool,     // Doubleword and Quadword
-    pub has_bw: bool,     // Byte and Word
-    pub has_vl: bool,     // Vector Length Extensions
-    pub has_vnni: bool,   // Vector Neural Network Instructions
+    pub has_f: bool,    // Foundation
+    pub has_cd: bool,   // Conflict Detection
+    pub has_dq: bool,   // Doubleword and Quadword
+    pub has_bw: bool,   // Byte and Word
+    pub has_vl: bool,   // Vector Length Extensions
+    pub has_vnni: bool, // Vector Neural Network Instructions
 }
 
 impl Avx512Info {
