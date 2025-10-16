@@ -5,8 +5,14 @@
 This document summarizes the performance optimizations completed for Apple Silicon (M-series) processors, focusing on profiling-driven improvements to critical hot paths.
 
 **Date:** 2025-10-15
-**Platform:** macOS (Apple M1 Max, 2022 - 10 cores: 8P + 2E)
+**Platform:** macOS (Apple M1 Max, Mac Studio 2022 - 10 cores: 8 performance + 2 efficiency)
 **Compiler:** rustc with target-cpu=native
+
+⚠️ **Important Disclaimers:**
+- These optimizations were developed with AI assistance (Claude by Anthropic)
+- Results are preliminary and should be considered as optimization guidance, not definitive performance claims
+- Your performance may vary based on specific M-series chip (M1/M2/M3/M4), thermal conditions, and workload
+- Results should be independently verified for production use
 
 ## Methodology
 
@@ -207,7 +213,8 @@ cargo bench --features parallel
 
 ## Hardware Tested
 
-- **Processor:** Apple M1 Max (2022)
+- **Device:** Mac Studio (2022)
+- **Processor:** Apple M1 Max
 - **Cores:** 10 total (8 performance + 2 efficiency)
 - **Cache:** 192KB L1 per core, 24MB L2 (shared), 48MB SLC
 - **Memory:** Unified LPDDR5 (400 GB/s bandwidth)
@@ -232,4 +239,6 @@ These optimizations leverage Apple Silicon's architectural strengths: large unif
 
 ---
 
-*Generated on 2025-10-15 as part of OctaIndex3D tier-1 optimization effort*
+*Generated on 2025-10-15 as part of OctaIndex3D optimization effort*
+*Testing conducted with AI assistance (Claude by Anthropic) on M1 Max Mac Studio*
+*Results are preliminary and should be independently verified*

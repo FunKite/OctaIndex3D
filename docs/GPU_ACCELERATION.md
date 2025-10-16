@@ -2,6 +2,12 @@
 
 **TL;DR:** GPU acceleration is **NOT recommended** for OctaIndex3D. CPU is ~10x faster.
 
+⚠️ **Important Disclaimers:**
+- This analysis was conducted with AI assistance (Claude by Anthropic) and should be considered preliminary
+- Testing conducted on limited hardware configuration (2-core AMD EPYC subset with NVIDIA L4)
+- Results may contain errors and should be independently verified
+- Your performance may vary based on workload, hardware configuration, and GPU model
+
 ---
 
 ## Executive Summary
@@ -377,11 +383,11 @@ For 1M routes:
 
 ## References
 
-- Tested hardware: NVIDIA L4 (Ada Lovelace), AMD EPYC 7R13
+- Tested hardware: NVIDIA L4 (Ada Lovelace), AMD EPYC 7R13 (2-core cloud subset)
 - Profiling tool: `examples/profile_hotspots.rs`
 - Full results: `docs/CPU_COMPARISON.md`
 - Date: 2025-10-15
 
 ---
 
-*This analysis represents real testing on production hardware. GPU performance claims are measured, not theoretical.*
+*This analysis represents testing on cloud hardware with AI assistance (Claude by Anthropic). Results are preliminary and should be independently verified before making production decisions.*

@@ -15,12 +15,12 @@
 
 ## Overview
 
-OctaIndex3D is a high-performance 3D spatial indexing and routing library based on a **Body-Centered Cubic (BCC) lattice** with **truncated octahedral cells**. Version 0.4.0 delivers major performance improvements (up to 86% faster), comprehensive cross-platform optimizations, and extensive documentation.
+OctaIndex3D is a high-performance 3D spatial indexing and routing library based on a **Body-Centered Cubic (BCC) lattice** with **truncated octahedral cells**.
 
 ### Key Features
 
 - **Three ID Types**: Galactic128 (global), Index64 (Morton), Route64 (local routing)
-- **High Performance**: Optimized for Apple Silicon, AMD EPYC, and Intel Xeon (see [benchmarks](#performance))
+- **High Performance**: Cross-platform optimizations for modern CPU architectures
 - **14-Neighbor Connectivity**: More isotropic than cubic grids (6 neighbors)
 - **Space-Filling Curves**: Morton and Hilbert encoding for spatial locality
 - **Hierarchical Refinement**: 8:1 parent-child relationships across resolutions
@@ -30,29 +30,7 @@ OctaIndex3D is a high-performance 3D spatial indexing and routing library based 
 - **Container Formats**: Compressed spatial data storage with v2 streaming support
 - **GeoJSON Export**: WGS84 coordinate export for GIS integration
 
-### What's New in v0.4.0
-
-🚀 **Major Performance Improvements:**
-- **37% faster** Morton decode (115M → 157M ops/sec on Apple M1 Max)
-- **86% faster** batch neighbor calculation (27M → 50M routes/sec)
-- **28% faster** Index64 decode operations
-
-🏗️ **New Performance Module:**
-- Architecture-optimized code (BMI2, AVX2, ARM NEON)
-- Adaptive batch sizing for optimal performance
-- Parallel processing with smart threshold detection
-
-📊 **Cross-Platform Testing:**
-- Apple M1 Max: Best overall consistency and batch operations
-- AMD EPYC: Best single-threaded and cost/performance
-- Intel Xeon: Best for large batches (105MB L3 cache)
-- GPU analysis: CPU is 10x faster (GPU not recommended)
-
-📚 **Comprehensive Documentation:**
-- [CPU Comparison Guide](docs/CPU_COMPARISON.md) - Which CPU for which workload
-- [GPU Analysis](docs/GPU_ACCELERATION.md) - Why CPU beats GPU
-- [Apple Silicon Optimizations](docs/APPLE_SILICON_OPTIMIZATIONS.md)
-- [Performance Guide](PERFORMANCE.md)
+See [RELEASE_0.4.0.md](RELEASE_0.4.0.md) for latest release details.
 
 ## Why BCC Lattice?
 
@@ -350,17 +328,16 @@ Append-friendly streaming format:
 
 ## Performance
 
-Preliminary benchmarks on Apple M1 Pro:
+OctaIndex3D is optimized for modern CPU architectures with support for:
+- **BMI2 hardware acceleration** (x86_64 Intel/AMD)
+- **NEON SIMD** (Apple Silicon, ARM)
+- **AVX2 vectorization** (x86_64)
+- **Adaptive batch processing** with automatic threshold selection
 
-| Operation | Time | Notes |
-|-----------|------|-------|
-| Index64 creation | ~5ns | Morton encoding |
-| Hilbert64 creation | ~8ns | Gray code transform |
-| Neighbor lookup (14) | ~10ns | BCC lattice |
-| Bech32m encode | ~200ns | With checksum |
-| Bech32m decode | ~250ns | With validation |
-| Container write | ~50µs/frame | LZ4 compression |
-| A* pathfinding | ~1M nodes/sec | Legacy API |
+For detailed performance analysis and benchmarks, see:
+- [Performance Guide](PERFORMANCE.md) - Usage examples and optimization tips
+- [CPU Comparison](docs/CPU_COMPARISON.md) - Cross-platform performance analysis
+- [Benchmark Suite](benches/README.md) - Criterion benchmarks and profiling tools
 
 ## Use Cases
 
