@@ -1,6 +1,6 @@
 //! Container format for compressed spatial data
 
-use crate::compression::{get_compression, Compression, CODEC_LZ4};
+use crate::compression::{get_compression, Compression};
 use crate::error::{Error, Result};
 use crc32fast::Hasher;
 use std::io::{Read, Write};

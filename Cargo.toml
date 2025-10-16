@@ -30,7 +30,7 @@ serde_cbor = { version = "0.11", optional = true }
 bech32 = "0.11"
 
 # Zero-copy support
-bytemuck = { version = "1.14", features = ["derive"], optional = true }
+bytemuck = { version = "1.14", features = ["derive"] }
 zerocopy = { version = "0.7", features = ["derive"], optional = true }
 rkyv = { version = "0.7", optional = true }
 
@@ -62,6 +62,36 @@ rustc-hash = "2.0"
 # CLI
 clap = { version = "4.5", features = ["derive"], optional = true }
 
+# Performance: Parallel processing
+rayon = { version = "1.10", optional = true }
+
+# Performance: GPU acceleration
+metal = { version = "0.29", optional = true }
+wgpu = { version = "22.0", optional = true }
+pollster = { version = "0.3", optional = true }
+
+# Performance: CUDA (NVIDIA)
+cudarc = { version = "0.12", features = ["cuda-12050"], optional = true }
+
+# Performance: Advanced memory
+aligned-vec = { version = "0.6", optional = true }
+
+[[bench]]
+name = "core_operations"
+harness = false
+
+[[bench]]
+name = "performance_optimizations"
+harness = false
+
+[[bench]]
+name = "tier1_optimizations"
+harness = false
+
+[[bench]]
+name = "simd_batch_optimizations"
+harness = false
+
 [dev-dependencies]
 proptest = "1.4"
 criterion = { version = "0.5", features = ["html_reports"] }
@@ -69,14 +99,21 @@ approx = "0.5"
 rand = "0.8"
 
 [features]
-default = ["serde", "lz4"]
+default = ["serde", "lz4", "simd", "parallel"]
 lz4 = []
 zstd = ["dep:zstd"]
 serde = ["dep:serde", "dep:serde_json", "dep:serde_cbor"]
 pathfinding = ["dep:petgraph"]
-bytemuck = ["dep:bytemuck", "dep:zerocopy"]
+zerocopy_support = ["dep:zerocopy"]
 rkyv = ["dep:rkyv"]
 simd = []
+parallel = ["dep:rayon"]
+gpu = ["gpu-metal"]
+gpu-metal = ["dep:metal", "dep:pollster"]
+gpu-vulkan = ["dep:wgpu", "dep:pollster"]
+gpu-cuda = ["dep:cudarc"]
+gpu-rocm = []
+memory-aligned = ["dep:aligned-vec"]
 hilbert = []
 container_v2 = ["dep:sha2"]
 gis_geojson = ["serde", "dep:glam"]
