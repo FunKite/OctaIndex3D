@@ -15,11 +15,12 @@
 
 ## Overview
 
-OctaIndex3D is a high-performance 3D spatial indexing and routing library based on a **Body-Centered Cubic (BCC) lattice** with **truncated octahedral cells**. Version 0.3.1 introduces a unified ID system with three interoperable formats, space-filling curves, and streaming container support.
+OctaIndex3D is a high-performance 3D spatial indexing and routing library based on a **Body-Centered Cubic (BCC) lattice** with **truncated octahedral cells**. Version 0.4.0 delivers major performance improvements (up to 86% faster), comprehensive cross-platform optimizations, and extensive documentation.
 
 ### Key Features
 
 - **Three ID Types**: Galactic128 (global), Index64 (Morton), Route64 (local routing)
+- **High Performance**: Optimized for Apple Silicon, AMD EPYC, and Intel Xeon (see [benchmarks](#performance))
 - **14-Neighbor Connectivity**: More isotropic than cubic grids (6 neighbors)
 - **Space-Filling Curves**: Morton and Hilbert encoding for spatial locality
 - **Hierarchical Refinement**: 8:1 parent-child relationships across resolutions
@@ -28,6 +29,30 @@ OctaIndex3D is a high-performance 3D spatial indexing and routing library based 
 - **Frame Registry**: Coordinate reference system management
 - **Container Formats**: Compressed spatial data storage with v2 streaming support
 - **GeoJSON Export**: WGS84 coordinate export for GIS integration
+
+### What's New in v0.4.0
+
+🚀 **Major Performance Improvements:**
+- **37% faster** Morton decode (115M → 157M ops/sec on Apple M1 Max)
+- **86% faster** batch neighbor calculation (27M → 50M routes/sec)
+- **28% faster** Index64 decode operations
+
+🏗️ **New Performance Module:**
+- Architecture-optimized code (BMI2, AVX2, ARM NEON)
+- Adaptive batch sizing for optimal performance
+- Parallel processing with smart threshold detection
+
+📊 **Cross-Platform Testing:**
+- Apple M1 Max: Best overall consistency and batch operations
+- AMD EPYC: Best single-threaded and cost/performance
+- Intel Xeon: Best for large batches (105MB L3 cache)
+- GPU analysis: CPU is 10x faster (GPU not recommended)
+
+📚 **Comprehensive Documentation:**
+- [CPU Comparison Guide](docs/CPU_COMPARISON.md) - Which CPU for which workload
+- [GPU Analysis](docs/GPU_ACCELERATION.md) - Why CPU beats GPU
+- [Apple Silicon Optimizations](docs/APPLE_SILICON_OPTIMIZATIONS.md)
+- [Performance Guide](PERFORMANCE.md)
 
 ## Why BCC Lattice?
 
@@ -59,14 +84,16 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-octaindex3d = "0.3.1"
+octaindex3d = "0.4"
 
 # Optional features
-octaindex3d = { version = "0.3.1", features = ["hilbert", "container_v2", "gis_geojson"] }
+octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "container_v2"] }
 ```
 
 ### Available Features
 
+- **`parallel`**: Multi-threaded batch operations with Rayon (recommended)
+- **`simd`**: SIMD-accelerated operations (BMI2, AVX2, NEON)
 - **`hilbert`**: Hilbert64 space-filling curve with better locality than Morton
 - **`container_v2`**: Append-friendly streaming container format with checkpoints
 - **`gis_geojson`**: GeoJSON export with WGS84 coordinate conversion
