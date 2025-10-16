@@ -5,7 +5,7 @@
 This document summarizes the performance optimizations completed for Apple Silicon (M-series) processors, focusing on profiling-driven improvements to critical hot paths.
 
 **Date:** 2025-10-15
-**Platform:** macOS (Apple Silicon M-series)
+**Platform:** macOS (Apple M1 Max, 2022 - 10 cores: 8P + 2E)
 **Compiler:** rustc with target-cpu=native
 
 ## Methodology
@@ -119,7 +119,8 @@ pub fn batch_neighbors_auto(routes: &[Route64]) -> Vec<Route64> {
 ### Apple Silicon M-Series Advantages
 
 1. **Unified Memory Architecture**
-   - Large shared cache (varies by model: M1=16MB, M2=20MB, M3=up to 48MB)
+   - Large shared cache (M1 Max: 48MB SLC + 24MB L2)
+   - Exceptional memory bandwidth (400 GB/s)
    - Cache-blocked algorithms are very effective
    - Less benefit from multi-threading for cache-bound operations
 
@@ -206,10 +207,11 @@ cargo bench --features parallel
 
 ## Hardware Tested
 
-- **Processor:** Apple Silicon M-series (M1/M2/M3)
-- **Cache:** 128KB L1, varies by model for L2/SLC
-- **Memory:** Unified memory architecture
-- **OS:** macOS Sonoma or later
+- **Processor:** Apple M1 Max (2022)
+- **Cores:** 10 total (8 performance + 2 efficiency)
+- **Cache:** 192KB L1 per core, 24MB L2 (shared), 48MB SLC
+- **Memory:** Unified LPDDR5 (400 GB/s bandwidth)
+- **OS:** macOS
 
 ## References
 

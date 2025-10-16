@@ -9,13 +9,13 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 
 ## Tested Platforms
 
-### 1. Apple Silicon M2 (ARM64)
+### 1. Apple Silicon M1 Max (ARM64)
 - **Architecture:** Apple ARM (Firestorm + Icestorm cores)
-- **Cores:** 8 (4P + 4E)
-- **Cache:** 128KB L1, 16MB L2 (shared), 16-20MB SLC
-- **Memory:** Unified LPDDR5 (100+ GB/s bandwidth)
+- **Cores:** 10 (8P + 2E)
+- **Cache:** 192KB L1 (per core), 24MB L2 (shared), 48MB SLC
+- **Memory:** Unified LPDDR5 (400 GB/s bandwidth)
 - **SIMD:** ARM NEON (128-bit, always available)
-- **Special:** Unified memory architecture, large cache
+- **Special:** Unified memory architecture, massive bandwidth, professional chip
 
 ### 2. AMD EPYC 7R13 (x86_64 Zen 3)
 - **Architecture:** AMD Zen 3 (Milan)
@@ -41,12 +41,12 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 
 | CPU | Encode (ops/sec) | Decode (ops/sec) | Technology |
 |-----|------------------|------------------|------------|
-| **Apple M2** | 462M (2.16 ns) | 157M (6.37 ns) | LUT (lookup tables) |
+| **Apple M1 Max** | 462M (2.16 ns) | 157M (6.37 ns) | LUT (lookup tables) |
 | **AMD EPYC 7R13** | 391M (2.56 ns) | 505M (1.98 ns) | BMI2 PDEP/PEXT |
 | **Intel Xeon 8488C** | 249M (4.01 ns) | 424M (2.36 ns) | BMI2 PDEP/PEXT |
 
 **Winner:**
-- **Encode:** Apple M2 (1.18x faster than AMD, 1.86x faster than Intel)
+- **Encode:** Apple M1 Max (1.18x faster than AMD, 1.86x faster than Intel)
 - **Decode:** AMD EPYC (3.22x faster than Apple, 1.19x faster than Intel)
 
 **Analysis:**
@@ -59,13 +59,13 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 
 | CPU | Encode (elem/sec) | Decode (elem/sec) | Technology |
 |-----|-------------------|-------------------|------------|
-| **Apple M2** | 467M (2.14 ns) | 321M (3.12 ns) | NEON + Morton LUT |
+| **Apple M1 Max** | 467M (2.14 ns) | 321M (3.12 ns) | NEON + Morton LUT |
 | **AMD EPYC 7R13** | 175M (5.71 ns) | 149M (6.71 ns) | AVX2 + Morton BMI2 |
 | **Intel Xeon 8488C** | 206M (4.87 ns) | 172M (5.81 ns) | AVX2 + Morton BMI2 |
 
 **Winner:**
-- **Encode:** Apple M2 (2.67x faster than AMD, 2.27x faster than Intel)
-- **Decode:** Apple M2 (2.15x faster than AMD, 1.87x faster than Intel)
+- **Encode:** Apple M1 Max (2.67x faster than AMD, 2.27x faster than Intel)
+- **Decode:** Apple M1 Max (2.15x faster than AMD, 1.87x faster than Intel)
 
 **Analysis:**
 - **Apple's unified memory** and efficient NEON give massive advantage
@@ -76,14 +76,14 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 
 | CPU | Small (100) | Medium (1K) | Large (10K) | Technology |
 |-----|-------------|-------------|-------------|------------|
-| **Apple M2** | 29.9M/s | 48.5M/s | 50.3M/s | Cache blocking |
+| **Apple M1 Max** | 29.9M/s | 48.5M/s | 50.3M/s | Cache blocking |
 | **AMD EPYC 7R13** | 32.1M/s | 47.7M/s | 6.5M/s | Cache + Rayon |
 | **Intel Xeon 8488C** | 30.2M/s | 45.8M/s | 37.8M/s | 105MB L3 cache |
 
 **Winner:**
 - **Small batches:** AMD EPYC (1.07x faster)
-- **Medium batches:** Apple M2 (1.02x faster than AMD, 1.06x faster than Intel)
-- **Large batches:** Apple M2 (7.74x faster than AMD, 1.33x faster than Intel)
+- **Medium batches:** Apple M1 Max (1.02x faster than AMD, 1.06x faster than Intel)
+- **Large batches:** Apple M1 Max (7.74x faster than AMD, 1.33x faster than Intel)
 
 **Analysis:**
 - **AMD suffers** on large batches - parallel overhead kills performance
@@ -95,7 +95,7 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 
 | CPU | Manhattan (ops/sec) | Euclidean² (ops/sec) | Technology |
 |-----|---------------------|----------------------|------------|
-| **Apple M2** | 604M (1.66 ns) | 561M (1.78 ns) | NEON vectorized |
+| **Apple M1 Max** | 604M (1.66 ns) | 561M (1.78 ns) | NEON vectorized |
 | **AMD EPYC 7R13** | 1.19B (0.84 ns) | 1.12B (0.89 ns) | Integer ALU + AVX2 |
 | **Intel Xeon 8488C** | 1.19B (0.84 ns) | 1.15B (0.87 ns) | Integer ALU + AVX2 |
 
@@ -111,7 +111,7 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 
 | CPU | Throughput (ops/sec) | Latency (ns) |
 |-----|----------------------|--------------|
-| **Apple M2** | 1.56B | 0.64 |
+| **Apple M1 Max** | 1.56B | 0.64 |
 | **AMD EPYC 7R13** | 2.08B | 0.48 |
 | **Intel Xeon 8488C** | 1.95B | 0.51 |
 
@@ -126,14 +126,15 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 
 ## Architecture Strengths
 
-### Apple Silicon M2 🍎
+### Apple Silicon M1 Max 🍎
 
 **Wins:**
-- ✅ **Batch operations** (unified memory, NEON efficiency)
+- ✅ **Batch operations** (unified memory, NEON efficiency, 400 GB/s bandwidth!)
 - ✅ **Morton encode** (optimized LUT)
 - ✅ **Consistency** (predictable performance)
-- ✅ **Cache blocking** (large shared cache)
+- ✅ **Cache blocking** (large 48MB SLC)
 - ✅ **Energy efficiency** (not measured but known strength)
+- ✅ **Professional workloads** (10 cores, 8 performance)
 
 **Weaknesses:**
 - ❌ **Morton decode** (LUT slower than BMI2)
@@ -141,9 +142,10 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 
 **Best For:**
 - Mac development and deployment
-- Battery-powered devices
+- Professional creative/technical work
 - Workloads requiring consistent low latency
 - Medium-large batch processing (1K-50K elements)
+- High memory bandwidth workloads
 
 ### AMD EPYC 7R13 (Zen 3) ⚡
 
@@ -204,7 +206,7 @@ Comprehensive performance comparison across three tier-1 CPU architectures.
 ### 2. Cache Hierarchy Dominates Large Batches 💾
 
 **L3 Cache Comparison:**
-- Apple M2: ~16-20MB SLC (unified)
+- Apple M1 Max: 48MB SLC (unified)
 - AMD EPYC: 64MB L3 (shared)
 - Intel Xeon: 105MB L3 (shared)
 
@@ -262,17 +264,17 @@ Apple's architecture advantages:
 
 | Category | 🥇 Gold | 🥈 Silver | 🥉 Bronze |
 |----------|---------|-----------|-----------|
-| **Morton Encode** | Apple M2 (462M/s) | AMD (391M/s) | Intel (249M/s) |
+| **Morton Encode** | Apple M1 Max (462M/s) | AMD (391M/s) | Intel (249M/s) |
 | **Morton Decode** | AMD (505M/s) | Intel (424M/s) | Apple (157M/s) |
-| **Index64 Batch** | Apple M2 (467M/s) | Intel (206M/s) | AMD (175M/s) |
+| **Index64 Batch** | Apple M1 Max (467M/s) | Intel (206M/s) | AMD (175M/s) |
 | **Neighbors (Small)** | AMD (32.1M/s) | Apple (29.9M/s) | Intel (30.2M/s) |
-| **Neighbors (Large)** | Apple M2 (50.3M/s) | Intel (37.8M/s) | AMD (6.5M/s) |
+| **Neighbors (Large)** | Apple M1 Max (50.3M/s) | Intel (37.8M/s) | AMD (6.5M/s) |
 | **Distance Calc** | AMD/Intel (1.19B/s) | AMD/Intel (1.19B/s) | Apple (604M/s) |
 | **Validation** | AMD (2.08B/s) | Intel (1.95B/s) | Apple (1.56B/s) |
 
 **Overall Score (weighted by importance):**
 
-1. 🥇 **Apple M2** - Most consistent, best for batch operations
+1. 🥇 **Apple M1 Max** - Most consistent, best for batch operations, professional chip
 2. 🥈 **AMD EPYC** - Best single-thread, Morton operations, value
 3. 🥉 **Intel Xeon** - Best large batches, future AVX-512 potential
 
@@ -294,11 +296,12 @@ Apple's architecture advantages:
 
 ### For End Users:
 
-**Choose Apple Silicon M2 if:**
-- ✅ You're on macOS
+**Choose Apple Silicon M1 Max if:**
+- ✅ You're on macOS (especially 2021-2023 MacBook Pro)
 - ✅ You process medium-large batches (1K-50K elements)
 - ✅ You want consistent, predictable performance
 - ✅ Energy efficiency matters
+- ✅ You need high memory bandwidth (400 GB/s!)
 
 **Choose AMD EPYC if:**
 - ✅ You need best cost/performance on cloud
@@ -337,7 +340,7 @@ RUSTFLAGS="-C target-cpu=native" cargo build --release --features parallel
 ```
 
 This enables:
-- Apple M2: NEON instructions, optimized for Firestorm cores
+- Apple M1 Max: NEON instructions, optimized for Firestorm/Icestorm cores
 - AMD EPYC: BMI2, AVX2, tuned for Zen 3
 - Intel Xeon: BMI2, AVX2 (not AVX-512 yet), tuned for Golden Cove
 
@@ -358,11 +361,11 @@ All tests used: `examples/profile_hotspots.rs`
 
 ### Hardware Configuration
 
-**Apple M2:**
-- Tested on: MacBook Air (2024)
-- Cores used: All (4P + 4E, scheduler decides)
-- Memory: 16GB LPDDR5 unified
-- OS: macOS Sonoma
+**Apple M1 Max:**
+- Tested on: MacBook Pro (2022)
+- Cores used: All (8P + 2E, scheduler decides)
+- Memory: Unified LPDDR5 (up to 64GB available, 400 GB/s bandwidth)
+- OS: macOS
 
 **AMD EPYC 7R13:**
 - Tested on: AWS EC2 g4dn.xlarge equivalent
@@ -453,7 +456,7 @@ All tests used: `examples/profile_hotspots.rs`
 
 All three architectures are **excellent** for OctaIndex3D:
 
-- **Apple M2** provides the best overall experience with consistent performance and great batch throughput
+- **Apple M1 Max** provides the best overall experience with consistent performance, great batch throughput, and exceptional memory bandwidth
 - **AMD EPYC** offers the best value and single-threaded performance, especially for Morton operations
 - **Intel Xeon** dominates large batches with its massive cache and has untapped AVX-512 potential
 
@@ -468,5 +471,5 @@ All three architectures are **excellent** for OctaIndex3D:
 ---
 
 *Testing completed: 2025-10-15*
-*Platforms: Apple M2, AMD EPYC 7R13, Intel Xeon Platinum 8488C*
+*Platforms: Apple M1 Max (2022), AMD EPYC 7R13, Intel Xeon Platinum 8488C*
 *Library version: OctaIndex3D v0.3.2*
