@@ -57,3 +57,4 @@ disabled_cli/
 .github/workflows/internal/*_results.txt
 .github/workflows/internal/*_baseline.txt
 .github/workflows/internal/*_comparison.txt
+.experimental/
