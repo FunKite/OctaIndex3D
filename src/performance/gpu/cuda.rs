@@ -14,19 +14,19 @@ use super::GpuBackend;
 use crate::error::{Error, Result};
 use crate::Route64;
 
-#[cfg(feature = "gpu-cuda")]
+#[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 use cudarc::driver::CudaDevice;
-#[cfg(feature = "gpu-cuda")]
+#[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 use std::sync::Arc;
 
 /// CUDA GPU backend implementation
-#[cfg(feature = "gpu-cuda")]
+#[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 pub struct CudaBackend {
     #[allow(dead_code)] // Will be used when kernel execution is implemented
     device: Arc<CudaDevice>,
 }
 
-#[cfg(feature = "gpu-cuda")]
+#[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 impl CudaBackend {
     /// Create a new CUDA backend
     pub fn new() -> Result<Self> {
@@ -45,7 +45,37 @@ impl CudaBackend {
     }
 }
 
-#[cfg(feature = "gpu-cuda")]
+#[cfg(all(feature = "gpu-cuda", any(target_os = "macos", target_os = "ios")))]
+pub struct CudaBackend;
+
+#[cfg(all(feature = "gpu-cuda", any(target_os = "macos", target_os = "ios")))]
+impl CudaBackend {
+    /// CUDA backend is unavailable on Apple platforms
+    pub fn new() -> Result<Self> {
+        Err(Error::InvalidFormat(
+            "CUDA backend is unavailable on Apple platforms".to_string(),
+        ))
+    }
+}
+
+#[cfg(all(feature = "gpu-cuda", any(target_os = "macos", target_os = "ios")))]
+impl GpuBackend for CudaBackend {
+    fn is_available(&self) -> bool {
+        false
+    }
+
+    fn name(&self) -> &'static str {
+        "CUDA (unsupported)"
+    }
+
+    fn batch_neighbors(&self, _routes: &[Route64]) -> Result<Vec<Route64>> {
+        Err(Error::InvalidFormat(
+            "CUDA backend cannot execute on Apple platforms".to_string(),
+        ))
+    }
+}
+
+#[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 impl GpuBackend for CudaBackend {
     fn is_available(&self) -> bool {
         true // If we got here, CUDA is available
@@ -93,9 +123,14 @@ impl CudaBackend {
 }
 
 /// Check if CUDA is available
-#[cfg(feature = "gpu-cuda")]
+#[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 pub fn is_cuda_available() -> bool {
     CudaDevice::new(0).is_ok()
+}
+
+#[cfg(all(feature = "gpu-cuda", any(target_os = "macos", target_os = "ios")))]
+pub fn is_cuda_available() -> bool {
+    false
 }
 
 #[cfg(not(feature = "gpu-cuda"))]
@@ -103,12 +138,15 @@ pub fn is_cuda_available() -> bool {
     false
 }
 
-#[cfg(test)]
+#[cfg(all(
+    test,
+    feature = "gpu-cuda",
+    not(any(target_os = "macos", target_os = "ios"))
+))]
 mod tests {
     use super::*;
 
     #[test]
-    #[cfg(feature = "gpu-cuda")]
     fn test_cuda_backend_creation() {
         match CudaBackend::new() {
             Ok(backend) => {
@@ -122,7 +160,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "gpu-cuda")]
     fn test_cuda_batch_neighbors() {
         let backend = match CudaBackend::new() {
             Ok(b) => b,

@@ -29,10 +29,24 @@ const BCC_NEIGHBOR_OFFSETS: array<vec3<i32>, 14> = array<vec3<i32>, 14>(
 
 // Extract coordinates from Route64 value
 fn decode_route64(value: u64) -> vec3<i32> {
-    // Route64 format: [2 bits header | 20 bits x | 20 bits y | 20 bits z | 2 bits parity]
-    var x = i32((value >> 42u) & 0xFFFFFu);
-    var y = i32((value >> 22u) & 0xFFFFFu);
-    var z = i32((value >> 2u) & 0xFFFFFu);
+    // Route64 format: [2 bits header | 2 bits tier | 20 bits x | 20 bits y | 20 bits z]
+    // Bits 63-62: header (0b01)
+    // Bits 61-60: tier (0-3)
+    // Bits 59-40: x (20 bits, signed)
+    // Bits 39-20: y (20 bits, signed)
+    // Bits 19-0:  z (20 bits, signed)
+
+    // WGSL doesn't support bitwise ops on u64, so we work with u32 parts
+    let high = u32(value >> 32u);
+    let low = u32(value); // Truncation automatically masks to lower 32 bits
+
+    // high = bits 63-32, low = bits 31-0
+    // x needs bits 59-40: high[27:8]
+    var x = i32((high >> 8u) & 0xFFFFFu);
+    // y needs bits 39-20: high[7:0] + low[31:20]
+    var y = i32(((high & 0xFFu) << 12u) | (low >> 20u));
+    // z needs bits 19-0: low[19:0]
+    var z = i32(low & 0xFFFFFu);
 
     // Sign extension for 20-bit signed integers
     if ((x & 0x80000) != 0) {
@@ -48,21 +62,30 @@ fn decode_route64(value: u64) -> vec3<i32> {
     return vec3<i32>(x, y, z);
 }
 
-// Encode coordinates back to Route64 value
-fn encode_route64(coords: vec3<i32>) -> u64 {
-    // Calculate parity (BCC lattice requires even parity)
-    let parity = u64((coords.x + coords.y + coords.z) & 1);
+// Encode coordinates back to Route64 value with tier
+fn encode_route64(tier: u32, coords: vec3<i32>) -> u64 {
+    // Mask to 20 bits using u32 operations
+    let x = u32(coords.x) & 0xFFFFFu;
+    let y = u32(coords.y) & 0xFFFFFu;
+    let z = u32(coords.z) & 0xFFFFFu;
 
-    // Mask to 20 bits
-    let x = u64(coords.x) & 0xFFFFFu;
-    let y = u64(coords.y) & 0xFFFFFu;
-    let z = u64(coords.z) & 0xFFFFFu;
-
-    // Header bits (01 for Route64)
+    // Header bits (0b01 for Route64)
     let header = 0x01u;
+    let tier_bits = tier & 0x3u;
 
-    // Combine: [2 bits header | 20 bits x | 20 bits y | 20 bits z | 2 bits parity]
-    return (header << 62u) | (x << 42u) | (y << 22u) | (z << 2u) | parity;
+    // Combine using u32 parts:
+    // Bits 63-62: header (2 bits)
+    // Bits 61-60: tier (2 bits)
+    // Bits 59-40: x (20 bits)
+    // Bits 39-20: y (20 bits)
+    // Bits 19-0:  z (20 bits)
+
+    // high word (bits 63-32): header[1:0] + tier[1:0] + x[19:0] + y[19:12]
+    let high = (header << 30u) | (tier_bits << 28u) | (x << 8u) | (y >> 12u);
+    // low word (bits 31-0): y[11:0] + z[19:0]
+    let low = ((y & 0xFFFu) << 20u) | z;
+
+    return (u64(high) << 32u) | u64(low);
 }
 
 // Main compute kernel for batch neighbor calculation
@@ -81,11 +104,25 @@ fn batch_neighbors(@builtin(global_invocation_id) global_id: vec3<u32>) {
     // Decode route to coordinates
     let coords = decode_route64(route_value);
 
-    // Calculate 14 neighbors
+    // Extract tier from input route (bits 61-60)
+    let high = u32(route_value >> 32u);
+    let tier = (high >> 28u) & 0x3u;
+
+    // Calculate 14 neighbors - unroll loop since WGSL requires constant array indices
     let output_base = gid * 14u;
 
-    for (var i = 0u; i < 14u; i = i + 1u) {
-        let neighbor_coords = coords + BCC_NEIGHBOR_OFFSETS[i];
-        output_routes[output_base + i] = encode_route64(neighbor_coords);
-    }
+    output_routes[output_base + 0u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[0]);
+    output_routes[output_base + 1u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[1]);
+    output_routes[output_base + 2u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[2]);
+    output_routes[output_base + 3u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[3]);
+    output_routes[output_base + 4u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[4]);
+    output_routes[output_base + 5u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[5]);
+    output_routes[output_base + 6u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[6]);
+    output_routes[output_base + 7u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[7]);
+    output_routes[output_base + 8u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[8]);
+    output_routes[output_base + 9u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[9]);
+    output_routes[output_base + 10u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[10]);
+    output_routes[output_base + 11u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[11]);
+    output_routes[output_base + 12u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[12]);
+    output_routes[output_base + 13u] = encode_route64(tier, coords + BCC_NEIGHBOR_OFFSETS[13]);
 }

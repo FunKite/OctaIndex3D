@@ -79,7 +79,9 @@ impl Compression for ZstdCompression {
     }
 
     fn decompress(&self, src: &[u8]) -> Result<Vec<u8>> {
-        zstd::bulk::decompress(src, src.len() * 4)
+        // Use zstd::stream::decode_all which automatically handles buffer sizing
+        // by reading the decompressed size from the frame header
+        zstd::stream::decode_all(src)
             .map_err(|e| Error::Codec(format!("Zstd decompression failed: {}", e)))
     }
 }

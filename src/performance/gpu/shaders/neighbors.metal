@@ -27,12 +27,16 @@ constant int4 BCC_NEIGHBOR_OFFSETS[14] = {
 
 // Extract coordinates from Route64 value
 inline int3 decode_route64(ulong value) {
-    // Route64 format: [2 bits header | 20 bits x | 20 bits y | 20 bits z | 2 bits parity]
-    // Coordinates are stored as signed 20-bit integers
+    // Route64 format: [2 bits header | 2 bits tier | 20 bits x | 20 bits y | 20 bits z]
+    // Bits 63-62: header (0b01)
+    // Bits 61-60: tier (0-3)
+    // Bits 59-40: x (20 bits, signed)
+    // Bits 39-20: y (20 bits, signed)
+    // Bits 19-0:  z (20 bits, signed)
 
-    int x = int((value >> 42) & 0xFFFFF); // Extract 20 bits for x
-    int y = int((value >> 22) & 0xFFFFF); // Extract 20 bits for y
-    int z = int((value >> 2) & 0xFFFFF);  // Extract 20 bits for z
+    int x = int((value >> 40) & 0xFFFFF); // Extract 20 bits for x
+    int y = int((value >> 20) & 0xFFFFF); // Extract 20 bits for y
+    int z = int(value & 0xFFFFF);         // Extract 20 bits for z
 
     // Sign extension for 20-bit signed integers
     if (x & 0x80000) x |= 0xFFF00000;
@@ -43,20 +47,21 @@ inline int3 decode_route64(ulong value) {
 }
 
 // Encode coordinates back to Route64 value
-inline ulong encode_route64(int frame, int3 coords) {
-    // Ensure parity (BCC lattice requires even parity)
-    int parity = (coords.x + coords.y + coords.z) & 1;
+inline ulong encode_route64(int tier, int3 coords) {
+    // Validate parity (BCC lattice requires even parity)
+    // Note: We don't error here, just encode as-is. The Rust side will validate.
 
     // Mask to 20 bits
     ulong x = ulong(coords.x) & 0xFFFFF;
     ulong y = ulong(coords.y) & 0xFFFFF;
     ulong z = ulong(coords.z) & 0xFFFFF;
 
-    // Header bits (01 for Route64)
+    // Header bits (0b01 for Route64)
     ulong header = 0x01;
+    ulong tier_bits = ulong(tier) & 0x3;
 
-    // Combine: [2 bits header | 20 bits x | 20 bits y | 20 bits z | 2 bits parity]
-    return (header << 62) | (x << 42) | (y << 22) | (z << 2) | ulong(parity);
+    // Combine: [2 bits header | 2 bits tier | 20 bits x | 20 bits y | 20 bits z]
+    return (header << 62) | (tier_bits << 60) | (x << 40) | (y << 20) | z;
 }
 
 // Main compute kernel for batch neighbor calculation
@@ -71,15 +76,15 @@ kernel void batch_neighbors(
     // Decode route to coordinates
     int3 coords = decode_route64(route_value);
 
-    // Extract frame (assuming frame 0 for now, can be extended)
-    int frame = 0;
+    // Extract tier from input route (bits 61-60)
+    int tier = int((route_value >> 60) & 0x3);
 
     // Calculate 14 neighbors
     uint output_base = gid * 14;
 
     for (uint i = 0; i < 14; i++) {
         int3 neighbor_coords = coords + BCC_NEIGHBOR_OFFSETS[i].xyz;
-        output_routes[output_base + i] = encode_route64(frame, neighbor_coords);
+        output_routes[output_base + i] = encode_route64(tier, neighbor_coords);
     }
 }
 
@@ -96,12 +101,14 @@ kernel void batch_neighbors_grouped(
 
     ulong route_value = input_routes[gid];
     int3 coords = decode_route64(route_value);
-    int frame = 0;
+
+    // Extract tier from input route (bits 61-60)
+    int tier = int((route_value >> 60) & 0x3);
 
     uint output_base = gid * 14;
 
     for (uint i = 0; i < 14; i++) {
         int3 neighbor_coords = coords + BCC_NEIGHBOR_OFFSETS[i].xyz;
-        output_routes[output_base + i] = encode_route64(frame, neighbor_coords);
+        output_routes[output_base + i] = encode_route64(tier, neighbor_coords);
     }
 }
