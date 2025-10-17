@@ -70,6 +70,7 @@ pub struct SolveStats {
     pub path_valid_on_tree: bool,
     pub theoretical_min_distance: u32,
     pub nodes_per_sec: f64,
+    pub path_details: Vec<(Coord, String)>,
 }
 
 /// Configuration for BCC-14 Prim's algorithm
@@ -80,10 +81,11 @@ pub struct BccPrimConfig {
     pub goal: Coord,
 }
 
-/// Generated graph structure with parent pointers
+/// Generated graph structure with parent pointers and children adjacency list
 pub struct GraphBcc {
     pub extent: (u32, u32, u32),
     pub parent: Vec<u32>,
+    pub children: Vec<Vec<u32>>, // children[i] = list of node indices whose parent is i
     pub start_id: u32,
     pub goal_id: u32,
     pub total_nodes: u64,
@@ -150,11 +152,11 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
     let valid_bcc_nodes = count_valid_bcc_nodes(cfg.extent);
 
     let mut parent = vec![u32::MAX; total_nodes as usize];
-    let mut in_frontier = vec![false; total_nodes as usize]; // Deduplication for frontier
     let mut frontier_state = vec![0u8; total_nodes as usize]; // 0=unvisited, 1=frontier, 2=carved
-    let mut frontier: Vec<u32> = Vec::with_capacity((valid_bcc_nodes as usize) / 10);
+    let mut frontier: Vec<u32> = Vec::with_capacity(50000); // Expect ~O(n²) surface area
     let mut edges_created = 0u64;
     let mut frontier_duplicates = 0u64;
+    let mut frontier_size = 0u32; // Track actual frontier size
 
     // Initialize with start coordinate
     let start_idx = coord_to_index(cfg.extent, cfg.start)
@@ -170,17 +172,15 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
             continue; // Skip invalid parity
         }
         if let Some(neighbor_idx) = coord_to_index(cfg.extent, neighbor_coord) {
-            if frontier_state[neighbor_idx as usize] == 0 && !in_frontier[neighbor_idx as usize] {
+            if frontier_state[neighbor_idx as usize] == 0 {
                 frontier_state[neighbor_idx as usize] = 1;
-                in_frontier[neighbor_idx as usize] = true;
                 frontier.push(neighbor_idx);
-            } else if in_frontier[neighbor_idx as usize] {
-                frontier_duplicates += 1;
+                frontier_size += 1;
             }
         }
     }
 
-    let mut frontier_peak = frontier.len() as u32;
+    let mut frontier_peak = frontier_size;
 
     // Randomized Prim's algorithm - proper deduplication
     let mut swap_idx = 0;
@@ -219,27 +219,27 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
             let parent_idx = carved_neighbors[rng.gen_range(0..carved_count)];
             parent[frontier_node as usize] = parent_idx;
             frontier_state[frontier_node as usize] = 2; // Mark as carved
-            in_frontier[frontier_node as usize] = false;
             edges_created += 1;
+            frontier_size -= 1; // Remove from frontier
 
-            // Add unvisited neighbors to frontier (with deduplication)
+            // Add unvisited neighbors to frontier (proper deduplication)
             for &neighbor_coord in &neighbors {
                 if !is_valid_bcc(neighbor_coord) {
                     continue;
                 }
                 if let Some(neighbor_idx) = coord_to_index(cfg.extent, neighbor_coord) {
-                    if frontier_state[neighbor_idx as usize] == 0 && !in_frontier[neighbor_idx as usize] {
+                    if frontier_state[neighbor_idx as usize] == 0 {
                         frontier_state[neighbor_idx as usize] = 1;
-                        in_frontier[neighbor_idx as usize] = true;
                         frontier.push(neighbor_idx);
-                    } else if in_frontier[neighbor_idx as usize] {
-                        frontier_duplicates += 1;
+                        frontier_size += 1;
+                    } else if frontier_state[neighbor_idx as usize] == 1 {
+                        frontier_duplicates += 1; // Track duplicate attempts
                     }
                 }
             }
 
-            if frontier.len() as u32 > frontier_peak {
-                frontier_peak = frontier.len() as u32;
+            if frontier_size > frontier_peak {
+                frontier_peak = frontier_size;
             }
         }
     }
@@ -270,9 +270,18 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
         .expect("Goal coordinate out of bounds");
     assert!(is_valid_bcc(cfg.goal), "Goal must be valid BCC coordinate");
 
+    // Build children adjacency list for fast tree traversal
+    let mut children: Vec<Vec<u32>> = vec![Vec::new(); total_nodes as usize];
+    for (idx, &parent_idx) in parent.iter().enumerate() {
+        if parent_idx != u32::MAX && parent_idx != idx as u32 {
+            children[parent_idx as usize].push(idx as u32);
+        }
+    }
+
     let graph = GraphBcc {
         extent: cfg.extent,
         parent,
+        children,
         start_id: start_idx,
         goal_id: goal_idx,
         total_nodes,
@@ -347,25 +356,28 @@ fn bfs_path_length(g: &GraphBcc, start: Coord, goal: Coord) -> Option<usize> {
             return Some(distance[goal_idx as usize]);
         }
 
-        let current_coord = index_to_coord(g.extent, current_idx);
-        let neighbors = get_neighbors(g.extent, current_coord);
+        // Follow only tree edges (parent-child relationships)
+        let mut tree_edges = Vec::new();
 
-        for neighbor_coord in neighbors {
-            if !is_valid_bcc(neighbor_coord) {
+        // Edge to parent
+        let parent_idx = g.parent[current_idx as usize];
+        if parent_idx != current_idx {
+            tree_edges.push(parent_idx);
+        }
+
+        // Edges to all children (fast lookup via adjacency list)
+        for &child_idx in &g.children[current_idx as usize] {
+            tree_edges.push(child_idx);
+        }
+
+        for neighbor_idx in tree_edges {
+            if visited[neighbor_idx as usize] {
                 continue;
             }
-            if let Some(neighbor_idx) = coord_to_index(g.extent, neighbor_coord) {
-                if visited[neighbor_idx as usize] {
-                    continue;
-                }
-                if g.parent[neighbor_idx as usize] == u32::MAX {
-                    continue; // Not carved
-                }
 
-                visited[neighbor_idx as usize] = true;
-                distance[neighbor_idx as usize] = distance[current_idx as usize] + 1;
-                queue.push_back(neighbor_idx);
-            }
+            visited[neighbor_idx as usize] = true;
+            distance[neighbor_idx as usize] = distance[current_idx as usize] + 1;
+            queue.push_back(neighbor_idx);
         }
     }
 
@@ -470,6 +482,29 @@ pub fn solve_astar_bcc14(g: &GraphBcc, start: Coord, goal: Coord) -> (Vec<Coord>
 
             let path_valid = validate_path_on_tree(g, &path);
 
+            // Prepare path details for display
+            let mut path_details = Vec::new();
+            for i in 0..path_indices.len() {
+                let idx = path_indices[i];
+                let coord = path[i];
+                let parent_idx = g.parent[idx as usize];
+
+                let edge_type = if i == 0 {
+                    "START".to_string()
+                } else {
+                    let prev_idx = path_indices[i - 1];
+                    if parent_idx == prev_idx {
+                        "↓ child→parent".to_string()
+                    } else if g.children[prev_idx as usize].contains(&idx) {
+                        "↓ parent→child".to_string()
+                    } else {
+                        "? unknown".to_string()
+                    }
+                };
+
+                path_details.push((coord, edge_type));
+            }
+
             let solve_ms = start_time.elapsed().as_millis();
             let nodes_per_sec = (nodes_expanded as f64) / (solve_ms as f64 / 1000.0);
 
@@ -483,6 +518,7 @@ pub fn solve_astar_bcc14(g: &GraphBcc, start: Coord, goal: Coord) -> (Vec<Coord>
                 path_valid_on_tree: path_valid,
                 theoretical_min_distance: theoretical_min,
                 nodes_per_sec,
+                path_details: path_details.clone(),
             };
 
             return (path, stats);
@@ -494,41 +530,43 @@ pub fn solve_astar_bcc14(g: &GraphBcc, start: Coord, goal: Coord) -> (Vec<Coord>
         closed_set[current_idx as usize] = true;
         nodes_expanded += 1;
 
-        let current_coord = index_to_coord(g.extent, current_idx);
-        let neighbors = get_neighbors(g.extent, current_coord);
+        // In a spanning tree, follow ONLY parent-child edges via adjacency list
+        let mut tree_edges = Vec::new();
 
-        for neighbor_coord in neighbors {
-            if !is_valid_bcc(neighbor_coord) {
+        // Edge to parent
+        let parent_idx = g.parent[current_idx as usize];
+        if parent_idx != current_idx {
+            // Not root (root's parent is itself)
+            tree_edges.push(parent_idx);
+        }
+
+        // Edges to all children (fast lookup via adjacency list)
+        for &child_idx in &g.children[current_idx as usize] {
+            tree_edges.push(child_idx);
+        }
+
+        for neighbor_idx in tree_edges {
+            if closed_set[neighbor_idx as usize] {
                 continue;
             }
-            if let Some(neighbor_idx) = coord_to_index(g.extent, neighbor_coord) {
-                if closed_set[neighbor_idx as usize] {
-                    continue;
-                }
 
-                // Only traverse carved nodes (tree edge constraint)
-                if g.parent[neighbor_idx as usize] == u32::MAX {
-                    continue;
-                }
+            nodes_evaluated += 1;
 
-                nodes_evaluated += 1;
+            // Calculate tentative g_cost
+            let tentative_g = g_cost[current_idx as usize].saturating_add(1);
 
-                // Calculate tentative g_cost
-                let tentative_g = g_cost[current_idx as usize].saturating_add(1);
+            if tentative_g < g_cost[neighbor_idx as usize] {
+                came_from[neighbor_idx as usize] = current_idx;
+                g_cost[neighbor_idx as usize] = tentative_g;
 
-                if tentative_g < g_cost[neighbor_idx as usize] {
-                    came_from[neighbor_idx as usize] = current_idx;
-                    g_cost[neighbor_idx as usize] = tentative_g;
+                let h = heuristic(g.extent, neighbor_idx, goal_idx);
+                let f = tentative_g.saturating_add(h);
 
-                    let h = heuristic(g.extent, neighbor_idx, goal_idx);
-                    let f = tentative_g.saturating_add(h);
-
-                    open_set.push(AstarNode {
-                        idx: neighbor_idx,
-                        g_cost: tentative_g,
-                        f_cost: f,
-                    });
-                }
+                open_set.push(AstarNode {
+                    idx: neighbor_idx,
+                    g_cost: tentative_g,
+                    f_cost: f,
+                });
             }
         }
     }
@@ -545,6 +583,7 @@ pub fn solve_astar_bcc14(g: &GraphBcc, start: Coord, goal: Coord) -> (Vec<Coord>
         path_valid_on_tree: false,
         theoretical_min_distance: theoretical_min,
         nodes_per_sec: 0.0,
+        path_details: Vec::new(),
     };
 
     (Vec::new(), stats)
@@ -691,6 +730,25 @@ fn main() {
              solve_elapsed.as_secs_f64(), solve_stats.solve_ms);
     if solve_stats.nodes_expanded > 0 {
         println!("    • Search rate: {:.1}M nodes/sec", solve_stats.nodes_per_sec / 1_000_000.0);
+    }
+
+    // Detailed path trace
+    if !path.is_empty() && !solve_stats.path_details.is_empty() {
+        println!("\n🗺️  PATH TRACE ({} steps)", solve_stats.path_details.len() - 1);
+        println!("─────────────────────────────────────────────────────────────────");
+
+        for (step, (coord, edge_type)) in solve_stats.path_details.iter().enumerate() {
+            if step == 0 {
+                println!("  0️⃣  Start at {:?}", coord);
+            } else if step == solve_stats.path_details.len() - 1 {
+                println!("  ✅ Goal at {:?} | {}", coord, edge_type);
+            } else if step % 20 == 0 {
+                // Show every 20th step to avoid too much output
+                println!("  {} Step {:3}: {:?} | {}",
+                         if step % 50 == 0 { "📍" } else { "  " }, step, coord, edge_type);
+            }
+        }
+        println!("    (showing every 20th step; {} total steps)\n", solve_stats.path_details.len() - 1);
     }
 
     // Phase 3: Summary
