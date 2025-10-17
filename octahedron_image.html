@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truncated Octahedron</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 640px;
+            height: 640px;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 640px;
+            height: 640px;
+            background: radial-gradient(circle at 30% 30%, rgba(20, 100, 60, 0.1), transparent 50%),
+                        radial-gradient(circle at center, #0a0e27, #050810);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const container = document.getElementById('canvas-container');
+        const width = 640;
+        const height = 640;
+
+        const scene = new THREE.Scene();
+        scene.background = null;
+
+        const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 10000);
+        camera.position.set(0, 0, 3);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Minimal lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+
+        // Create wireframe octahedron
+        function createWireframeOctahedron() {
+            const geometry = new THREE.OctahedronGeometry(1.5, 3);
+
+            // Extract edges for wireframe
+            const edges = new THREE.EdgesGeometry(geometry);
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x00ff99,
+                linewidth: 2,
+                transparent: true,
+                opacity: 1
+            });
+
+            const wireframe = new THREE.LineSegments(edges, lineMaterial);
+            return wireframe;
+        }
+
+        const octahedron = createWireframeOctahedron();
+        scene.add(octahedron);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Smooth rotation on all axes
+            octahedron.rotation.x += 0.002;
+            octahedron.rotation.y += 0.0025;
+            octahedron.rotation.z += 0.0015;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
