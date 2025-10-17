@@ -2,8 +2,6 @@
 //!
 //! Converts Galactic128 IDs to GeoJSON format with WGS84 coordinates.
 
-#![cfg(feature = "gis_geojson")]
-
 use crate::error::Result;
 use crate::frame::get_frame;
 use crate::ids::Galactic128;

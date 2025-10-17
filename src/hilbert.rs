@@ -3,8 +3,6 @@
 //! Provides 64-bit Hilbert curve keys with better spatial locality than Morton codes.
 //! Uses table-driven Butz/Skilling algorithm for efficient encode/decode.
 
-#![cfg(feature = "hilbert")]
-
 use crate::error::{Error, Result};
 use crate::ids::{FrameId, Index64};
 

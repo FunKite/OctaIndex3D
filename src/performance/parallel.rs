@@ -216,7 +216,7 @@ mod tests {
 
         let routes: Vec<Route64> = (0..100)
             .map(|i| {
-                let coord = (i * 2) as i32;
+                let coord = i * 2;
                 Route64::new(0, coord, coord, coord).unwrap()
             })
             .collect();

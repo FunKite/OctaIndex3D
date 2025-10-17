@@ -140,7 +140,7 @@ fn profile_route64_operations() {
     let count = 50_000;
     let routes: Vec<Route64> = (0..count)
         .map(|i| {
-            let coord = ((i % 10000) * 2) as i32;
+            let coord = (i % 10000) * 2;
             Route64::new(0, coord, coord, coord).unwrap()
         })
         .collect();
@@ -253,7 +253,7 @@ fn profile_distance_operations() {
     let source = Route64::new(0, 5000, 5000, 5000).unwrap();
     let targets: Vec<Route64> = (0..50_000)
         .map(|i| {
-            let coord = ((i % 10000) * 2) as i32;
+            let coord = (i % 10000) * 2;
             Route64::new(0, coord, coord, coord).unwrap()
         })
         .collect();
@@ -294,9 +294,9 @@ fn profile_spatial_queries() {
 
     let routes: Vec<Route64> = (0..100_000)
         .map(|i| {
-            let x = ((i % 200) * 100) as i32;
-            let y = (((i / 200) % 200) * 100) as i32;
-            let z = (((i / 40000) % 200) * 100) as i32;
+            let x = (i % 200) * 100;
+            let y = ((i / 200) % 200) * 100;
+            let z = ((i / 40000) % 200) * 100;
             Route64::new(0, x, y, z).unwrap()
         })
         .collect();

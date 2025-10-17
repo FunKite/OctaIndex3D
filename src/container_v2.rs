@@ -6,8 +6,6 @@
 //! - Crash recovery with checkpoints
 //! - Optional SHA-256 integrity
 
-#![cfg(feature = "container_v2")]
-
 use crate::compression::Compression;
 use crate::error::{Error, Result};
 use crc32fast::Hasher;

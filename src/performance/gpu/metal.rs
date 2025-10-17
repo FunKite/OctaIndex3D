@@ -108,7 +108,7 @@ impl GpuBackend for MetalBackend {
         };
 
         let thread_groups = MTLSize {
-            width: ((input_count + 255) / 256) as u64,
+            width: input_count.div_ceil(256) as u64,
             height: 1,
             depth: 1,
         };
@@ -185,7 +185,7 @@ mod tests {
         // Create test routes
         let routes: Vec<Route64> = (0..100)
             .map(|i| {
-                let coord = (i * 2) as i32;
+                let coord = i * 2;
                 Route64::new(0, coord, coord, coord).unwrap()
             })
             .collect();

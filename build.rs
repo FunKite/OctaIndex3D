@@ -33,7 +33,7 @@ fn generate_hilbert_tables(f: &mut File) -> std::io::Result<()> {
     // Based on Butz algorithm with 12 states (we use 24 for extended symmetry)
     let state_table = generate_proper_state_table();
 
-    for (state, state_row) in state_table.iter().enumerate().take(24) {
+    for (_state, state_row) in state_table.iter().enumerate().take(24) {
         write!(f, "    [")?;
         for (octant, &(next_state, hilbert_idx)) in state_row.iter().enumerate() {
             write!(f, "({}, {})", next_state, hilbert_idx)?;
@@ -41,7 +41,7 @@ fn generate_hilbert_tables(f: &mut File) -> std::io::Result<()> {
                 write!(f, ", ")?;
             }
         }
-        writeln!(f, "],{}", if state < 23 { "" } else { "" })?;
+        writeln!(f, "],")?;
     }
     writeln!(f, "];\n")?;
 

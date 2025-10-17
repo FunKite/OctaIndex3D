@@ -698,7 +698,7 @@ mod tests {
         // Test with larger batch to trigger SIMD path
         let mut routes = Vec::new();
         for i in 0..100 {
-            let coord = (i * 2) as i32;
+            let coord = i * 2;
             routes.push(Route64::new(0, coord, coord, coord).unwrap());
         }
 

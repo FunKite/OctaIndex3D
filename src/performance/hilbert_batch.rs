@@ -3,8 +3,6 @@
 //! Provides SIMD-accelerated batch operations for Hilbert curve encoding.
 //! Hilbert curves provide better spatial locality than Morton codes.
 
-#![cfg(feature = "hilbert")]
-
 use crate::hilbert::{hilbert3d_decode, hilbert3d_encode};
 
 /// Batch Hilbert encode multiple coordinates
@@ -223,8 +221,8 @@ mod tests {
 
         // Distance in Hilbert space between nearby points should be smaller
         // than distance to far away point
-        let dist_nearby = if h2 > h1 { h2 - h1 } else { h1 - h2 };
-        let dist_far = if h3 > h1 { h3 - h1 } else { h1 - h3 };
+        let dist_nearby = h2.abs_diff(h1);
+        let dist_far = h3.abs_diff(h1);
 
         assert!(
             dist_nearby < dist_far,

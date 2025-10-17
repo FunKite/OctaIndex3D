@@ -176,8 +176,8 @@ impl GpuBackend for WgpuBackend {
             compute_pass.set_bind_group(0, &bind_group, &[]);
 
             // Dispatch workgroups (256 threads per workgroup)
-            let workgroup_count = (input_count + 255) / 256;
-            compute_pass.dispatch_workgroups(workgroup_count as u32, 1, 1);
+            let workgroup_count = input_count.div_ceil(256) as u32;
+            compute_pass.dispatch_workgroups(workgroup_count, 1, 1);
         }
 
         // Copy output to staging buffer
@@ -270,7 +270,7 @@ mod tests {
         // Create test routes
         let routes: Vec<Route64> = (0..100)
             .map(|i| {
-                let coord = (i * 2) as i32;
+                let coord = i * 2;
                 Route64::new(0, coord, coord, coord).unwrap()
             })
             .collect();

@@ -87,7 +87,7 @@ jobs:
           components: clippy
 
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::unused_imports -A clippy::dead_code
+        run: cargo clippy --all-targets --all-features -- -D warnings -A unused_imports -A dead_code
 
   fmt:
     name: Rustfmt

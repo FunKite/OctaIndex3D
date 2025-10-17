@@ -219,7 +219,7 @@ mod tests {
     fn test_batch_neighbors_fast() {
         let routes: Vec<Route64> = (0..10)
             .map(|i| {
-                let coord = (i * 2) as i32;
+                let coord = i * 2;
                 Route64::new(0, coord, coord, coord).unwrap()
             })
             .collect();
@@ -244,7 +244,7 @@ mod tests {
     fn test_batch_neighbors_medium() {
         let routes: Vec<Route64> = (0..500)
             .map(|i| {
-                let coord = (i * 2) as i32;
+                let coord = i * 2;
                 Route64::new(0, coord, coord, coord).unwrap()
             })
             .collect();
