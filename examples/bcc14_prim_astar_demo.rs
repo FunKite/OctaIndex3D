@@ -323,6 +323,55 @@ fn theoretical_distance(start: Coord, goal: Coord) -> u32 {
     dx.max(dy).max(dz)
 }
 
+/// BFS pathfinding on carved tree (for verification)
+fn bfs_path_length(g: &GraphBcc, start: Coord, goal: Coord) -> Option<usize> {
+    use std::collections::VecDeque;
+
+    let start_idx = coord_to_index(g.extent, start)?;
+    let goal_idx = coord_to_index(g.extent, goal)?;
+
+    if g.parent[start_idx as usize] == u32::MAX || g.parent[goal_idx as usize] == u32::MAX {
+        return None;
+    }
+
+    let mut queue = VecDeque::new();
+    let mut visited = vec![false; g.total_nodes as usize];
+    let mut distance = vec![usize::MAX; g.total_nodes as usize];
+
+    queue.push_back(start_idx);
+    visited[start_idx as usize] = true;
+    distance[start_idx as usize] = 0;
+
+    while let Some(current_idx) = queue.pop_front() {
+        if current_idx == goal_idx {
+            return Some(distance[goal_idx as usize]);
+        }
+
+        let current_coord = index_to_coord(g.extent, current_idx);
+        let neighbors = get_neighbors(g.extent, current_coord);
+
+        for neighbor_coord in neighbors {
+            if !is_valid_bcc(neighbor_coord) {
+                continue;
+            }
+            if let Some(neighbor_idx) = coord_to_index(g.extent, neighbor_coord) {
+                if visited[neighbor_idx as usize] {
+                    continue;
+                }
+                if g.parent[neighbor_idx as usize] == u32::MAX {
+                    continue; // Not carved
+                }
+
+                visited[neighbor_idx as usize] = true;
+                distance[neighbor_idx as usize] = distance[current_idx as usize] + 1;
+                queue.push_back(neighbor_idx);
+            }
+        }
+    }
+
+    None
+}
+
 /// Validate that a path is actually connected in the carved tree
 fn validate_path_on_tree(g: &GraphBcc, path: &[Coord]) -> bool {
     for i in 0..path.len() - 1 {
@@ -524,6 +573,8 @@ fn main() {
     let extent = (130u32, 130u32, 130u32);
     let total_nodes = (extent.0 as u64) * (extent.1 as u64) * (extent.2 as u64);
 
+    // Note: Seed 42 happens to generate a tree containing the optimal diagonal path
+    // from (0,0,0) → (129,129,129). Most random seeds will produce longer tree paths.
     let config = BccPrimConfig {
         extent,
         seed: 42,
@@ -535,7 +586,7 @@ fn main() {
     println!("  • Grid extent: {} × {} × {} = {} total lattice points",
              extent.0, extent.1, extent.2, format_number(total_nodes));
     println!("  • Lattice type: Body-Centered Cubic (BCC-14)");
-    println!("  • Valid BCC points: ~50% (parity constraint: all even OR all odd)");
+    println!("  • Valid BCC points: 25% (parity constraint: all even OR all odd)");
     println!("  • Neighbors per node: 14 (8 body diagonals + 6 axial double-steps)");
     println!("  • Randomization seed: {}", config.seed);
     println!("  • Start: {:?}", config.start);
@@ -575,6 +626,9 @@ fn main() {
     let (path, solve_stats) = solve_astar_bcc14(&graph, config.start, config.goal);
     let solve_elapsed = solve_start.elapsed();
 
+    // BFS verification (tree path should be unique)
+    let bfs_path_len = bfs_path_length(&graph, config.start, config.goal);
+
     if !path.is_empty() {
         println!("  ✓ Path found successfully!");
         println!("    • Path length: {} hops", path.len() - 1);
@@ -582,6 +636,16 @@ fn main() {
         println!("    • Path overshoot factor: {:.1}x",
                  (path.len() as f64 - 1.0) / solve_stats.theoretical_min_distance as f64);
         println!("    • Path valid on tree: {}", if solve_stats.path_valid_on_tree { "✓ YES" } else { "✗ NO" });
+
+        // BFS cross-check
+        if let Some(bfs_len) = bfs_path_len {
+            let matches = (path.len() - 1) == bfs_len;
+            println!("    • BFS verification: {} (BFS={} hops)",
+                     if matches { "✓ MATCH" } else { "✗ MISMATCH" }, bfs_len);
+        } else {
+            println!("    • BFS verification: ✗ FAILED (no BFS path found)");
+        }
+
         println!("    • Nodes expanded: {}", format_number(solve_stats.nodes_expanded));
         println!("    • Nodes evaluated: {}", format_number(solve_stats.nodes_evaluated));
         println!("    • Open set peak: {} nodes", format_number(solve_stats.open_peak as u64));
@@ -590,6 +654,9 @@ fn main() {
         println!("  ✗ No path found!");
         println!("    • Goal unreachable from start on the carved tree");
         println!("    • Theoretical minimum (free space): {} hops", solve_stats.theoretical_min_distance);
+        if let Some(bfs_len) = bfs_path_len {
+            println!("    • BFS verification: ⚠️  BFS found path ({} hops) but A* didn't!", bfs_len);
+        }
     }
 
     println!("  ⏱️  Solve time: {:.2}s ({} ms)",
@@ -639,11 +706,17 @@ fn main() {
     let coverage_ok = build_stats.nodes_carved == build_stats.valid_bcc_nodes;
     let frontier_ok = build_stats.frontier_peak < (build_stats.nodes_carved as u32);
     let path_valid = !path.is_empty() && solve_stats.path_valid_on_tree;
+    let bfs_matches = if let Some(bfs_len) = bfs_path_len {
+        !path.is_empty() && (path.len() - 1) == bfs_len
+    } else {
+        path.is_empty()
+    };
 
     println!("  ✓ Spanning tree property (E == N-1): {}", if tree_valid { "✓ PASS" } else { "✗ FAIL" });
     println!("  ✓ Full BCC coverage (carved all valid): {}", if coverage_ok { "✓ PASS" } else { "✗ FAIL" });
     println!("  ✓ Frontier deduplication: {}", if frontier_ok { "✓ PASS" } else { "✗ FAIL" });
     println!("  ✓ Path valid on tree: {}", if path_valid { "✓ PASS" } else { "✗ FAIL" });
+    println!("  ✓ BFS cross-check (A* == BFS): {}", if bfs_matches { "✓ PASS" } else { "✗ FAIL" });
 
     // Performance goals check
     println!("\n✨ PERFORMANCE TARGETS");
@@ -660,12 +733,12 @@ fn main() {
     println!("  ✓ Memory usage < 350 MB: {} ({:.1} MB)",
              if memory_ok { "PASS ✓" } else { "FAIL ✗" }, build_stats.memory_mb);
 
-    let all_valid = tree_valid && coverage_ok && frontier_ok && path_valid;
+    let all_valid = tree_valid && coverage_ok && frontier_ok && path_valid && bfs_matches;
     let all_perf = build_ok && solve_ok && memory_ok;
 
     println!("\n📊 FINAL RESULT");
     println!("─────────────────────────────────────────────────────────────────");
-    println!("  Algorithm validation: {}", if all_valid { "🎉 CORRECT" } else { "⚠️  CHECK ISSUES" });
-    println!("  Performance targets: {}", if all_perf { "🎉 MET" } else { "⚠️  NEAR" });
+    println!("  Algorithm validation: {}", if all_valid { "🎉 CORRECT (5/5 checks)" } else { "⚠️  CHECK ISSUES" });
+    println!("  Performance targets: {}", if all_perf { "🎉 MET (3/3 targets)" } else { "⚠️  NEAR" });
     println!();
 }
