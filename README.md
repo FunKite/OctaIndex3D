@@ -13,6 +13,10 @@
 
 </div>
 
+<div align="center">
+  <img src="octahedron_image.html" alt="Truncated Octahedron" width="320" height="320" />
+</div>
+
 ## Overview
 
 OctaIndex3D is a high-performance 3D spatial indexing and routing library based on a **Body-Centered Cubic (BCC) lattice** with **truncated octahedral cells**.
