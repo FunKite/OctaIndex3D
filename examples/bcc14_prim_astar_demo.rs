@@ -564,6 +564,9 @@ fn format_number(n: u64) -> String {
 }
 
 fn main() {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    use std::env;
+
     println!("\n╔═══════════════════════════════════════════════════════════════╗");
     println!("║  🚀 BCC-14 3D Lattice: Randomized Prim's → A* Pathfinding   ║");
     println!("║     Body-Centered Cubic with 14-Neighbor Connectivity        ║");
@@ -573,11 +576,31 @@ fn main() {
     let extent = (130u32, 130u32, 130u32);
     let total_nodes = (extent.0 as u64) * (extent.1 as u64) * (extent.2 as u64);
 
-    // Note: Seed 42 happens to generate a tree containing the optimal diagonal path
-    // from (0,0,0) → (129,129,129). Most random seeds will produce longer tree paths.
+    // Seed strategy:
+    // 1. Check for --seed CLI argument
+    // 2. Otherwise use system time nanoseconds
+    // 3. Display seed and note if it's the "lucky" seed 42
+    let seed = env::args()
+        .find_map(|arg| {
+            if arg.starts_with("--seed=") {
+                arg.strip_prefix("--seed=")
+                    .and_then(|s| s.parse::<u64>().ok())
+            } else {
+                None
+            }
+        })
+        .unwrap_or_else(|| {
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|d| d.subsec_nanos() as u64)
+                .unwrap_or(0x0cafebabe)
+        });
+
+    let is_lucky_seed = seed == 42;
+
     let config = BccPrimConfig {
         extent,
-        seed: 42,
+        seed,
         start: (0, 0, 0),
         goal: (129, 129, 129),
     };
@@ -588,7 +611,12 @@ fn main() {
     println!("  • Lattice type: Body-Centered Cubic (BCC-14)");
     println!("  • Valid BCC points: 25% (parity constraint: all even OR all odd)");
     println!("  • Neighbors per node: 14 (8 body diagonals + 6 axial double-steps)");
-    println!("  • Randomization seed: {}", config.seed);
+
+    if is_lucky_seed {
+        println!("  • Randomization seed: {} 🍀 (lucky! includes optimal diagonal path)", config.seed);
+    } else {
+        println!("  • Randomization seed: {} (use --seed=42 for lucky variant)", config.seed);
+    }
     println!("  • Start: {:?}", config.start);
     println!("  • Goal: {:?}\n", config.goal);
 
@@ -740,5 +768,18 @@ fn main() {
     println!("─────────────────────────────────────────────────────────────────");
     println!("  Algorithm validation: {}", if all_valid { "🎉 CORRECT (5/5 checks)" } else { "⚠️  CHECK ISSUES" });
     println!("  Performance targets: {}", if all_perf { "🎉 MET (3/3 targets)" } else { "⚠️  NEAR" });
+    println!();
+
+    // Show how to vary the seed
+    println!("🎲 TRY DIFFERENT SEEDS");
+    println!("─────────────────────────────────────────────────────────────────");
+    println!("  # Reproduce this run:");
+    println!("  cargo run --release --example bcc14_prim_astar_demo -- --seed={}", config.seed);
+    println!();
+    println!("  # Lucky seed (includes optimal diagonal):");
+    println!("  cargo run --release --example bcc14_prim_astar_demo -- --seed=42");
+    println!();
+    println!("  # Random seed (based on system time):");
+    println!("  cargo run --release --example bcc14_prim_astar_demo");
     println!();
 }
