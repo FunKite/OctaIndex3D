@@ -20,10 +20,10 @@ exclude = [
     ".github/workflows/internal/*",
 ]
 
-# Binary targets temporarily disabled - need CLI implementation
-# [[bin]]
-# name = "octaindex3d-repack"
-# path = "src/bin/repack.rs"
+[[bin]]
+name = "octaindex3d"
+path = "src/bin/octaindex3d-cli.rs"
+required-features = ["cli"]
 
 [dependencies]
 # Compression (LZ4 is default)
@@ -70,6 +70,9 @@ rustc-hash = "2.0"
 
 # CLI
 clap = { version = "4.5", features = ["derive"], optional = true }
+rand = { version = "0.8", optional = true }
+crossterm = { version = "0.28", optional = true }
+dirs = { version = "5.0", optional = true }
 
 # Performance: Parallel processing
 rayon = { version = "1.10", optional = true }
@@ -126,7 +129,7 @@ memory-aligned = ["dep:aligned-vec"]
 hilbert = []
 container_v2 = ["dep:sha2"]
 gis_geojson = ["serde", "dep:glam"]
-cli = ["dep:clap", "serde"]
+cli = ["dep:clap", "dep:rand", "dep:crossterm", "dep:dirs", "serde"]
 
 [profile.release]
 opt-level = 3

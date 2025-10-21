@@ -6,20 +6,22 @@
 //! - Utility functions for spatial operations
 
 use clap::{Parser, Subcommand};
-use std::collections::{BinaryHeap, HashMap, HashSet};
-use std::time::Instant;
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::fs;
+use std::path::PathBuf;
+use std::time::Instant;
 
 // Terminal control for single-key input
 use crossterm::{
+    cursor,
     event::{self, Event, KeyCode, KeyEvent},
     terminal::{self, ClearType},
-    cursor,
     ExecutableCommand,
 };
 
 // Re-use types from octaindex3d
-use octaindex3d::{Index64, Route64, Result};
+use octaindex3d::{Index64, Result, Route64};
 
 // ============================================================================
 // Helper Functions
@@ -60,6 +62,12 @@ enum Commands {
         #[arg(short, long, value_parser = ["easy", "medium", "hard"])]
         difficulty: Option<String>,
     },
+
+    /// View competitive statistics against A*
+    Stats,
+
+    /// Reset competitive statistics
+    ResetStats,
 
     /// Run performance benchmarks
     Benchmark {
@@ -120,14 +128,106 @@ fn parse_coord(s: &str) -> std::result::Result<(i32, i32, i32), String> {
         return Err("Coordinate must be in format x,y,z".to_string());
     }
 
-    let x = parts[0].trim().parse::<i32>()
+    let x = parts[0]
+        .trim()
+        .parse::<i32>()
         .map_err(|_| "Invalid x coordinate")?;
-    let y = parts[1].trim().parse::<i32>()
+    let y = parts[1]
+        .trim()
+        .parse::<i32>()
         .map_err(|_| "Invalid y coordinate")?;
-    let z = parts[2].trim().parse::<i32>()
+    let z = parts[2]
+        .trim()
+        .parse::<i32>()
         .map_err(|_| "Invalid z coordinate")?;
 
     Ok((x, y, z))
+}
+
+// ============================================================================
+// Competitive Statistics Tracking
+// ============================================================================
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+struct CompetitiveStats {
+    wins: u32,
+    ties: u32,
+    losses: u32,
+    total_games: u32,
+    best_efficiency: f64,
+    worst_efficiency: f64,
+    total_efficiency: f64,
+}
+
+impl Default for CompetitiveStats {
+    fn default() -> Self {
+        Self {
+            wins: 0,
+            ties: 0,
+            losses: 0,
+            total_games: 0,
+            best_efficiency: 0.0,
+            worst_efficiency: 100.0,
+            total_efficiency: 0.0,
+        }
+    }
+}
+
+impl CompetitiveStats {
+    fn stats_file() -> PathBuf {
+        dirs::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".octaindex3d_stats.json")
+    }
+
+    fn load() -> Self {
+        if let Ok(content) = fs::read_to_string(Self::stats_file()) {
+            if let Ok(stats) = serde_json::from_str(&content) {
+                return stats;
+            }
+        }
+        Self::default()
+    }
+
+    fn save(&self) -> std::io::Result<()> {
+        let json = serde_json::to_string_pretty(self).map_err(std::io::Error::other)?;
+        fs::write(Self::stats_file(), json)
+    }
+
+    fn update(&mut self, player_moves: usize, optimal_moves: usize) {
+        self.total_games += 1;
+        let efficiency = (optimal_moves as f64 / player_moves as f64) * 100.0;
+
+        if player_moves < optimal_moves {
+            self.wins += 1;
+        } else if player_moves == optimal_moves {
+            self.ties += 1;
+        } else {
+            self.losses += 1;
+        }
+
+        self.best_efficiency = self.best_efficiency.max(efficiency);
+        self.worst_efficiency = self.worst_efficiency.min(efficiency);
+        self.total_efficiency += efficiency;
+
+        let _ = self.save();
+    }
+
+    fn win_rate(&self) -> f64 {
+        if self.total_games == 0 {
+            0.0
+        } else {
+            ((self.wins + self.ties) as f64 / self.total_games as f64) * 100.0
+        }
+    }
+
+    fn average_efficiency(&self) -> f64 {
+        if self.total_games == 0 {
+            0.0
+        } else {
+            self.total_efficiency / self.total_games as f64
+        }
+    }
 }
 
 // ============================================================================
@@ -147,10 +247,21 @@ fn is_valid_bcc(c: Coord) -> bool {
 /// BCC lattice neighbors (14-connectivity)
 const BCC_NEIGHBORS: &[(i32, i32, i32)] = &[
     // Body diagonals
-    (1, 1, 1), (1, 1, -1), (1, -1, 1), (1, -1, -1),
-    (-1, 1, 1), (-1, 1, -1), (-1, -1, 1), (-1, -1, -1),
+    (1, 1, 1),
+    (1, 1, -1),
+    (1, -1, 1),
+    (1, -1, -1),
+    (-1, 1, 1),
+    (-1, 1, -1),
+    (-1, -1, 1),
+    (-1, -1, -1),
     // Axial double steps
-    (2, 0, 0), (-2, 0, 0), (0, 2, 0), (0, -2, 0), (0, 0, 2), (0, 0, -2),
+    (2, 0, 0),
+    (-2, 0, 0),
+    (0, 2, 0),
+    (0, -2, 0),
+    (0, 0, 2),
+    (0, 0, -2),
 ];
 
 /// Convert 3D coordinate to linear index
@@ -181,8 +292,13 @@ fn get_neighbors(extent: (u32, u32, u32), coord: Coord) -> Vec<Coord> {
         let nx = coord.0 + dx;
         let ny = coord.1 + dy;
         let nz = coord.2 + dz;
-        if nx >= 0 && ny >= 0 && nz >= 0 &&
-           nx < extent.0 as i32 && ny < extent.1 as i32 && nz < extent.2 as i32 {
+        if nx >= 0
+            && ny >= 0
+            && nz >= 0
+            && nx < extent.0 as i32
+            && ny < extent.1 as i32
+            && nz < extent.2 as i32
+        {
             neighbors.push((nx, ny, nz));
         }
     }
@@ -202,8 +318,8 @@ struct Maze {
 impl Maze {
     /// Generate a new maze using randomized Prim's algorithm
     fn generate(extent: (u32, u32, u32), seed: u64) -> Self {
-        use rand::{Rng, SeedableRng};
         use rand::rngs::StdRng;
+        use rand::{Rng, SeedableRng};
 
         let mut rng = StdRng::seed_from_u64(seed);
         let mut carved = HashSet::new();
@@ -234,7 +350,8 @@ impl Maze {
 
             // Find carved neighbors
             let neighbors = get_neighbors(extent, current);
-            let carved_neighbors: Vec<Coord> = neighbors.iter()
+            let carved_neighbors: Vec<Coord> = neighbors
+                .iter()
                 .filter(|&&n| is_valid_bcc(n) && carved.contains(&n))
                 .copied()
                 .collect();
@@ -245,12 +362,15 @@ impl Maze {
                 carved.insert(current);
 
                 // Create bidirectional connection
-                connections.entry(current).or_insert_with(Vec::new).push(parent);
-                connections.entry(parent).or_insert_with(Vec::new).push(current);
+                connections.entry(current).or_default().push(parent);
+                connections.entry(parent).or_default().push(current);
 
                 // Add uncarved neighbors to frontier
                 for neighbor in neighbors {
-                    if is_valid_bcc(neighbor) && !carved.contains(&neighbor) && !frontier_set.contains(&neighbor) {
+                    if is_valid_bcc(neighbor)
+                        && !carved.contains(&neighbor)
+                        && !frontier_set.contains(&neighbor)
+                    {
                         frontier.push(neighbor);
                         frontier_set.insert(neighbor);
                     }
@@ -259,12 +379,22 @@ impl Maze {
         }
 
         // Set goal to opposite corner (must be valid BCC)
-        let mut goal = ((extent.0 - 1) as i32, (extent.1 - 1) as i32, (extent.2 - 1) as i32);
+        let mut goal = (
+            (extent.0 - 1) as i32,
+            (extent.1 - 1) as i32,
+            (extent.2 - 1) as i32,
+        );
         if !is_valid_bcc(goal) {
             goal = (goal.0 - 1, goal.1 - 1, goal.2 - 1);
         }
 
-        Self { extent, carved, connections, start, goal }
+        Self {
+            extent,
+            carved,
+            connections,
+            start,
+            goal,
+        }
     }
 
     /// Check if a coordinate is carved (passable)
@@ -356,7 +486,10 @@ fn astar_pathfind(maze: &Maze, start: Coord, goal: Coord) -> Option<(Vec<Coord>,
                 continue;
             }
 
-            let tentative_g = g_score.get(&current.coord).unwrap_or(&u32::MAX).saturating_add(1);
+            let tentative_g = g_score
+                .get(&current.coord)
+                .unwrap_or(&u32::MAX)
+                .saturating_add(1);
 
             if tentative_g < *g_score.get(&neighbor).unwrap_or(&u32::MAX) {
                 came_from.insert(neighbor, current.coord);
@@ -409,21 +542,77 @@ impl GameState {
     fn make_move(&mut self, key: char) -> std::result::Result<bool, String> {
         // Map single character to direction
         let next_pos = match key {
-            'n' => (self.current_pos.0, self.current_pos.1 + 2, self.current_pos.2),
-            's' => (self.current_pos.0, self.current_pos.1 - 2, self.current_pos.2),
-            'e' => (self.current_pos.0 + 2, self.current_pos.1, self.current_pos.2),
-            'w' => (self.current_pos.0 - 2, self.current_pos.1, self.current_pos.2),
-            'u' => (self.current_pos.0, self.current_pos.1, self.current_pos.2 + 2),
-            'd' => (self.current_pos.0, self.current_pos.1, self.current_pos.2 - 2),
+            'n' => (
+                self.current_pos.0,
+                self.current_pos.1 + 2,
+                self.current_pos.2,
+            ),
+            's' => (
+                self.current_pos.0,
+                self.current_pos.1 - 2,
+                self.current_pos.2,
+            ),
+            'e' => (
+                self.current_pos.0 + 2,
+                self.current_pos.1,
+                self.current_pos.2,
+            ),
+            'w' => (
+                self.current_pos.0 - 2,
+                self.current_pos.1,
+                self.current_pos.2,
+            ),
+            'u' => (
+                self.current_pos.0,
+                self.current_pos.1,
+                self.current_pos.2 + 2,
+            ),
+            'd' => (
+                self.current_pos.0,
+                self.current_pos.1,
+                self.current_pos.2 - 2,
+            ),
             // Diagonal movements - numbered 1-8 for easier single-key input
-            '1' => (self.current_pos.0 + 1, self.current_pos.1 + 1, self.current_pos.2 + 1), // neu
-            '2' => (self.current_pos.0 + 1, self.current_pos.1 + 1, self.current_pos.2 - 1), // ned
-            '3' => (self.current_pos.0 - 1, self.current_pos.1 + 1, self.current_pos.2 + 1), // nwu
-            '4' => (self.current_pos.0 - 1, self.current_pos.1 + 1, self.current_pos.2 - 1), // nwd
-            '5' => (self.current_pos.0 + 1, self.current_pos.1 - 1, self.current_pos.2 + 1), // seu
-            '6' => (self.current_pos.0 + 1, self.current_pos.1 - 1, self.current_pos.2 - 1), // sed
-            '7' => (self.current_pos.0 - 1, self.current_pos.1 - 1, self.current_pos.2 + 1), // swu
-            '8' => (self.current_pos.0 - 1, self.current_pos.1 - 1, self.current_pos.2 - 1), // swd
+            '1' => (
+                self.current_pos.0 + 1,
+                self.current_pos.1 + 1,
+                self.current_pos.2 + 1,
+            ), // neu
+            '2' => (
+                self.current_pos.0 + 1,
+                self.current_pos.1 + 1,
+                self.current_pos.2 - 1,
+            ), // ned
+            '3' => (
+                self.current_pos.0 - 1,
+                self.current_pos.1 + 1,
+                self.current_pos.2 + 1,
+            ), // nwu
+            '4' => (
+                self.current_pos.0 - 1,
+                self.current_pos.1 + 1,
+                self.current_pos.2 - 1,
+            ), // nwd
+            '5' => (
+                self.current_pos.0 + 1,
+                self.current_pos.1 - 1,
+                self.current_pos.2 + 1,
+            ), // seu
+            '6' => (
+                self.current_pos.0 + 1,
+                self.current_pos.1 - 1,
+                self.current_pos.2 - 1,
+            ), // sed
+            '7' => (
+                self.current_pos.0 - 1,
+                self.current_pos.1 - 1,
+                self.current_pos.2 + 1,
+            ), // swu
+            '8' => (
+                self.current_pos.0 - 1,
+                self.current_pos.1 - 1,
+                self.current_pos.2 - 1,
+            ), // swd
             _ => return Err("Invalid direction".to_string()),
         };
 
@@ -477,12 +666,17 @@ impl GameState {
         use std::io::{stdout, Write};
 
         print!("\r\n🎮 3D OCTAHEDRAL MAZE GAME - Level {}\r\n", self.level);
-        print!("Position: {:?}  →  Goal: {:?}\r\n", self.current_pos, self.maze.goal);
-        print!("Moves: {}  |  Time: {:.1}s  |  Visited: {}/{}\r\n",
-                 self.move_history.len() - 1,
-                 self.start_time.elapsed().as_secs_f64(),
-                 self.visited.len(),
-                 self.maze.carved.len());
+        print!(
+            "Position: {:?}  →  Goal: {:?}\r\n",
+            self.current_pos, self.maze.goal
+        );
+        print!(
+            "Moves: {}  |  Time: {:.1}s  |  Visited: {}/{}\r\n",
+            self.move_history.len() - 1,
+            self.start_time.elapsed().as_secs_f64(),
+            self.visited.len(),
+            self.maze.carved.len()
+        );
 
         let distance = heuristic(self.current_pos, self.maze.goal);
         print!("Distance to goal: {} (straight line)\r\n\r\n", distance);
@@ -505,6 +699,9 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
     // Enable raw mode for single-key input
     terminal::enable_raw_mode().expect("Failed to enable raw mode");
 
+    // Load competitive stats
+    let mut stats = CompetitiveStats::load();
+
     // Progressive levels: start at 2x2x2, then 3x3x3, 4x4x4, etc.
     let mut current_level = 1u32;
     let mut current_size = custom_size.unwrap_or(2); // Start at 2x2x2 if no custom size
@@ -513,7 +710,10 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
     'game_loop: loop {
         // Clear screen and show level intro
         clear_screen();
-        print!("\r\n🎮 LEVEL {} - Generating {}x{}x{} Maze...\r\n", current_level, current_size, current_size, current_size);
+        print!(
+            "\r\n🎮 LEVEL {} - Generating {}x{}x{} Maze...\r\n",
+            current_level, current_size, current_size, current_size
+        );
         let _ = stdout().flush();
 
         let extent = (current_size, current_size, current_size);
@@ -541,14 +741,18 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
             game.display_status();
 
             // Read single key
-            if let Event::Key(KeyEvent { code, .. }) = event::read().expect("Failed to read event") {
+            if let Event::Key(KeyEvent { code, .. }) = event::read().expect("Failed to read event")
+            {
                 match code {
                     KeyCode::Char('q') => {
                         clear_screen();
                         print!("\r\nThanks for playing!\r\n");
                         print!("Final stats:\r\n");
                         print!("  Level reached: {}\r\n", current_level);
-                        print!("  Total time: {:.1}s\r\n", game.start_time.elapsed().as_secs_f64());
+                        print!(
+                            "  Total time: {:.1}s\r\n",
+                            game.start_time.elapsed().as_secs_f64()
+                        );
                         let _ = stdout().flush();
                         break 'game_loop;
                     }
@@ -558,7 +762,9 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
                         clear_screen();
                         game.display_status();
                         print!("\r\n💡 Computing optimal path...\r\n");
-                        if let Some((path, nodes_visited)) = astar_pathfind(&game.maze, game.current_pos, game.maze.goal) {
+                        if let Some((path, nodes_visited)) =
+                            astar_pathfind(&game.maze, game.current_pos, game.maze.goal)
+                        {
                             print!("Optimal path has {} moves\r\n", path.len() - 1);
                             print!("A* nodes explored: {}\r\n", nodes_visited);
                             if path.len() > 1 {
@@ -603,12 +809,18 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
                                     print!("═══════════════════════════════════════\r\n");
                                     print!("Total moves: {}\r\n", game.move_history.len() - 1);
                                     print!("Time taken: {:.1}s\r\n", elapsed);
-                                    print!("Nodes visited: {}/{}\r\n", game.visited.len(), game.maze.carved.len());
+                                    print!(
+                                        "Nodes visited: {}/{}\r\n",
+                                        game.visited.len(),
+                                        game.maze.carved.len()
+                                    );
                                     print!("Hints used: {}\r\n", game.hints_used);
 
                                     // Run A* for comparison
                                     print!("\r\n🤖 Computing optimal solution...\r\n");
-                                    if let Some((optimal_path, astar_nodes_visited)) = astar_pathfind(&game.maze, game.maze.start, game.maze.goal) {
+                                    if let Some((optimal_path, astar_nodes_visited)) =
+                                        astar_pathfind(&game.maze, game.maze.start, game.maze.goal)
+                                    {
                                         let optimal_moves = optimal_path.len() - 1;
                                         let player_moves = game.move_history.len() - 1;
                                         let player_visited = game.visited.len();
@@ -616,25 +828,37 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
                                         print!("\r\n📊 Performance Comparison:\r\n");
                                         print!("───────────────────────────────────────\r\n");
 
-                                        // Path efficiency comparison
-                                        let efficiency = (optimal_moves as f64) / (player_moves as f64) * 100.0;
+                                        // Path efficiency comparison (still showing moves for reference)
+                                        let move_efficiency =
+                                            (optimal_moves as f64) / (player_moves as f64) * 100.0;
                                         let move_diff = player_moves as i32 - optimal_moves as i32;
 
                                         if optimal_moves == player_moves {
                                             print!("🎯 Optimal path was {} moves, your path was {} moves (100% efficiency - PERFECT!)\r\n",
                                                 optimal_moves, player_moves);
                                         } else {
-                                            let pct_more = ((player_moves as f64 / optimal_moves as f64) - 1.0) * 100.0;
+                                            let pct_more = ((player_moves as f64
+                                                / optimal_moves as f64)
+                                                - 1.0)
+                                                * 100.0;
                                             print!("🎯 Optimal path was {} moves, your path was {} moves ({:.0}% efficiency)\r\n",
-                                                optimal_moves, player_moves, efficiency);
+                                                optimal_moves, player_moves, move_efficiency);
                                             print!("   └─ You used {} extra move{} ({:.0}% more than optimal)\r\n",
                                                 move_diff, if move_diff == 1 { "" } else { "s" }, pct_more);
                                         }
 
+                                        // Nodes explored efficiency (primary metric)
+                                        let nodes_efficiency = (astar_nodes_visited as f64)
+                                            / (player_visited as f64)
+                                            * 100.0;
+
                                         // Exploration efficiency comparison
                                         print!("\r\n🔍 Exploration Comparison:\r\n");
                                         if player_visited < astar_nodes_visited {
-                                            let pct_fewer = ((astar_nodes_visited as f64 / player_visited as f64) - 1.0) * 100.0;
+                                            let pct_fewer = ((astar_nodes_visited as f64
+                                                / player_visited as f64)
+                                                - 1.0)
+                                                * 100.0;
                                             print!("   A* explored {} nodes, you explored {} nodes\r\n",
                                                 astar_nodes_visited, player_visited);
                                             print!("   └─ You explored {} fewer nodes ({:.0}% fewer than A*)!\r\n",
@@ -643,23 +867,54 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
                                             print!("   A* explored {} nodes, you explored {} nodes (same as A*!)\r\n",
                                                 astar_nodes_visited, player_visited);
                                         } else {
-                                            let pct_more = ((player_visited as f64 / astar_nodes_visited as f64) - 1.0) * 100.0;
+                                            let pct_more = ((player_visited as f64
+                                                / astar_nodes_visited as f64)
+                                                - 1.0)
+                                                * 100.0;
                                             print!("   A* explored {} nodes, you explored {} nodes\r\n",
                                                 astar_nodes_visited, player_visited);
                                             print!("   └─ You explored {} more nodes ({:.0}% more than A*)\r\n",
                                                 player_visited - astar_nodes_visited, pct_more);
                                         }
 
-                                        if optimal_moves == player_moves {
-                                            print!("\r\n🏆 PERFECT! You found the optimal path!\r\n");
-                                        } else if efficiency >= 95.0 {
-                                            print!("\r\n🏆 Nearly perfect! You found a near-optimal path!\r\n");
-                                        } else if efficiency >= 80.0 {
-                                            print!("\r\n⭐ Great job! You found an efficient path!\r\n");
-                                        } else if efficiency >= 60.0 {
-                                            print!("\r\n👍 Good effort! There's room for improvement.\r\n");
+                                        // Competitive result (based on nodes explored)
+                                        print!("\r\n🎮 COMPETITIVE RESULT (Fewest Nodes Explored Wins):\r\n");
+                                        print!("───────────────────────────────────────\r\n");
+                                        if player_visited < astar_nodes_visited {
+                                            let nodes_saved = astar_nodes_visited - player_visited;
+                                            print!("🏆 YOU WIN! You explored {} fewer nodes than A*!\r\n", nodes_saved);
+                                            stats.update(player_visited, astar_nodes_visited);
+                                        } else if player_visited == astar_nodes_visited {
+                                            print!("🤝 TIE! You explored the same number of nodes as A*!\r\n");
+                                            stats.update(player_visited, astar_nodes_visited);
                                         } else {
-                                            print!("\r\n💪 Keep practicing! Try the hint command next time.\r\n");
+                                            let extra_nodes = player_visited - astar_nodes_visited;
+                                            print!("🤖 A* WINS. You explored {} more nodes than A*.\r\n", extra_nodes);
+                                            stats.update(player_visited, astar_nodes_visited);
+                                        }
+
+                                        // Display updated stats
+                                        print!("\r\n📈 YOUR LIFETIME STATS:\r\n");
+                                        print!(
+                                            "   Wins: {} | Ties: {} | Losses: {}\r\n",
+                                            stats.wins, stats.ties, stats.losses
+                                        );
+                                        print!("   Win Rate: {:.1}%\r\n", stats.win_rate());
+                                        print!(
+                                            "   Avg Efficiency: {:.1}%\r\n",
+                                            stats.average_efficiency()
+                                        );
+
+                                        if player_visited == astar_nodes_visited {
+                                            print!("\r\n🏆 PERFECT! You explored exactly as many nodes as A*!\r\n");
+                                        } else if nodes_efficiency >= 95.0 {
+                                            print!("\r\n🏆 Nearly perfect! You explored only slightly more nodes than A*!\r\n");
+                                        } else if nodes_efficiency >= 80.0 {
+                                            print!("\r\n⭐ Great job! You were efficient in your exploration!\r\n");
+                                        } else if nodes_efficiency >= 60.0 {
+                                            print!("\r\n👍 Good effort! There's room for improvement in your exploration.\r\n");
+                                        } else {
+                                            print!("\r\n💪 Keep practicing! Try the hint command to explore more efficiently.\r\n");
                                         }
                                     }
 
@@ -670,7 +925,9 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
 
                                         // Wait for decision
                                         loop {
-                                            if let Event::Key(KeyEvent { code, .. }) = event::read().expect("Failed to read event") {
+                                            if let Event::Key(KeyEvent { code, .. }) =
+                                                event::read().expect("Failed to read event")
+                                            {
                                                 match code {
                                                     KeyCode::Enter => {
                                                         current_level += 1;
@@ -730,7 +987,10 @@ fn run_benchmarks(iterations: usize) {
     }
     let elapsed = start.elapsed();
     println!("   Time: {:.3}s", elapsed.as_secs_f64());
-    println!("   Rate: {:.2}M ops/sec\n", iterations as f64 / elapsed.as_secs_f64() / 1_000_000.0);
+    println!(
+        "   Rate: {:.2}M ops/sec\n",
+        iterations as f64 / elapsed.as_secs_f64() / 1_000_000.0
+    );
 
     // Benchmark 2: Route64 Creation
     println!("2. Route64 Creation");
@@ -743,7 +1003,10 @@ fn run_benchmarks(iterations: usize) {
     }
     let elapsed = start.elapsed();
     println!("   Time: {:.3}s", elapsed.as_secs_f64());
-    println!("   Rate: {:.2}M ops/sec\n", iterations as f64 / elapsed.as_secs_f64() / 1_000_000.0);
+    println!(
+        "   Rate: {:.2}M ops/sec\n",
+        iterations as f64 / elapsed.as_secs_f64() / 1_000_000.0
+    );
 
     // Benchmark 3: Neighbor Calculations
     println!("3. BCC Neighbor Calculations");
@@ -754,7 +1017,10 @@ fn run_benchmarks(iterations: usize) {
     }
     let elapsed = start.elapsed();
     println!("   Time: {:.3}s", elapsed.as_secs_f64());
-    println!("   Rate: {:.2}M ops/sec\n", iterations as f64 / elapsed.as_secs_f64() / 1_000_000.0);
+    println!(
+        "   Rate: {:.2}M ops/sec\n",
+        iterations as f64 / elapsed.as_secs_f64() / 1_000_000.0
+    );
 
     // Benchmark 4: BCC Validity Check
     println!("4. BCC Validity Check");
@@ -767,7 +1033,10 @@ fn run_benchmarks(iterations: usize) {
     }
     let elapsed = start.elapsed();
     println!("   Time: {:.3}s", elapsed.as_secs_f64());
-    println!("   Rate: {:.2}M ops/sec\n", iterations as f64 / elapsed.as_secs_f64() / 1_000_000.0);
+    println!(
+        "   Rate: {:.2}M ops/sec\n",
+        iterations as f64 / elapsed.as_secs_f64() / 1_000_000.0
+    );
 
     // Benchmark 5: Maze Generation
     println!("5. Maze Generation (20x20x20)");
@@ -776,7 +1045,10 @@ fn run_benchmarks(iterations: usize) {
     let elapsed = start.elapsed();
     println!("   Time: {:.3}s", elapsed.as_secs_f64());
     println!("   Carved nodes: {}", maze.carved.len());
-    println!("   Rate: {:.2}K nodes/sec\n", maze.carved.len() as f64 / elapsed.as_secs_f64() / 1000.0);
+    println!(
+        "   Rate: {:.2}K nodes/sec\n",
+        maze.carved.len() as f64 / elapsed.as_secs_f64() / 1000.0
+    );
 
     // Benchmark 6: A* Pathfinding
     println!("6. A* Pathfinding (on generated maze)");
@@ -787,7 +1059,10 @@ fn run_benchmarks(iterations: usize) {
         println!("   Time: {:.3}s", elapsed.as_secs_f64());
         println!("   Path length: {}", p.len());
         println!("   Nodes explored: {}", nodes_visited);
-        println!("   Search rate: {:.2}K nodes/sec\n", nodes_visited as f64 / elapsed.as_secs_f64() / 1000.0);
+        println!(
+            "   Search rate: {:.2}K nodes/sec\n",
+            nodes_visited as f64 / elapsed.as_secs_f64() / 1000.0
+        );
     } else {
         println!("   No path found\n");
     }
@@ -803,10 +1078,12 @@ fn run_benchmarks(iterations: usize) {
 
 fn run_encode(x: i32, y: i32, z: i32) -> Result<()> {
     // Convert to u16, checking bounds
-    if x < 0 || y < 0 || z < 0 || x > u16::MAX as i32 || y > u16::MAX as i32 || z > u16::MAX as i32 {
-        return Err(octaindex3d::Error::OutOfRange(
-            format!("Coordinates must be in range 0..{}", u16::MAX)
-        ));
+    if x < 0 || y < 0 || z < 0 || x > u16::MAX as i32 || y > u16::MAX as i32 || z > u16::MAX as i32
+    {
+        return Err(octaindex3d::Error::OutOfRange(format!(
+            "Coordinates must be in range 0..{}",
+            u16::MAX
+        )));
     }
 
     let index = Index64::new(0, 0, 5, x as u16, y as u16, z as u16)?;
@@ -831,11 +1108,12 @@ fn run_decode(value: String) -> Result<()> {
         println!("LOD: {}", index.lod());
     } else {
         // Otherwise interpret as hex or decimal
-        let val = if value.starts_with("0x") {
-            u64::from_str_radix(&value[2..], 16)
+        let val = if let Some(stripped) = value.strip_prefix("0x") {
+            u64::from_str_radix(stripped, 16)
                 .map_err(|_| octaindex3d::Error::OutOfRange("Invalid hex value".to_string()))?
         } else {
-            value.parse::<u64>()
+            value
+                .parse::<u64>()
                 .map_err(|_| octaindex3d::Error::OutOfRange("Invalid decimal value".to_string()))?
         };
 
@@ -853,12 +1131,13 @@ fn run_distance(from: (i32, i32, i32), to: (i32, i32, i32)) {
         (dx * dx + dy * dy + dz * dz).sqrt()
     };
 
-    let manhattan = {
-        (from.0 - to.0).abs() + (from.1 - to.1).abs() + (from.2 - to.2).abs()
-    };
+    let manhattan = { (from.0 - to.0).abs() + (from.1 - to.1).abs() + (from.2 - to.2).abs() };
 
     let chebyshev = {
-        (from.0 - to.0).abs().max((from.1 - to.1).abs()).max((from.2 - to.2).abs())
+        (from.0 - to.0)
+            .abs()
+            .max((from.1 - to.1).abs())
+            .max((from.2 - to.2).abs())
     };
 
     println!("\nFrom: {:?}", from);
@@ -872,10 +1151,14 @@ fn run_neighbors(x: i32, y: i32, z: i32) {
     let coord = (x, y, z);
 
     println!("\nCoordinate: {:?}", coord);
-    println!("BCC Valid: {}", if is_valid_bcc(coord) { "Yes" } else { "No" });
+    println!(
+        "BCC Valid: {}",
+        if is_valid_bcc(coord) { "Yes" } else { "No" }
+    );
     println!("\n14 BCC Neighbors:");
 
-    let neighbors: Vec<_> = BCC_NEIGHBORS.iter()
+    let neighbors: Vec<_> = BCC_NEIGHBORS
+        .iter()
         .map(|&(dx, dy, dz)| (x + dx, y + dy, z + dz))
         .collect();
 
@@ -889,11 +1172,79 @@ fn run_neighbors(x: i32, y: i32, z: i32) {
 // Main
 // ============================================================================
 
+fn display_stats() {
+    let stats = CompetitiveStats::load();
+
+    println!("\n╔═══════════════════════════════════════════════════════════╗");
+    println!("║        COMPETITIVE STATS - Can You Beat A*?              ║");
+    println!("╚═══════════════════════════════════════════════════════════╝\n");
+
+    if stats.total_games == 0 {
+        println!("No games played yet. Start playing with: octaindex3d play\n");
+        return;
+    }
+
+    println!("📊 OVERALL RECORD:\n");
+    println!("   Total Games:        {}", stats.total_games);
+    println!("   Wins:               {} (beat A*)", stats.wins);
+    println!("   Ties:               {} (matched A*)", stats.ties);
+    println!("   Losses:             {} (A* was better)", stats.losses);
+
+    println!("\n📈 PERFORMANCE METRICS:\n");
+    println!("   Win Rate (W+T):     {:.1}%", stats.win_rate());
+    println!("   Avg Efficiency:     {:.1}%", stats.average_efficiency());
+    println!("   Best Efficiency:    {:.1}%", stats.best_efficiency);
+    println!("   Worst Efficiency:   {:.1}%", stats.worst_efficiency);
+
+    println!("\n💡 INTERPRETATION:\n");
+    if stats.win_rate() >= 90.0 {
+        println!("   🏆 You're a pathfinding master!");
+    } else if stats.win_rate() >= 70.0 {
+        println!("   ⭐ You're beating A* consistently!");
+    } else if stats.win_rate() >= 50.0 {
+        println!("   👍 You're competitive with A*!");
+    } else {
+        println!("   💪 Keep practicing to improve!");
+    }
+
+    let avg = stats.average_efficiency();
+    if avg >= 95.0 {
+        println!("   Your solutions are nearly optimal!");
+    } else if avg >= 80.0 {
+        println!("   Your solutions are quite efficient!");
+    } else if avg >= 60.0 {
+        println!("   There's room to optimize your paths.");
+    } else {
+        println!("   Try using the hint system to improve!");
+    }
+
+    println!(
+        "\n📁 Stats file: {}\n",
+        CompetitiveStats::stats_file().display()
+    );
+}
+
+fn reset_stats() {
+    match fs::remove_file(CompetitiveStats::stats_file()) {
+        Ok(_) => {
+            println!("\n✓ Stats reset successfully!");
+            println!("Your competitive record has been cleared.\n");
+        }
+        Err(e) => {
+            println!("\n✗ Could not reset stats: {}\n", e);
+        }
+    }
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Play { size, seed, difficulty } => {
+        Commands::Play {
+            size,
+            seed,
+            difficulty,
+        } => {
             // Determine if we use custom size or progressive mode
             let custom_size = if let Some(diff) = difficulty {
                 Some(match diff.as_str() {
@@ -902,7 +1253,8 @@ fn main() -> Result<()> {
                     "hard" => 40,
                     _ => size,
                 })
-            } else if size != 20 { // If user specified non-default size
+            } else if size != 20 {
+                // If user specified non-default size
                 Some(size)
             } else {
                 None // Use progressive mode starting at 2x2x2
@@ -919,26 +1271,32 @@ fn main() -> Result<()> {
             play_game(custom_size, actual_seed);
         }
 
+        Commands::Stats => {
+            display_stats();
+        }
+
+        Commands::ResetStats => {
+            reset_stats();
+        }
+
         Commands::Benchmark { iterations } => {
             run_benchmarks(iterations);
         }
 
-        Commands::Utils { util_command } => {
-            match util_command {
-                UtilCommands::Encode { x, y, z } => {
-                    run_encode(x, y, z)?;
-                }
-                UtilCommands::Decode { value } => {
-                    run_decode(value)?;
-                }
-                UtilCommands::Distance { from, to } => {
-                    run_distance(from, to);
-                }
-                UtilCommands::Neighbors { x, y, z } => {
-                    run_neighbors(x, y, z);
-                }
+        Commands::Utils { util_command } => match util_command {
+            UtilCommands::Encode { x, y, z } => {
+                run_encode(x, y, z)?;
             }
-        }
+            UtilCommands::Decode { value } => {
+                run_decode(value)?;
+            }
+            UtilCommands::Distance { from, to } => {
+                run_distance(from, to);
+            }
+            UtilCommands::Neighbors { x, y, z } => {
+                run_neighbors(x, y, z);
+            }
+        },
     }
 
     Ok(())

@@ -15,11 +15,11 @@
 //! - Real-time metric collection (cells/sec, nodes/sec, memory usage)
 //! - Beautiful formatted output with progress indicators
 
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
+use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::time::Instant;
-use std::cmp::Ordering;
-use rand::{Rng, SeedableRng};
-use rand::rngs::StdRng;
 
 type Coord = (i32, i32, i32);
 
@@ -29,10 +29,21 @@ type Coord = (i32, i32, i32);
 /// - 6 axial double-step neighbors: (±2, 0, 0), (0, ±2, 0), (0, 0, ±2) parity-preserving
 const BCC_NEIGHBORS: &[(i32, i32, i32)] = &[
     // Body diagonals: all ±1 in each axis (parity-preserving in BCC)
-    (1, 1, 1), (1, 1, -1), (1, -1, 1), (1, -1, -1),
-    (-1, 1, 1), (-1, 1, -1), (-1, -1, 1), (-1, -1, -1),
+    (1, 1, 1),
+    (1, 1, -1),
+    (1, -1, 1),
+    (1, -1, -1),
+    (-1, 1, 1),
+    (-1, 1, -1),
+    (-1, -1, 1),
+    (-1, -1, -1),
     // Axial double steps: same parity for all coordinates
-    (2, 0, 0), (-2, 0, 0), (0, 2, 0), (0, -2, 0), (0, 0, 2), (0, 0, -2),
+    (2, 0, 0),
+    (-2, 0, 0),
+    (0, 2, 0),
+    (0, -2, 0),
+    (0, 0, 2),
+    (0, 0, -2),
 ];
 
 /// Check if a coordinate is valid in BCC (all even or all odd)
@@ -99,14 +110,11 @@ fn coord_to_index(extent: (u32, u32, u32), c: Coord) -> Option<u32> {
     if c.0 >= extent.0 as i32 || c.1 >= extent.1 as i32 || c.2 >= extent.2 as i32 {
         return None;
     }
-    Some(
-        (c.0 as u32 * extent.1 * extent.2 + c.1 as u32 * extent.2 + c.2 as u32) as u32
-    )
+    Some(c.0 as u32 * extent.1 * extent.2 + c.1 as u32 * extent.2 + c.2 as u32)
 }
 
 /// Convert linear index back to 3D coordinate
 fn index_to_coord(extent: (u32, u32, u32), idx: u32) -> Coord {
-    let idx = idx as u32;
     let z = idx % extent.2;
     let y = (idx / extent.2) % extent.1;
     let x = idx / (extent.1 * extent.2);
@@ -120,8 +128,13 @@ fn get_neighbors(extent: (u32, u32, u32), coord: Coord) -> Vec<Coord> {
         let nx = coord.0 + dx;
         let ny = coord.1 + dy;
         let nz = coord.2 + dz;
-        if nx >= 0 && ny >= 0 && nz >= 0 &&
-           nx < extent.0 as i32 && ny < extent.1 as i32 && nz < extent.2 as i32 {
+        if nx >= 0
+            && ny >= 0
+            && nz >= 0
+            && nx < extent.0 as i32
+            && ny < extent.1 as i32
+            && nz < extent.2 as i32
+        {
             neighbors.push((nx, ny, nz));
         }
     }
@@ -159,9 +172,11 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
     let mut frontier_size = 0u32; // Track actual frontier size
 
     // Initialize with start coordinate
-    let start_idx = coord_to_index(cfg.extent, cfg.start)
-        .expect("Start coordinate out of bounds");
-    assert!(is_valid_bcc(cfg.start), "Start must be valid BCC coordinate");
+    let start_idx = coord_to_index(cfg.extent, cfg.start).expect("Start coordinate out of bounds");
+    assert!(
+        is_valid_bcc(cfg.start),
+        "Start must be valid BCC coordinate"
+    );
 
     frontier_state[start_idx as usize] = 2; // carved
     parent[start_idx as usize] = start_idx;
@@ -251,7 +266,7 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
     // Rough estimate: 1 byte per node for state + 4 bytes per parent pointer
     let memory_mb = ((total_nodes as f64 * 5.0) / 1_000_000.0).max(0.1);
 
-    let is_valid_tree = edges_created == (nodes_carved - 1) as u64 && nodes_carved == valid_bcc_nodes;
+    let is_valid_tree = edges_created == (nodes_carved - 1) && nodes_carved == valid_bcc_nodes;
 
     let stats = BuildStats {
         total_nodes,
@@ -266,8 +281,7 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
         is_valid_tree,
     };
 
-    let goal_idx = coord_to_index(cfg.extent, cfg.goal)
-        .expect("Goal coordinate out of bounds");
+    let goal_idx = coord_to_index(cfg.extent, cfg.goal).expect("Goal coordinate out of bounds");
     assert!(is_valid_bcc(cfg.goal), "Goal must be valid BCC coordinate");
 
     // Build children adjacency list for fast tree traversal
@@ -325,9 +339,9 @@ fn heuristic(extent: (u32, u32, u32), idx: u32, goal_idx: u32) -> u32 {
 
 /// Calculate theoretical minimum distance in free BCC space (3D Chebyshev)
 fn theoretical_distance(start: Coord, goal: Coord) -> u32 {
-    let dx = (start.0 - goal.0).abs() as u32;
-    let dy = (start.1 - goal.1).abs() as u32;
-    let dz = (start.2 - goal.2).abs() as u32;
+    let dx = (start.0 - goal.0).unsigned_abs();
+    let dy = (start.1 - goal.1).unsigned_abs();
+    let dz = (start.2 - goal.2).unsigned_abs();
     // In BCC with ±1,±1,±1 steps, minimum is max of the coordinates
     dx.max(dy).max(dz)
 }
@@ -426,16 +440,20 @@ fn validate_path_on_tree(g: &GraphBcc, path: &[Coord]) -> bool {
 pub fn solve_astar_bcc14(g: &GraphBcc, start: Coord, goal: Coord) -> (Vec<Coord>, SolveStats) {
     let start_time = Instant::now();
 
-    let start_idx = coord_to_index(g.extent, start)
-        .expect("Start coordinate out of bounds");
-    let goal_idx = coord_to_index(g.extent, goal)
-        .expect("Goal coordinate out of bounds");
+    let start_idx = coord_to_index(g.extent, start).expect("Start coordinate out of bounds");
+    let goal_idx = coord_to_index(g.extent, goal).expect("Goal coordinate out of bounds");
 
     let theoretical_min = theoretical_distance(start, goal);
 
     // Verify both start and goal are in the carved tree
-    assert!(g.parent[start_idx as usize] != u32::MAX, "Start not in carved tree");
-    assert!(g.parent[goal_idx as usize] != u32::MAX, "Goal not in carved tree");
+    assert!(
+        g.parent[start_idx as usize] != u32::MAX,
+        "Start not in carved tree"
+    );
+    assert!(
+        g.parent[goal_idx as usize] != u32::MAX,
+        "Goal not in carved tree"
+    );
 
     let mut open_set = BinaryHeap::new();
     let mut came_from = vec![u32::MAX; g.total_nodes as usize];
@@ -476,7 +494,8 @@ pub fn solve_astar_bcc14(g: &GraphBcc, start: Coord, goal: Coord) -> (Vec<Coord>
             }
             path_indices.reverse();
 
-            let path: Vec<Coord> = path_indices.iter()
+            let path: Vec<Coord> = path_indices
+                .iter()
                 .map(|&idx| index_to_coord(g.extent, idx))
                 .collect();
 
@@ -603,8 +622,8 @@ fn format_number(n: u64) -> String {
 }
 
 fn main() {
-    use std::time::{SystemTime, UNIX_EPOCH};
     use std::env;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     println!("\n╔═══════════════════════════════════════════════════════════════╗");
     println!("║  🚀 BCC-14 3D Lattice: Randomized Prim's → A* Pathfinding   ║");
@@ -645,16 +664,27 @@ fn main() {
     };
 
     println!("📊 CONFIGURATION");
-    println!("  • Grid extent: {} × {} × {} = {} total lattice points",
-             extent.0, extent.1, extent.2, format_number(total_nodes));
+    println!(
+        "  • Grid extent: {} × {} × {} = {} total lattice points",
+        extent.0,
+        extent.1,
+        extent.2,
+        format_number(total_nodes)
+    );
     println!("  • Lattice type: Body-Centered Cubic (BCC-14)");
     println!("  • Valid BCC points: 25% (parity constraint: all even OR all odd)");
     println!("  • Neighbors per node: 14 (8 body diagonals + 6 axial double-steps)");
 
     if is_lucky_seed {
-        println!("  • Randomization seed: {} 🍀 (lucky! includes optimal diagonal path)", config.seed);
+        println!(
+            "  • Randomization seed: {} 🍀 (lucky! includes optimal diagonal path)",
+            config.seed
+        );
     } else {
-        println!("  • Randomization seed: {} (use --seed=42 for lucky variant)", config.seed);
+        println!(
+            "  • Randomization seed: {} (use --seed=42 for lucky variant)",
+            config.seed
+        );
     }
     println!("  • Start: {:?}", config.start);
     println!("  • Goal: {:?}\n", config.goal);
@@ -668,22 +698,53 @@ fn main() {
     let build_elapsed = build_start.elapsed();
 
     println!("  ✓ Spanning tree construction complete!");
-    println!("    • Total lattice points: {}", format_number(build_stats.total_nodes));
-    println!("    • Valid BCC nodes: {}", format_number(build_stats.valid_bcc_nodes));
-    println!("    • Carved nodes (tree): {} ({:.1}% of valid)",
-             format_number(build_stats.nodes_carved),
-             (build_stats.nodes_carved as f64 / build_stats.valid_bcc_nodes as f64) * 100.0);
-    println!("    • Edges created: {}", format_number(build_stats.edges_created));
-    println!("    • Tree valid (edges = nodes - 1): {}",
-             if build_stats.is_valid_tree { "✓ YES" } else { "✗ NO" });
-    println!("    • Frontier peak: {} nodes ({:.1}% of carved)",
-             format_number(build_stats.frontier_peak as u64),
-             (build_stats.frontier_peak as f64 / build_stats.nodes_carved as f64) * 100.0);
-    println!("    • Frontier duplicates avoided: {}", format_number(build_stats.frontier_duplicates));
-    println!("  ⏱️  Build time: {:.2}s ({} ms)",
-             build_elapsed.as_secs_f64(), build_stats.build_ms);
-    println!("    • Carving rate: {:.1}M nodes/sec", build_stats.carving_rate / 1_000_000.0);
-    println!("  💾 Memory usage (est.): {:.1} MB\n", build_stats.memory_mb);
+    println!(
+        "    • Total lattice points: {}",
+        format_number(build_stats.total_nodes)
+    );
+    println!(
+        "    • Valid BCC nodes: {}",
+        format_number(build_stats.valid_bcc_nodes)
+    );
+    println!(
+        "    • Carved nodes (tree): {} ({:.1}% of valid)",
+        format_number(build_stats.nodes_carved),
+        (build_stats.nodes_carved as f64 / build_stats.valid_bcc_nodes as f64) * 100.0
+    );
+    println!(
+        "    • Edges created: {}",
+        format_number(build_stats.edges_created)
+    );
+    println!(
+        "    • Tree valid (edges = nodes - 1): {}",
+        if build_stats.is_valid_tree {
+            "✓ YES"
+        } else {
+            "✗ NO"
+        }
+    );
+    println!(
+        "    • Frontier peak: {} nodes ({:.1}% of carved)",
+        format_number(build_stats.frontier_peak as u64),
+        (build_stats.frontier_peak as f64 / build_stats.nodes_carved as f64) * 100.0
+    );
+    println!(
+        "    • Frontier duplicates avoided: {}",
+        format_number(build_stats.frontier_duplicates)
+    );
+    println!(
+        "  ⏱️  Build time: {:.2}s ({} ms)",
+        build_elapsed.as_secs_f64(),
+        build_stats.build_ms
+    );
+    println!(
+        "    • Carving rate: {:.1}M nodes/sec",
+        build_stats.carving_rate / 1_000_000.0
+    );
+    println!(
+        "  💾 Memory usage (est.): {:.1} MB\n",
+        build_stats.memory_mb
+    );
 
     // Phase 2: Solve with A*
     println!("🔍 PHASE 2: Solving with A* Pathfinding on Carved Tree");
@@ -699,42 +760,84 @@ fn main() {
     if !path.is_empty() {
         println!("  ✓ Path found successfully!");
         println!("    • Path length: {} hops", path.len() - 1);
-        println!("    • Theoretical minimum (free BCC): {} hops", solve_stats.theoretical_min_distance);
-        println!("    • Path overshoot factor: {:.1}x",
-                 (path.len() as f64 - 1.0) / solve_stats.theoretical_min_distance as f64);
-        println!("    • Path valid on tree: {}", if solve_stats.path_valid_on_tree { "✓ YES" } else { "✗ NO" });
+        println!(
+            "    • Theoretical minimum (free BCC): {} hops",
+            solve_stats.theoretical_min_distance
+        );
+        println!(
+            "    • Path overshoot factor: {:.1}x",
+            (path.len() as f64 - 1.0) / solve_stats.theoretical_min_distance as f64
+        );
+        println!(
+            "    • Path valid on tree: {}",
+            if solve_stats.path_valid_on_tree {
+                "✓ YES"
+            } else {
+                "✗ NO"
+            }
+        );
 
         // BFS cross-check
         if let Some(bfs_len) = bfs_path_len {
             let matches = (path.len() - 1) == bfs_len;
-            println!("    • BFS verification: {} (BFS={} hops)",
-                     if matches { "✓ MATCH" } else { "✗ MISMATCH" }, bfs_len);
+            println!(
+                "    • BFS verification: {} (BFS={} hops)",
+                if matches { "✓ MATCH" } else { "✗ MISMATCH" },
+                bfs_len
+            );
         } else {
             println!("    • BFS verification: ✗ FAILED (no BFS path found)");
         }
 
-        println!("    • Nodes expanded: {}", format_number(solve_stats.nodes_expanded));
-        println!("    • Nodes evaluated: {}", format_number(solve_stats.nodes_evaluated));
-        println!("    • Open set peak: {} nodes", format_number(solve_stats.open_peak as u64));
-        println!("    • Closed set final: {} nodes", format_number(solve_stats.closed_size as u64));
+        println!(
+            "    • Nodes expanded: {}",
+            format_number(solve_stats.nodes_expanded)
+        );
+        println!(
+            "    • Nodes evaluated: {}",
+            format_number(solve_stats.nodes_evaluated)
+        );
+        println!(
+            "    • Open set peak: {} nodes",
+            format_number(solve_stats.open_peak as u64)
+        );
+        println!(
+            "    • Closed set final: {} nodes",
+            format_number(solve_stats.closed_size as u64)
+        );
     } else {
         println!("  ✗ No path found!");
         println!("    • Goal unreachable from start on the carved tree");
-        println!("    • Theoretical minimum (free space): {} hops", solve_stats.theoretical_min_distance);
+        println!(
+            "    • Theoretical minimum (free space): {} hops",
+            solve_stats.theoretical_min_distance
+        );
         if let Some(bfs_len) = bfs_path_len {
-            println!("    • BFS verification: ⚠️  BFS found path ({} hops) but A* didn't!", bfs_len);
+            println!(
+                "    • BFS verification: ⚠️  BFS found path ({} hops) but A* didn't!",
+                bfs_len
+            );
         }
     }
 
-    println!("  ⏱️  Solve time: {:.2}s ({} ms)",
-             solve_elapsed.as_secs_f64(), solve_stats.solve_ms);
+    println!(
+        "  ⏱️  Solve time: {:.2}s ({} ms)",
+        solve_elapsed.as_secs_f64(),
+        solve_stats.solve_ms
+    );
     if solve_stats.nodes_expanded > 0 {
-        println!("    • Search rate: {:.1}M nodes/sec", solve_stats.nodes_per_sec / 1_000_000.0);
+        println!(
+            "    • Search rate: {:.1}M nodes/sec",
+            solve_stats.nodes_per_sec / 1_000_000.0
+        );
     }
 
     // Detailed path trace
     if !path.is_empty() && !solve_stats.path_details.is_empty() {
-        println!("\n🗺️  PATH TRACE ({} steps)", solve_stats.path_details.len() - 1);
+        println!(
+            "\n🗺️  PATH TRACE ({} steps)",
+            solve_stats.path_details.len() - 1
+        );
         println!("─────────────────────────────────────────────────────────────────");
 
         for (step, (coord, edge_type)) in solve_stats.path_details.iter().enumerate() {
@@ -744,11 +847,19 @@ fn main() {
                 println!("  ✅ Goal at {:?} | {}", coord, edge_type);
             } else if step % 20 == 0 {
                 // Show every 20th step to avoid too much output
-                println!("  {} Step {:3}: {:?} | {}",
-                         if step % 50 == 0 { "📍" } else { "  " }, step, coord, edge_type);
+                println!(
+                    "  {} Step {:3}: {:?} | {}",
+                    if step % 50 == 0 { "📍" } else { "  " },
+                    step,
+                    coord,
+                    edge_type
+                );
             }
         }
-        println!("    (showing every 20th step; {} total steps)\n", solve_stats.path_details.len() - 1);
+        println!(
+            "    (showing every 20th step; {} total steps)\n",
+            solve_stats.path_details.len() - 1
+        );
     }
 
     // Phase 3: Summary
@@ -758,30 +869,59 @@ fn main() {
     let total_time_ms = build_stats.build_ms + solve_stats.solve_ms;
     let total_time_s = total_time_ms as f64 / 1000.0;
 
-    println!("  Total time (build + solve): {:.2}s ({} ms)", total_time_s, total_time_ms);
-    println!("    • Build phase: {:.1}%",
-             (build_stats.build_ms as f64 / total_time_ms as f64) * 100.0);
-    println!("    • Solve phase: {:.1}%",
-             (solve_stats.solve_ms as f64 / total_time_ms as f64) * 100.0);
+    println!(
+        "  Total time (build + solve): {:.2}s ({} ms)",
+        total_time_s, total_time_ms
+    );
+    println!(
+        "    • Build phase: {:.1}%",
+        (build_stats.build_ms as f64 / total_time_ms as f64) * 100.0
+    );
+    println!(
+        "    • Solve phase: {:.1}%",
+        (solve_stats.solve_ms as f64 / total_time_ms as f64) * 100.0
+    );
 
     println!("\n  Tree Construction Metrics:");
-    println!("    • Spanning tree valid: {} (edges == nodes - 1)",
-             if build_stats.is_valid_tree { "✓ YES" } else { "✗ NO" });
-    println!("    • Carving rate: {:.1}M nodes/sec",
-             build_stats.carving_rate / 1_000_000.0);
-    println!("    • Coverage: {:.1}% of valid BCC nodes carved",
-             (build_stats.nodes_carved as f64 / build_stats.valid_bcc_nodes as f64) * 100.0);
+    println!(
+        "    • Spanning tree valid: {} (edges == nodes - 1)",
+        if build_stats.is_valid_tree {
+            "✓ YES"
+        } else {
+            "✗ NO"
+        }
+    );
+    println!(
+        "    • Carving rate: {:.1}M nodes/sec",
+        build_stats.carving_rate / 1_000_000.0
+    );
+    println!(
+        "    • Coverage: {:.1}% of valid BCC nodes carved",
+        (build_stats.nodes_carved as f64 / build_stats.valid_bcc_nodes as f64) * 100.0
+    );
 
     if !path.is_empty() {
         println!("\n  Pathfinding Metrics:");
-        println!("    • Path valid on tree: {} (all edges verified)",
-                 if solve_stats.path_valid_on_tree { "✓ YES" } else { "✗ NO" });
-        println!("    • Search efficiency: {:.1}% nodes expanded (vs carved)",
-                 (solve_stats.nodes_expanded as f64 / build_stats.nodes_carved as f64) * 100.0);
-        println!("    • Tree penalty factor: {:.2}x (vs free space minimum)",
-                 (path.len() as f64 - 1.0) / solve_stats.theoretical_min_distance as f64);
-        println!("    • Search rate: {:.1}M nodes/sec",
-                 solve_stats.nodes_per_sec / 1_000_000.0);
+        println!(
+            "    • Path valid on tree: {} (all edges verified)",
+            if solve_stats.path_valid_on_tree {
+                "✓ YES"
+            } else {
+                "✗ NO"
+            }
+        );
+        println!(
+            "    • Search efficiency: {:.1}% nodes expanded (vs carved)",
+            (solve_stats.nodes_expanded as f64 / build_stats.nodes_carved as f64) * 100.0
+        );
+        println!(
+            "    • Tree penalty factor: {:.2}x (vs free space minimum)",
+            (path.len() as f64 - 1.0) / solve_stats.theoretical_min_distance as f64
+        );
+        println!(
+            "    • Search rate: {:.1}M nodes/sec",
+            solve_stats.nodes_per_sec / 1_000_000.0
+        );
     }
 
     // Validation check
@@ -798,11 +938,26 @@ fn main() {
         path.is_empty()
     };
 
-    println!("  ✓ Spanning tree property (E == N-1): {}", if tree_valid { "✓ PASS" } else { "✗ FAIL" });
-    println!("  ✓ Full BCC coverage (carved all valid): {}", if coverage_ok { "✓ PASS" } else { "✗ FAIL" });
-    println!("  ✓ Frontier deduplication: {}", if frontier_ok { "✓ PASS" } else { "✗ FAIL" });
-    println!("  ✓ Path valid on tree: {}", if path_valid { "✓ PASS" } else { "✗ FAIL" });
-    println!("  ✓ BFS cross-check (A* == BFS): {}", if bfs_matches { "✓ PASS" } else { "✗ FAIL" });
+    println!(
+        "  ✓ Spanning tree property (E == N-1): {}",
+        if tree_valid { "✓ PASS" } else { "✗ FAIL" }
+    );
+    println!(
+        "  ✓ Full BCC coverage (carved all valid): {}",
+        if coverage_ok { "✓ PASS" } else { "✗ FAIL" }
+    );
+    println!(
+        "  ✓ Frontier deduplication: {}",
+        if frontier_ok { "✓ PASS" } else { "✗ FAIL" }
+    );
+    println!(
+        "  ✓ Path valid on tree: {}",
+        if path_valid { "✓ PASS" } else { "✗ FAIL" }
+    );
+    println!(
+        "  ✓ BFS cross-check (A* == BFS): {}",
+        if bfs_matches { "✓ PASS" } else { "✗ FAIL" }
+    );
 
     // Performance goals check
     println!("\n✨ PERFORMANCE TARGETS");
@@ -812,27 +967,53 @@ fn main() {
     let solve_ok = solve_stats.solve_ms < 200;
     let memory_ok = build_stats.memory_mb < 350.0;
 
-    println!("  ✓ Build time < 1.0 s: {} ({} ms)",
-             if build_ok { "PASS ✓" } else { "FAIL ✗" }, build_stats.build_ms);
-    println!("  ✓ Solve time < 200 ms: {} ({} ms)",
-             if solve_ok { "PASS ✓" } else { "FAIL ✗" }, solve_stats.solve_ms);
-    println!("  ✓ Memory usage < 350 MB: {} ({:.1} MB)",
-             if memory_ok { "PASS ✓" } else { "FAIL ✗" }, build_stats.memory_mb);
+    println!(
+        "  ✓ Build time < 1.0 s: {} ({} ms)",
+        if build_ok { "PASS ✓" } else { "FAIL ✗" },
+        build_stats.build_ms
+    );
+    println!(
+        "  ✓ Solve time < 200 ms: {} ({} ms)",
+        if solve_ok { "PASS ✓" } else { "FAIL ✗" },
+        solve_stats.solve_ms
+    );
+    println!(
+        "  ✓ Memory usage < 350 MB: {} ({:.1} MB)",
+        if memory_ok { "PASS ✓" } else { "FAIL ✗" },
+        build_stats.memory_mb
+    );
 
     let all_valid = tree_valid && coverage_ok && frontier_ok && path_valid && bfs_matches;
     let all_perf = build_ok && solve_ok && memory_ok;
 
     println!("\n📊 FINAL RESULT");
     println!("─────────────────────────────────────────────────────────────────");
-    println!("  Algorithm validation: {}", if all_valid { "🎉 CORRECT (5/5 checks)" } else { "⚠️  CHECK ISSUES" });
-    println!("  Performance targets: {}", if all_perf { "🎉 MET (3/3 targets)" } else { "⚠️  NEAR" });
+    println!(
+        "  Algorithm validation: {}",
+        if all_valid {
+            "🎉 CORRECT (5/5 checks)"
+        } else {
+            "⚠️  CHECK ISSUES"
+        }
+    );
+    println!(
+        "  Performance targets: {}",
+        if all_perf {
+            "🎉 MET (3/3 targets)"
+        } else {
+            "⚠️  NEAR"
+        }
+    );
     println!();
 
     // Show how to vary the seed
     println!("🎲 TRY DIFFERENT SEEDS");
     println!("─────────────────────────────────────────────────────────────────");
     println!("  # Reproduce this run:");
-    println!("  cargo run --release --example bcc14_prim_astar_demo -- --seed={}", config.seed);
+    println!(
+        "  cargo run --release --example bcc14_prim_astar_demo -- --seed={}",
+        config.seed
+    );
     println!();
     println!("  # Lucky seed (includes optimal diagonal):");
     println!("  cargo run --release --example bcc14_prim_astar_demo -- --seed=42");

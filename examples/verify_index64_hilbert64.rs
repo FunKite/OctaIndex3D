@@ -1,7 +1,7 @@
 //! Verification example: Confirm Index64 and Hilbert64 are both working
 
-use octaindex3d::ids::{Index64, FrameId};
 use octaindex3d::hilbert::Hilbert64;
+use octaindex3d::ids::{FrameId, Index64};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== OctaIndex3D Verification: Index64 & Hilbert64 ===\n");
@@ -16,14 +16,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (x, y, z) = (512u16, 768u16, 1024u16);
 
     let index64 = Index64::new(frame, tier, lod, x, y, z)?;
-    println!("✓ Created Index64: frame={}, tier={}, lod={}, coords=({}, {}, {})",
-             frame, tier, lod, x, y, z);
+    println!(
+        "✓ Created Index64: frame={}, tier={}, lod={}, coords=({}, {}, {})",
+        frame, tier, lod, x, y, z
+    );
 
     // Verify extraction
     let extracted_frame = index64.frame_id();
     let extracted_coords = index64.decode_coords();
-    println!("✓ Extracted: frame={}, coords=({}, {}, {})",
-             extracted_frame, extracted_coords.0, extracted_coords.1, extracted_coords.2);
+    println!(
+        "✓ Extracted: frame={}, coords=({}, {}, {})",
+        extracted_frame, extracted_coords.0, extracted_coords.1, extracted_coords.2
+    );
 
     assert_eq!(extracted_frame, frame, "Frame mismatch!");
     assert_eq!(extracted_coords, (x, y, z), "Coords mismatch!");
@@ -39,14 +43,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (hx, hy, hz) = (1024u16, 2048u16, 4096u16);
 
     let hilbert64 = Hilbert64::new(h_frame, h_tier, h_lod, hx, hy, hz)?;
-    println!("✓ Created Hilbert64: frame={}, tier={}, lod={}, coords=({}, {}, {})",
-             h_frame, h_tier, h_lod, hx, hy, hz);
+    println!(
+        "✓ Created Hilbert64: frame={}, tier={}, lod={}, coords=({}, {}, {})",
+        h_frame, h_tier, h_lod, hx, hy, hz
+    );
 
     // Verify extraction
     let h_extracted_frame = hilbert64.frame_id();
     let h_extracted_coords = hilbert64.decode();
-    println!("✓ Extracted: frame={}, coords=({}, {}, {})",
-             h_extracted_frame, h_extracted_coords.0, h_extracted_coords.1, h_extracted_coords.2);
+    println!(
+        "✓ Extracted: frame={}, coords=({}, {}, {})",
+        h_extracted_frame, h_extracted_coords.0, h_extracted_coords.1, h_extracted_coords.2
+    );
 
     assert_eq!(h_extracted_frame, h_frame, "Hilbert frame mismatch!");
     assert_eq!(h_extracted_coords, (hx, hy, hz), "Hilbert coords mismatch!");
@@ -67,10 +75,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let coords_original = idx.decode_coords();
     let coords_roundtrip = idx_back.decode_coords();
-    println!("✓ Original coords:     ({}, {}, {})", coords_original.0, coords_original.1, coords_original.2);
-    println!("✓ Roundtrip coords:    ({}, {}, {})", coords_roundtrip.0, coords_roundtrip.1, coords_roundtrip.2);
+    println!(
+        "✓ Original coords:     ({}, {}, {})",
+        coords_original.0, coords_original.1, coords_original.2
+    );
+    println!(
+        "✓ Roundtrip coords:    ({}, {}, {})",
+        coords_roundtrip.0, coords_roundtrip.1, coords_roundtrip.2
+    );
 
-    assert_eq!(coords_original, coords_roundtrip, "Roundtrip conversion failed!");
+    assert_eq!(
+        coords_original, coords_roundtrip,
+        "Roundtrip conversion failed!"
+    );
     println!("✓ Index64 ↔ Hilbert64 conversion PASSED\n");
 
     // ========== BATCH OPERATIONS ==========
