@@ -72,7 +72,7 @@ rustc-hash = "2.0"
 clap = { version = "4.5", features = ["derive"], optional = true }
 rand = { version = "0.8", optional = true }
 crossterm = { version = "0.28", optional = true }
-dirs = { version = "5.0", optional = true }
+dirs = { version = "6.0", optional = true }
 
 # Performance: Parallel processing
 rayon = { version = "1.10", optional = true }
