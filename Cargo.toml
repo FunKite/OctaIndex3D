@@ -41,7 +41,7 @@ bech32 = "0.11"
 # Zero-copy support
 bytemuck = { version = "1.14", features = ["derive"] }
 zerocopy = { version = "0.7", features = ["derive"], optional = true }
-rkyv = { version = "0.7", optional = true }
+rkyv = { version = "0.8", optional = true }
 
 # Pathfinding
 petgraph = { version = "0.6", optional = true }
