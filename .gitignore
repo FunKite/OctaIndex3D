@@ -56,6 +56,9 @@ disabled_cli/
 # Development logs (local only, not for public repo)
 CLAUDE.md
 
+# Claude Code skills (local only, not for public repo)
+.claude/skills/
+
 # Internal optimization results (instructions are tracked, results are not)
 .github/workflows/internal/*_results.txt
 .github/workflows/internal/*_baseline.txt
