@@ -1,10 +1,13 @@
-# OctaIndex3D Development Skill
+---
+name: octaindex3d-dev
+description: Helps develop, build, test, and optimize the OctaIndex3D Rust library - a high-performance BCC lattice spatial indexing system with SIMD acceleration. Use when building the project, running tests, benchmarking performance, managing examples, or preparing releases to crates.io.
+---
 
-Specialized skill for developing, building, testing, and optimizing the OctaIndex3D Rust library - a high-performance BCC lattice spatial indexing system with SIMD acceleration.
+# OctaIndex3D Development Skill
 
 ## Purpose
 
-This skill provides Claude Code with project-specific knowledge and workflows for:
+This skill provides project-specific knowledge and workflows for:
 - Building and testing the Rust project with various feature combinations
 - Running performance benchmarks and profiling
 - Managing examples and demonstrations
@@ -17,7 +20,7 @@ This skill provides Claude Code with project-specific knowledge and workflows fo
 - Standard Rust workflows: `cargo build`, `cargo test`, `cargo check`
 - Feature combinations: `parallel`, `simd`, `hilbert`, `container_v2`, `serde`, `gis_geojson`
 - Native compilation: `RUSTFLAGS="-C target-cpu=native"`
-- Full feature test suite with 101+ tests
+- Full feature test suite with 109+ tests
 
 ### Performance & Benchmarking
 - Criterion benchmarks: `cargo bench`
@@ -43,6 +46,12 @@ This skill provides Claude Code with project-specific knowledge and workflows fo
 - Cargo.toml synchronization
 - Minimal package size (91 KB compressed)
 
+### Security & Dependencies
+- Dependabot: Weekly auto-updates for Cargo & GitHub Actions
+- cargo-deny: License and security scanning
+- SECURITY.md: Vulnerability reporting policy
+- All dependencies up-to-date (thiserror 2.0, petgraph 0.8, rkyv 0.8, dirs 6.0)
+
 ## Quick Commands
 
 ```bash
@@ -63,6 +72,10 @@ cargo run --release --example bcc14_prim_astar_demo -- --seed=42
 
 # Profile hotspots
 cargo run --release --example profile_hotspots
+
+# Security checks
+cargo audit
+cargo deny check
 
 # Publish to crates.io (dry run first)
 cargo publish --dry-run
@@ -89,15 +102,18 @@ cargo publish
 - `examples/bcc14_prim_astar_demo.rs`: Showcase algorithm demonstration
 - `benches/`: Criterion benchmarks
 - `CLAUDE.md`: AI development log and notes
+- `deny.toml`: Security and license configuration
+- `SECURITY.md`: Vulnerability reporting policy
 
 ## Development Notes
 
 ### Recent Work (v0.4.2)
 - Published to crates.io
 - Zero compiler warnings in release build
-- 101/101 tests passing
+- 109/109 tests passing
 - Perfect code quality metrics
-- Fixed half dependency transitive yank
+- Security infrastructure: Dependabot, cargo-deny, SECURITY.md
+- All dependencies updated to latest major versions
 
 ### Known Optimizations
 - Morton decode: 157M ops/sec (37% improvement)
@@ -108,16 +124,16 @@ cargo publish
 - AVX-512 implementation for Intel Xeon
 - AMD large batch performance tuning
 - NEON optimization for Apple Silicon
-- Monitor half crate for future releases ≥2.7
 
 ## Usage in Claude Code
 
 Invoke this skill to:
-1. **Build or test** - Ask Claude to build the project or run tests
-2. **Optimize performance** - Ask about profiling or benchmarking specific components
+1. **Build or test** - Build the project or run tests
+2. **Optimize performance** - Profile or benchmark specific components
 3. **Run examples** - Execute demos with specific seeds or parameters
 4. **Manage releases** - Handle versioning and publishing to crates.io
 5. **Debug issues** - Investigate performance regressions or failures
+6. **Security checks** - Run vulnerability scans and dependency audits
 
 Example prompts:
 - "Run the BCC-14 demo with seed 42"
@@ -125,8 +141,9 @@ Example prompts:
 - "Profile the Morton decoding performance"
 - "Check for compiler warnings in release build"
 - "Prepare a new release for crates.io"
+- "Run security audit and check for vulnerabilities"
 
 ---
 
-**Last Updated:** 2025-10-17
-**Status:** Production-ready, v0.4.2 published
+**Last Updated:** 2025-10-25
+**Status:** Production-ready, v0.4.2 published, security configured
