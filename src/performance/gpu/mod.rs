@@ -8,13 +8,13 @@
 //! where the parallel processing power of GPUs significantly outweighs
 //! the CPU-GPU transfer overhead.
 
-#[cfg(feature = "gpu-metal")]
+#[cfg(all(feature = "gpu-metal", target_os = "macos"))]
 pub mod metal;
 
-#[cfg(feature = "gpu-vulkan")]
+#[cfg(all(feature = "gpu-vulkan", not(target_os = "windows")))]
 pub mod wgpu_backend;
 
-#[cfg(feature = "gpu-cuda")]
+#[cfg(all(feature = "gpu-cuda", not(target_os = "windows")))]
 pub mod cuda;
 
 #[cfg(feature = "gpu-rocm")]
@@ -62,14 +62,14 @@ impl GpuBatchProcessor {
     }
 
     /// Create a GPU batch processor with a specific backend
-    #[cfg(feature = "gpu-metal")]
+    #[cfg(all(feature = "gpu-metal", target_os = "macos"))]
     pub fn with_metal() -> Result<Self> {
         Ok(Self {
             backend: Box::new(metal::MetalBackend::new()?),
         })
     }
 
-    #[cfg(feature = "gpu-vulkan")]
+    #[cfg(all(feature = "gpu-vulkan", not(target_os = "windows")))]
     pub fn with_vulkan() -> Result<Self> {
         Ok(Self {
             backend: Box::new(wgpu_backend::WgpuBackend::new()?),
@@ -79,7 +79,7 @@ impl GpuBatchProcessor {
     /// Get the best available GPU backend
     fn best_backend() -> Result<Box<dyn GpuBackend>> {
         // Try CUDA first (best for NVIDIA)
-        #[cfg(feature = "gpu-cuda")]
+        #[cfg(all(feature = "gpu-cuda", not(target_os = "windows")))]
         {
             if let Ok(backend) = cuda::CudaBackend::new() {
                 return Ok(Box::new(backend));
@@ -95,7 +95,7 @@ impl GpuBatchProcessor {
         }
 
         // Try Metal (best for Apple)
-        #[cfg(all(target_os = "macos", feature = "gpu-metal"))]
+        #[cfg(all(feature = "gpu-metal", target_os = "macos"))]
         {
             if let Ok(backend) = metal::MetalBackend::new() {
                 return Ok(Box::new(backend));
@@ -103,7 +103,7 @@ impl GpuBatchProcessor {
         }
 
         // Try Vulkan (cross-platform fallback)
-        #[cfg(feature = "gpu-vulkan")]
+        #[cfg(all(feature = "gpu-vulkan", not(target_os = "windows")))]
         {
             if let Ok(backend) = wgpu_backend::WgpuBackend::new() {
                 return Ok(Box::new(backend));
@@ -141,34 +141,34 @@ impl GpuBatchProcessor {
 }
 
 /// Check if CUDA is available
-#[cfg(feature = "gpu-cuda")]
+#[cfg(all(feature = "gpu-cuda", not(target_os = "windows")))]
 pub fn is_cuda_available() -> bool {
     cuda::is_cuda_available()
 }
 
-#[cfg(not(feature = "gpu-cuda"))]
+#[cfg(not(all(feature = "gpu-cuda", not(target_os = "windows"))))]
 pub fn is_cuda_available() -> bool {
     false
 }
 
 /// Check if Metal is available
-#[cfg(feature = "gpu-metal")]
+#[cfg(all(feature = "gpu-metal", target_os = "macos"))]
 pub fn is_metal_available() -> bool {
     metal::MetalBackend::new().is_ok()
 }
 
-#[cfg(not(feature = "gpu-metal"))]
+#[cfg(not(all(feature = "gpu-metal", target_os = "macos")))]
 pub fn is_metal_available() -> bool {
     false
 }
 
 /// Check if Vulkan is available
-#[cfg(feature = "gpu-vulkan")]
+#[cfg(all(feature = "gpu-vulkan", not(target_os = "windows")))]
 pub fn is_vulkan_available() -> bool {
     wgpu_backend::WgpuBackend::new().is_ok()
 }
 
-#[cfg(not(feature = "gpu-vulkan"))]
+#[cfg(not(all(feature = "gpu-vulkan", not(target_os = "windows"))))]
 pub fn is_vulkan_available() -> bool {
     false
 }
