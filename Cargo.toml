@@ -25,6 +25,10 @@ name = "octaindex3d"
 path = "src/bin/octaindex3d-cli.rs"
 required-features = ["cli"]
 
+[[example]]
+name = "verify_index64_hilbert64"
+required-features = ["hilbert"]
+
 [dependencies]
 # Compression (LZ4 is default)
 lz4_flex = "0.11"

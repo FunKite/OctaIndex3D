@@ -7,6 +7,8 @@
 //! - Batch bounding box queries
 
 use crate::error::{Error, Result};
+#[cfg(target_arch = "x86_64")]
+use crate::morton;
 use crate::{FrameId, Index64, Route64};
 
 /// Batch encode Index64 from coordinates
