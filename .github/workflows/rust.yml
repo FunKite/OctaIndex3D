@@ -159,8 +159,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install Rust 1.75
-        uses: dtolnay/rust-toolchain@1.75.0
+      - name: Install Rust 1.77
+        uses: dtolnay/rust-toolchain@1.77.0
 
       - name: Check with MSRV
         run: cargo check --all-features
