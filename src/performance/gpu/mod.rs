@@ -82,7 +82,7 @@ impl GpuBatchProcessor {
         #[cfg(all(feature = "gpu-cuda", not(target_os = "windows")))]
         {
             // Catch panic from cudarc when CUDA isn't available
-            if let Ok(Ok(backend)) = std::panic::catch_unwind(|| cuda::CudaBackend::new()) {
+            if let Ok(Ok(backend)) = std::panic::catch_unwind(cuda::CudaBackend::new) {
                 return Ok(Box::new(backend));
             }
         }

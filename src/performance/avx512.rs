@@ -9,6 +9,12 @@
 //! - Intel: Skylake-X (2017+), Ice Lake (2019+), Sapphire Rapids (2023+)
 //! - AMD: Zen 4 (2022+), Zen 5 (2024+)
 
+// Experimental AVX-512 code - suppress clippy warnings
+#![allow(clippy::incompatible_msrv)]
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::identity_op)]
+#![allow(clippy::missing_safety_doc)]
+
 use crate::Route64;
 
 /// Check if AVX-512F (foundation) is available
