@@ -23,6 +23,12 @@ pub fn has_bmi2() -> bool {
 ///
 /// PDEP (Parallel Deposit) scatters bits according to a mask, which is
 /// exactly what Morton encoding does. This is 3-5x faster than bit manipulation.
+///
+/// # Safety
+///
+/// This function requires the BMI2 CPU feature. The caller must ensure
+/// BMI2 is available on the target CPU before calling this function.
+/// Use runtime detection with `is_x86_feature_detected!("bmi2")`.
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "bmi2")]
 pub unsafe fn morton_encode_bmi2(x: u16, y: u16, z: u16) -> u64 {
@@ -42,6 +48,12 @@ pub unsafe fn morton_encode_bmi2(x: u16, y: u16, z: u16) -> u64 {
 /// Ultra-fast Morton decoding using BMI2 PEXT instruction (x86_64)
 ///
 /// PEXT (Parallel Extract) gathers bits according to a mask.
+///
+/// # Safety
+///
+/// This function requires the BMI2 CPU feature. The caller must ensure
+/// BMI2 is available on the target CPU before calling this function.
+/// Use runtime detection with `is_x86_feature_detected!("bmi2")`.
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "bmi2")]
 pub unsafe fn morton_decode_bmi2(code: u64) -> (u16, u16, u16) {

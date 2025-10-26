@@ -447,9 +447,9 @@ unsafe fn batch_euclidean_distance_squared_avx2(
         let tz_vec = _mm256_loadu_si256(tz.as_ptr() as *const __m256i);
 
         // Calculate differences
-        let dx = _mm256_sub_epi64(sx_vec, tx_vec);
-        let dy = _mm256_sub_epi64(sy_vec, ty_vec);
-        let dz = _mm256_sub_epi64(sz_vec, tz_vec);
+        let _dx = _mm256_sub_epi64(sx_vec, tx_vec);
+        let _dy = _mm256_sub_epi64(sy_vec, ty_vec);
+        let _dz = _mm256_sub_epi64(sz_vec, tz_vec);
 
         // Note: AVX2 doesn't have 64-bit multiply, so we fall back to scalar
         // Full AVX-512 would provide _mm512_mullo_epi64

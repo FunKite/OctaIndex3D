@@ -14,6 +14,7 @@
 #![allow(clippy::needless_range_loop)]
 #![allow(clippy::identity_op)]
 #![allow(clippy::missing_safety_doc)]
+#![allow(clippy::unnecessary_cast)]
 
 use crate::Route64;
 
@@ -51,7 +52,7 @@ pub unsafe fn batch_neighbors_avx512_8(routes: &[Route64; 8]) -> [Route64; 112] 
     let mut result = [Route64::new(0, 0, 0, 0).unwrap(); 112];
 
     // Load 8 route values into AVX-512 register
-    let route_values = _mm512_loadu_si512(routes.as_ptr() as *const __m512i);
+    let _route_values = _mm512_loadu_si512(routes.as_ptr() as *const __m512i);
 
     // Extract coordinates for all 8 routes
     // This is a simplified version - full implementation would use
@@ -103,7 +104,7 @@ pub fn batch_neighbors_avx512(routes: &[Route64]) -> Vec<Route64> {
     let mut result = Vec::with_capacity(routes.len() * 14);
 
     let chunks = routes.len() / 8;
-    let remainder = routes.len() % 8;
+    let _remainder = routes.len() % 8;
 
     unsafe {
         // Process 8 routes at a time with AVX-512
@@ -239,7 +240,7 @@ mod tests {
 
         let routes: Vec<Route64> = (0..16)
             .map(|i| {
-                let coord = (i * 2) as i32;
+                let coord = i * 2;
                 Route64::new(0, coord, coord, coord).unwrap()
             })
             .collect();
