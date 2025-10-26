@@ -6,6 +6,10 @@
 //! - Batch distance calculations
 //! - Batch bounding box queries
 
+// Performance-critical code with intentional patterns - suppress clippy warnings
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::unnecessary_cast)]
+
 use crate::error::{Error, Result};
 #[cfg(target_arch = "x86_64")]
 use crate::morton;
