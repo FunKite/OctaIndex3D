@@ -81,7 +81,8 @@ impl GpuBatchProcessor {
         // Try CUDA first (best for NVIDIA)
         #[cfg(all(feature = "gpu-cuda", not(target_os = "windows")))]
         {
-            if let Ok(backend) = cuda::CudaBackend::new() {
+            // Catch panic from cudarc when CUDA isn't available
+            if let Ok(Ok(backend)) = std::panic::catch_unwind(|| cuda::CudaBackend::new()) {
                 return Ok(Box::new(backend));
             }
         }

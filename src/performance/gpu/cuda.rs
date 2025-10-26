@@ -125,7 +125,9 @@ impl CudaBackend {
 /// Check if CUDA is available
 #[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 pub fn is_cuda_available() -> bool {
-    std::panic::catch_unwind(|| CudaDevice::new(0)).map(|result| result.is_ok()).unwrap_or(false)
+    std::panic::catch_unwind(|| CudaDevice::new(0))
+        .map(|result| result.is_ok())
+        .unwrap_or(false)
 }
 
 #[cfg(all(feature = "gpu-cuda", any(target_os = "macos", target_os = "ios")))]
