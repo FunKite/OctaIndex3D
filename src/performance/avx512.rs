@@ -45,7 +45,7 @@ pub unsafe fn batch_neighbors_avx512_8(routes: &[Route64; 8]) -> [Route64; 112] 
     let mut result = [Route64::new(0, 0, 0, 0).unwrap(); 112];
 
     // Load 8 route values into AVX-512 register
-    let route_values = _mm512_loadu_si512(routes.as_ptr() as *const i32);
+    let route_values = _mm512_loadu_si512(routes.as_ptr() as *const __m512i);
 
     // Extract coordinates for all 8 routes
     // This is a simplified version - full implementation would use
