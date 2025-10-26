@@ -125,7 +125,7 @@ impl CudaBackend {
 /// Check if CUDA is available
 #[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 pub fn is_cuda_available() -> bool {
-    CudaDevice::new(0).is_ok()
+    std::panic::catch_unwind(|| CudaDevice::new(0)).map(|result| result.is_ok()).unwrap_or(false)
 }
 
 #[cfg(all(feature = "gpu-cuda", any(target_os = "macos", target_os = "ios")))]
@@ -147,6 +147,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore] // Requires CUDA hardware - cudarc panics if CUDA not available
     fn test_cuda_backend_creation() {
         match CudaBackend::new() {
             Ok(backend) => {
@@ -160,6 +161,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore] // Requires CUDA hardware - cudarc panics if CUDA not available
     fn test_cuda_batch_neighbors() {
         let backend = match CudaBackend::new() {
             Ok(b) => b,
