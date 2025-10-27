@@ -1,33 +1,38 @@
-# Contributor Covenant Code of Conduct
+#Code of Conduct
 
 ## Our Pledge
 
-We are committed to providing a welcoming and inspiring community for all. We pledge that everyone participating in the Solunatus project and its community will be treated with respect regardless of levels of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
+This project welcomes contributors from all backgrounds, skill levels, and points of view.  
+We aim to maintain a friendly, collaborative environment where people feel comfortable sharing ideas and learning from each other.
+
+Everyone participating in the project is expected to treat others with respect and kindness.
 
 ## Our Standards
 
-Examples of behavior that contributes to creating a positive environment include:
+### Examples of behavior that helps create a positive environment:
 
-- Using welcoming and inclusive language
-- Being respectful of differing opinions, viewpoints, and experiences
-- Gracefully accepting constructive criticism
-- Focusing on what is best for the community
-- Showing empathy towards other community members
+- Using clear and welcoming language
+- Being respectful of differing opinions and experiences
+- Asking questions and offering help when others need support
+- Giving and receiving constructive feedback in good faith
+- Keeping discussions focused on improving the project
 
-Examples of unacceptable behavior include:
+### Examples of behavior that is not acceptable:
 
-- The use of sexualized language or imagery and unwelcome sexual attention or advances
-- Trolling, insulting/derogatory comments, and personal or political attacks
-- Public or private harassment
-- Publishing others' private information without explicit permission
-- Other conduct which could reasonably be considered inappropriate in a professional setting
+- Personal attacks or insults
+- Harassment or discrimination of any kind
+- Excessively confrontational or hostile communication
+- Publishing others’ private information without consent
+- Disrupting discussions or repeatedly derailing conversations
+
+If disagreements arise, we encourage contributors to focus on facts, technical reasoning, and shared goals for the project.
 
 ## Enforcement
 
-If you experience or witness unacceptable behavior in any GitHub space, please report it directly to GitHub Support under their [Community Guidelines](https://docs.github.com/en/site-policy/github-terms/github-community-guidelines). For project-specific issues, you may also contact the repository owner privately if you feel comfortable doing so.
+If you experience or witness behavior that violates this Code of Conduct:
 
-Please remember that this is a volunteer open-source project. We expect participants to act in good faith and help maintain a kind, constructive atmosphere.
+- For issues specific to this project, you may contact the repository owner or maintainers privately.
+- For platform-wide violations or safety concerns, you may also report behavior directly to GitHub Support under their Community Guidelines.
 
-## Attribution
-
-This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 1.4.
+We trust participants to act in good faith and help maintain a thoughtful, constructive atmosphere.  
+Repeated or severe violations may result in being asked to disengage from project spaces.
