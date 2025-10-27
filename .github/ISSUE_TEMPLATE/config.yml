@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/FunKite/OctaIndex3D/issues
+    about: Ask questions or start discussions about using OctaIndex3D
+  - name: Documentation
+    url: https://docs.rs/octaindex3d
+    about: Read the API documentation on docs.rs
+  - name: Performance Guide
+    url: https://github.com/FunKite/OctaIndex3D/blob/main/PERFORMANCE.md
+    about: Learn about performance optimization and benchmarking

@@ -1,0 +1,138 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in OctaIndex3D
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug
+      placeholder: What went wrong?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Create a Galactic128 ID with...
+        2. Call method X with parameters...
+        3. Observe error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe the expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Describe what actually occurred, including error messages
+    validations:
+      required: true
+
+  - type: textarea
+    id: code-sample
+    attributes:
+      label: Minimal Reproducible Example
+      description: Please provide a minimal code example that reproduces the issue
+      placeholder: |
+        ```rust
+        use octaindex3d::*;
+
+        fn main() {
+            // Your code here
+        }
+        ```
+      render: rust
+
+  - type: input
+    id: version
+    attributes:
+      label: OctaIndex3D Version
+      description: What version of OctaIndex3D are you using?
+      placeholder: e.g., 0.4.2
+    validations:
+      required: true
+
+  - type: input
+    id: rust-version
+    attributes:
+      label: Rust Version
+      description: Output of `rustc --version`
+      placeholder: e.g., rustc 1.82.0 (f6e511eec 2024-10-15)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: What platform are you running on?
+      options:
+        - Linux x86_64
+        - macOS x86_64 (Intel)
+        - macOS ARM64 (Apple Silicon)
+        - Windows x86_64
+        - Other (please specify in Additional Context)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: features
+    attributes:
+      label: Enabled Features
+      description: Which optional features are enabled in your Cargo.toml?
+      options:
+        - label: parallel
+        - label: simd
+        - label: hilbert
+        - label: container_v2
+        - label: gis_geojson
+        - label: zstd_compression
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Output / Logs
+      description: If applicable, paste any error messages, stack traces, or log output
+      placeholder: Paste error output here
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem (architecture notes, benchmark results, workarounds tried, etc.)
+      placeholder: Add any other relevant information
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I am using the latest version of OctaIndex3D
+          required: false
+        - label: I have tested with `--all-features` enabled
+          required: false
+        - label: I have included a minimal reproducible example
+          required: false

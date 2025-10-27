@@ -1,0 +1,163 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for OctaIndex3D
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Your ideas help make OctaIndex3D better. Please provide as much detail as possible.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: A clear and concise summary of the proposed feature
+      placeholder: What feature would you like to see?
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve?
+      placeholder: |
+        Is your feature request related to a problem? Please describe.
+        Example: "I'm frustrated when trying to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work?
+      placeholder: |
+        Describe your ideal solution. Include:
+        - API design (if applicable)
+        - Expected behavior
+        - Example usage
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific scenarios where this feature would be valuable
+      placeholder: |
+        1. Robotics path planning with...
+        2. GIS applications requiring...
+        3. Scientific simulations of...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: Describe alternatives you've considered
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: Which area does this feature relate to?
+      options:
+        - Core API (ID types, encoding)
+        - Performance (SIMD, parallelism)
+        - Pathfinding / Routing
+        - Container Format / Storage
+        - GeoJSON / GIS Integration
+        - Visualization
+        - Documentation
+        - Examples / Tutorials
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to your use case?
+      options:
+        - Critical (blocking my project)
+        - High (would significantly improve workflow)
+        - Medium (nice to have)
+        - Low (future consideration)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: Impact Areas
+      description: Which aspects of OctaIndex3D would this feature affect?
+      options:
+        - label: Public API changes
+        - label: Performance implications
+        - label: Breaking changes
+        - label: New dependencies
+        - label: Documentation updates
+        - label: Backward compatibility concerns
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Code Example
+      description: If applicable, provide a code example showing how you'd like to use this feature
+      placeholder: |
+        ```rust
+        use octaindex3d::*;
+
+        // Example of desired API
+        let feature = NewFeature::new();
+        feature.do_something();
+        ```
+      render: rust
+
+  - type: textarea
+    id: performance
+    attributes:
+      label: Performance Considerations
+      description: Are there any performance implications or requirements?
+      placeholder: |
+        Expected performance characteristics, memory usage, scalability concerns, etc.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, mockups, benchmarks, or references
+      placeholder: |
+        - Links to research papers
+        - Similar features in other libraries
+        - Performance benchmarks
+        - Mockups or diagrams
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be willing to help implement this feature?
+      options:
+        - label: I would like to implement this feature myself
+        - label: I can help with testing and feedback
+        - label: I can help with documentation
+        - label: I need someone else to implement this
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have checked the documentation and examples
+          required: false
+        - label: This feature aligns with OctaIndex3D's focus on BCC lattice spatial indexing
+          required: false
