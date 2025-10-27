@@ -59,7 +59,7 @@ thiserror = "2.0"
 
 # Math
 num-traits = "0.2"
-ordered-float = "4.0"
+ordered-float = "5.1"
 glam = { version = "0.29", optional = true }
 
 # CRC for container integrity
