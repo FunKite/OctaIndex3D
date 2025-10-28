@@ -112,7 +112,7 @@ name = "simd_batch_optimizations"
 harness = false
 
 [dev-dependencies]
-proptest = "1.4"
+proptest = "1.9"
 criterion = { version = "0.5", features = ["html_reports"] }
 approx = "0.5"
 rand = "0.8"
