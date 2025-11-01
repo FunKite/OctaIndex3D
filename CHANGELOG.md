@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BCC-14 Prim's Algorithm → A* Demo** - Comprehensive example showing spanning tree generation on 549K BCC lattice nodes with pathfinding
 - **GitHub Community Standards** - CONTRIBUTING.md, issue templates, PR template, and community guidelines
 - **Security Enhancements** - CodeQL security analysis workflow with automatic scanning
-- **Visual Showcase** - Rotating truncated octahedron visualization in README
 - CLI utility functions: encode/decode coordinates, calculate distances, get BCC neighbors
 
 ### Changed
