@@ -92,6 +92,7 @@ fn generate_proper_state_table() -> Vec<Vec<(u8, u8)>> {
     ];
 
     // Generate remaining states through rotations and reflections
+    #[allow(clippy::needless_range_loop)]
     for state in 1..24 {
         for octant in 0..8 {
             // Apply rotation/reflection based on state

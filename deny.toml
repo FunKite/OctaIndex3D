@@ -18,6 +18,10 @@ allow = [
     "Apache-2.0 WITH LLVM-exception",
     "BSD-2-Clause",
     "Unicode-3.0",
+    "Zlib",           # foldhash, slotmap
+    "CC0-1.0",        # hexf-parse (public domain)
+    "ISC",            # libloading
+    "MPL-2.0",        # option-ext
 ]
 
 [bans]

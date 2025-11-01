@@ -344,7 +344,7 @@ impl Maze {
         // Prim's algorithm
         while !frontier.is_empty() {
             // Pick random frontier cell
-            let idx = rng.gen_range(0..frontier.len());
+            let idx = rng.random_range(0..frontier.len());
             let current = frontier.swap_remove(idx);
             frontier_set.remove(&current);
 
@@ -358,7 +358,7 @@ impl Maze {
 
             if !carved_neighbors.is_empty() {
                 // Connect to random carved neighbor
-                let parent = carved_neighbors[rng.gen_range(0..carved_neighbors.len())];
+                let parent = carved_neighbors[rng.random_range(0..carved_neighbors.len())];
                 carved.insert(current);
 
                 // Create bidirectional connection
