@@ -99,7 +99,7 @@ where $(\Delta_x, \Delta_y, \Delta_z) \in \{0, 1\}^3$ with $\Delta_x + \Delta_y 
 **Morton Encoding** (Z-order): Interleaves coordinate bits to create a linear index preserving spatial locality:
 
 $$
-M(x, y, z) = \bigcup_{i=0}^{n-1} \{z_i, y_i, x_i\}
+M(x, y, z) = z_{n-1}y_{n-1}x_{n-1} \cdots z_1y_1x_1z_0y_0x_0
 $$
 
 where $x_i$ denotes the $i$-th bit of $x$. Our implementation uses BMI2 `PDEP` instruction when available:
@@ -117,7 +117,7 @@ unsafe fn morton_encode(x: u16, y: u16, z: u16) -> u64 {
 **Hilbert Encoding**: Provides better locality than Morton through recursive space subdivision. We implement a Gray code transformation:
 
 $$
-H(x, y, z) = \text{Gray}((z \ll 2) | (y \ll 1) | x)
+H(x, y, z) = \text{Gray}((z \cdot 2^2) \oplus (y \cdot 2^1) \oplus x)
 $$
 
 **Theorem 2.3** (Locality): For Hilbert curve $H$, points with linear distance $\Delta$ have spatial distance $O(\Delta^{1/3})$. For Morton curve $M$, worst case is $O(\Delta^{1/2})$.
@@ -791,15 +791,7 @@ Our implementation demonstrates three key advantages:
 
 **Learning Curve**: Developers familiar with Octrees must adapt to 14-neighbor topology. Comprehensive documentation and examples reduce this barrier.
 
-### 10.3 Comparison with Alternatives
-
-| System | Neighbors | Hierarchy | Morton | Hilbert | Compression |
-|--------|-----------|-----------|--------|---------|-------------|
-| Octree | 6 (cubic) | 8:1 | ✅ | ❌ | ❌ |
-| S2 | Variable | 4:1 | ❌ | ✅ (sphere) | ❌ |
-| **OctaIndex3D** | **14 (BCC)** | **8:1** | **✅** | **✅** | **✅** |
-
-### 10.4 Limitations and Future Work
+### 10.3 Limitations and Future Work
 
 **Current Limitations**:
 1. No GPU support (planned for v0.4.0)
