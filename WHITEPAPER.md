@@ -1,7 +1,7 @@
 # OctaIndex3D: A High-Performance 3D Spatial Indexing System Based on Body-Centered Cubic Lattice
 
-**Version 0.4.2**
-**October 2025**
+**Version 0.4.3**
+**November 2025**
 
 **Authors:**
 Michael A. McLarney, Claude (Anthropic AI Assistant)
@@ -55,7 +55,7 @@ OctaIndex3D is an experimental implementation of BCC-based spatial indexing with
 The BCC lattice $\mathcal{L}_{BCC}$ consists of integer points satisfying the parity constraint:
 
 $$
-\mathcal{L}_{BCC} = \{(x, y, z) \in \mathbb{Z}^3 : (x + y + z) \equiv 0 \pmod{2}\}
+\mathcal{L}_{BCC} = \left\{ (x, y, z) \in \mathbb{Z}^3 : (x + y + z) \equiv 0 \pmod{2} \right\}
 $$
 
 This constraint creates two interpenetrating cubic sublattices:
@@ -71,14 +71,12 @@ This constraint creates two interpenetrating cubic sublattices:
 Each BCC lattice point has exactly 14 neighbors:
 
 **Opposite-Parity Neighbors** (8 vertices of inscribed cube, distance $\sqrt{3}$):
-$$
-\{(\pm 1, \pm 1, \pm 1)\}
-$$
+
+$$(1, 1, 1), (-1, -1, -1), (1, -1, -1), (-1, 1, 1), (1, 1, -1), (-1, -1, 1), (1, -1, 1), (-1, 1, -1)$$
 
 **Same-Parity Neighbors** (6 face centers of circumscribed cube, distance 2):
-$$
-\{(\pm 2, 0, 0), (0, \pm 2, 0), (0, 0, \pm 2)\}
-$$
+
+$$(2, 0, 0), (-2, 0, 0), (0, 2, 0), (0, -2, 0), (0, 0, 2), (0, 0, -2)$$
 
 **Theorem 2.2** (Isotropy): The coefficient of variation of edge lengths in the BCC lattice is 0.086, compared to 0.414 for cubic grids.
 
@@ -92,7 +90,7 @@ $$
 (x_c, y_c, z_c) = (2x_p + \Delta_x, 2y_p + \Delta_y, 2z_p + \Delta_z)
 $$
 
-where $(\Delta_x, \Delta_y, \Delta_z) \in \{0, 1\}^3$ with $\Delta_x + \Delta_y + \Delta_z \equiv (x_p + y_p + z_p) \pmod{2}$ (parity preservation).
+where $(\Delta_x, \Delta_y, \Delta_z) \in \left\{0, 1\right\}^3$ with $\Delta_x + \Delta_y + \Delta_z \equiv (x_p + y_p + z_p) \pmod{2}$ (parity preservation).
 
 ### 2.4 Space-Filling Curves
 
@@ -1017,6 +1015,6 @@ fn stream_sensor_data(
 
 ---
 
-*This whitepaper describes OctaIndex3D version 0.4.2 (October 2025). For updates and errata, see the project repository.*
+*This whitepaper describes OctaIndex3D version 0.4.3 (November 2025). For updates and errata, see the project repository.*
 
 **Citation**: McLarney, M. A., & Claude. (2025). OctaIndex3D: A High-Performance 3D Spatial Indexing System Based on Body-Centered Cubic Lattice. *Technical Report*.
