@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2025-11-02
+
 ### Added
 - **Interactive 3D Octahedral Maze Game CLI** - Play mazes with difficulty levels (easy/medium/hard), compete against A* pathfinding, and track statistics
 - **BCC-14 Prim's Algorithm → A* Demo** - Comprehensive example showing spanning tree generation on 549K BCC lattice nodes with pathfinding
@@ -65,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.4.3
 [0.4.2]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.4.2
 [0.4.0]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.4.0

@@ -1,4 +1,4 @@
-//! # OctaIndex3D v0.4.2
+//! # OctaIndex3D v0.4.3
 //!
 //! A 3D Spatial Indexing and Routing System based on Body-Centered Cubic (BCC) lattice
 //! with truncated octahedral cells.
@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert_eq!(VERSION, "0.4.2");
+        assert_eq!(VERSION, "0.4.3");
     }
 
     #[test]

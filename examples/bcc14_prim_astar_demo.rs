@@ -201,7 +201,7 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
     let mut swap_idx = 0;
     while swap_idx < frontier.len() {
         // Pick random frontier node
-        let random_offset = rng.gen_range(swap_idx..frontier.len());
+        let random_offset = rng.random_range(swap_idx..frontier.len());
         frontier.swap(swap_idx, random_offset);
         let frontier_node = frontier[swap_idx];
         swap_idx += 1;
@@ -231,7 +231,7 @@ pub fn build_bcc14_prim(cfg: &BccPrimConfig) -> (GraphBcc, BuildStats) {
 
         if carved_count > 0 {
             // Connect to random carved neighbor
-            let parent_idx = carved_neighbors[rng.gen_range(0..carved_count)];
+            let parent_idx = carved_neighbors[rng.random_range(0..carved_count)];
             parent[frontier_node as usize] = parent_idx;
             frontier_state[frontier_node as usize] = 2; // Mark as carved
             edges_created += 1;
