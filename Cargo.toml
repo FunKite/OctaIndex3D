@@ -82,7 +82,7 @@ dirs = { version = "6.0", optional = true }
 rayon = { version = "1.10", optional = true }
 
 # Performance: GPU acceleration
-pollster = { version = "0.3", optional = true }
+pollster = { version = "0.4", optional = true }
 
 # Performance: Advanced memory
 aligned-vec = { version = "0.6", optional = true }
