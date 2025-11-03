@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Updated `metal` from 0.29.0 to 0.32.0
+- Updated `glam` from 0.29.3 to 0.30.9
+- Updated `pollster` from 0.3.0 to 0.4.0
+- Updated `crossterm` from 0.28.1 to 0.29.0
+- Updated `clap` from 4.5.50 to 4.5.51
+
+### Fixed
+- Added advisory ignore for unmaintained `paste` crate (RUSTSEC-2024-0436) used by metal/wgpu dependencies
+
 ## [0.4.3] - 2025-11-02
 
 ### Added
