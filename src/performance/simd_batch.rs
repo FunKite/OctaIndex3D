@@ -267,8 +267,6 @@ unsafe fn batch_index64_encode_avx2(
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
 unsafe fn batch_index64_decode_avx2(indices: &[Index64]) -> Vec<(u16, u16, u16)> {
-    use std::arch::x86_64::*;
-
     let len = indices.len();
     let mut results = Vec::with_capacity(len);
 
@@ -303,8 +301,6 @@ unsafe fn batch_index64_decode_avx2(indices: &[Index64]) -> Vec<(u16, u16, u16)>
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
 unsafe fn batch_validate_routes_avx2(routes: &[Route64]) -> Vec<bool> {
-    use std::arch::x86_64::*;
-
     let len = routes.len();
     let mut results = Vec::with_capacity(len);
 

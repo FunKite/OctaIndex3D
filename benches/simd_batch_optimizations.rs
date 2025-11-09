@@ -8,9 +8,10 @@
 //! - Batch Morton encoding/decoding
 //! - Batch Hilbert encoding/decoding (if feature enabled)
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use octaindex3d::performance::*;
 use octaindex3d::{Index64, Route64};
+use std::hint::black_box;
 
 fn generate_coords(n: usize) -> Vec<(u16, u16, u16)> {
     (0..n)

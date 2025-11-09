@@ -2,10 +2,11 @@
 //!
 //! Tests BMI2, cache optimizations, prefetching, and specialized kernels
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use octaindex3d::Route64;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
+use std::hint::black_box;
 
 #[cfg(target_arch = "x86_64")]
 use octaindex3d::performance::arch_optimized::{

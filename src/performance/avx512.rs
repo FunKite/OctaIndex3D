@@ -135,8 +135,6 @@ pub fn batch_neighbors_avx512(routes: &[Route64]) -> Vec<Route64> {
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx512f")]
 pub unsafe fn batch_morton_encode_avx512(coords: &[(u16, u16, u16)]) -> Vec<u64> {
-    use std::arch::x86_64::*;
-
     let len = coords.len();
     let mut result = Vec::with_capacity(len);
 

@@ -4,6 +4,7 @@ use crate::ids::{Galactic128, Route64};
 use crate::lattice::BCC_NEIGHBORS_14;
 
 /// Get 14 neighbors of a Route64 coordinate
+#[must_use]
 pub fn neighbors_route64(route: Route64) -> Vec<Route64> {
     let tier = route.scale_tier();
     let (x, y, z) = (route.x(), route.y(), route.z());
@@ -20,6 +21,7 @@ pub fn neighbors_route64(route: Route64) -> Vec<Route64> {
 }
 
 /// Get 14 neighbors of a Galactic128 coordinate
+#[must_use]
 pub fn neighbors_galactic128(galactic: Galactic128) -> Vec<Galactic128> {
     let (x, y, z) = (galactic.x(), galactic.y(), galactic.z());
     let frame = galactic.frame_id();
@@ -40,6 +42,7 @@ pub fn neighbors_galactic128(galactic: Galactic128) -> Vec<Galactic128> {
 }
 
 /// Compute Euclidean distance between two Route64 cells
+#[must_use]
 pub fn distance_route64(a: Route64, b: Route64) -> f64 {
     let dx = (a.x() - b.x()) as f64;
     let dy = (a.y() - b.y()) as f64;
@@ -48,6 +51,7 @@ pub fn distance_route64(a: Route64, b: Route64) -> f64 {
 }
 
 /// Compute Manhattan distance between two Route64 cells
+#[must_use]
 pub fn manhattan_distance_route64(a: Route64, b: Route64) -> i32 {
     (a.x() - b.x()).abs() + (a.y() - b.y()).abs() + (a.z() - b.z()).abs()
 }

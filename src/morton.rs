@@ -4,6 +4,7 @@
 //! Uses BMI2 instructions (pdep/pext) on x86_64 when available, with LUT fallback.
 
 /// Morton encode three 16-bit coordinates into a 48-bit value
+#[must_use]
 #[inline]
 pub fn morton_encode(x: u16, y: u16, z: u16) -> u64 {
     #[cfg(all(target_arch = "x86_64", feature = "simd"))]
@@ -16,6 +17,7 @@ pub fn morton_encode(x: u16, y: u16, z: u16) -> u64 {
 }
 
 /// Morton decode a 48-bit value into three 16-bit coordinates
+#[must_use]
 #[inline]
 pub fn morton_decode(morton: u64) -> (u16, u16, u16) {
     #[cfg(all(target_arch = "x86_64", feature = "simd"))]
