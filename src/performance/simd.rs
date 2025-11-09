@@ -248,7 +248,6 @@ mod neon {
 #[cfg(target_arch = "x86_64")]
 mod avx2 {
     use super::*;
-    use std::arch::x86_64::*;
 
     #[target_feature(enable = "avx2")]
     pub unsafe fn batch_index64_new(

@@ -49,12 +49,12 @@ pub struct HeaderV2 {
 
 impl HeaderV2 {
     pub fn new(enable_sha256: bool) -> Self {
-        use std::time::{SystemTime, UNIX_EPOCH};
+        use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
         let flags = if enable_sha256 { 0x01 } else { 0x00 };
         let stream_id = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .unwrap_or_else(|_| Duration::from_secs(0))
             .as_nanos() as u64;
 
         Self {
@@ -88,8 +88,16 @@ impl HeaderV2 {
         Ok(Self {
             format_version: bytes[8],
             flags: bytes[9],
-            stream_id: u64::from_be_bytes(bytes[16..24].try_into().unwrap()),
-            first_frame_offset: u64::from_be_bytes(bytes[24..32].try_into().unwrap()),
+            stream_id: u64::from_be_bytes(
+                bytes[16..24]
+                    .try_into()
+                    .expect("slice is guaranteed to be 8 bytes"),
+            ),
+            first_frame_offset: u64::from_be_bytes(
+                bytes[24..32]
+                    .try_into()
+                    .expect("slice is guaranteed to be 8 bytes"),
+            ),
         })
     }
 }
@@ -123,14 +131,30 @@ impl TocEntry {
 
     pub fn from_bytes(bytes: &[u8; 32]) -> Self {
         Self {
-            offset: u64::from_be_bytes(bytes[0..8].try_into().unwrap()),
-            uncompressed_len: u32::from_be_bytes(bytes[8..12].try_into().unwrap()),
-            compressed_len: u32::from_be_bytes(bytes[12..16].try_into().unwrap()),
+            offset: u64::from_be_bytes(
+                bytes[0..8]
+                    .try_into()
+                    .expect("slice is guaranteed to be 8 bytes"),
+            ),
+            uncompressed_len: u32::from_be_bytes(
+                bytes[8..12]
+                    .try_into()
+                    .expect("slice is guaranteed to be 4 bytes"),
+            ),
+            compressed_len: u32::from_be_bytes(
+                bytes[12..16]
+                    .try_into()
+                    .expect("slice is guaranteed to be 4 bytes"),
+            ),
             codec: bytes[16],
             graph: bytes[17],
             lod: bytes[18],
             tier: bytes[19],
-            seq: u64::from_be_bytes(bytes[20..28].try_into().unwrap()),
+            seq: u64::from_be_bytes(
+                bytes[20..28]
+                    .try_into()
+                    .expect("slice is guaranteed to be 8 bytes"),
+            ),
         }
     }
 }
@@ -156,10 +180,26 @@ impl Footer {
 
     pub fn from_bytes(bytes: &[u8; 32]) -> Self {
         Self {
-            toc_offset: u64::from_be_bytes(bytes[0..8].try_into().unwrap()),
-            toc_len: u64::from_be_bytes(bytes[8..16].try_into().unwrap()),
-            entry_count: u64::from_be_bytes(bytes[16..24].try_into().unwrap()),
-            flags_copy: u64::from_be_bytes(bytes[24..32].try_into().unwrap()),
+            toc_offset: u64::from_be_bytes(
+                bytes[0..8]
+                    .try_into()
+                    .expect("slice is guaranteed to be 8 bytes"),
+            ),
+            toc_len: u64::from_be_bytes(
+                bytes[8..16]
+                    .try_into()
+                    .expect("slice is guaranteed to be 8 bytes"),
+            ),
+            entry_count: u64::from_be_bytes(
+                bytes[16..24]
+                    .try_into()
+                    .expect("slice is guaranteed to be 8 bytes"),
+            ),
+            flags_copy: u64::from_be_bytes(
+                bytes[24..32]
+                    .try_into()
+                    .expect("slice is guaranteed to be 8 bytes"),
+            ),
         }
     }
 }

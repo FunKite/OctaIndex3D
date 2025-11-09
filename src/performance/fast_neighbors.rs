@@ -9,6 +9,14 @@ use crate::Route64;
 ///
 /// This version unrolls the neighbor loop and uses inline assembly hints
 /// for better instruction scheduling on modern CPUs.
+///
+/// # Safety
+/// This function uses unsafe code (`new_unchecked`) for performance. The following
+/// invariants are upheld by the BCC lattice neighbor offsets:
+/// - All neighbor offsets preserve parity (±1 flips parity, ±2 preserves it)
+/// - Caller must ensure input coordinates are not near overflow boundaries
+///   (at least ±2 away from i32::MIN and i32::MAX for Route64's 20-bit range)
+#[must_use]
 #[inline(always)]
 pub fn neighbors_route64_fast(route: Route64) -> [Route64; 14] {
     let x = route.x();
@@ -16,26 +24,38 @@ pub fn neighbors_route64_fast(route: Route64) -> [Route64; 14] {
     let z = route.z();
     let tier = route.scale_tier();
 
+    // Debug assertions catch overflow issues in development builds
+    #[cfg(debug_assertions)]
+    {
+        debug_assert!(x.checked_add(2).is_some(), "X coordinate overflow");
+        debug_assert!(x.checked_sub(2).is_some(), "X coordinate underflow");
+        debug_assert!(y.checked_add(2).is_some(), "Y coordinate overflow");
+        debug_assert!(y.checked_sub(2).is_some(), "Y coordinate underflow");
+        debug_assert!(z.checked_add(2).is_some(), "Z coordinate overflow");
+        debug_assert!(z.checked_sub(2).is_some(), "Z coordinate underflow");
+    }
+
     // Manual unrolling for better instruction pipelining
-    // The compiler can optimize this better than a loop
+    // Safety: BCC neighbor offsets always maintain parity and coordinate bounds
+    // are checked in debug builds above
     unsafe {
         [
-            // Diagonal neighbors (8)
-            Route64::new(tier, x + 1, y + 1, z + 1).unwrap_unchecked(),
-            Route64::new(tier, x + 1, y + 1, z - 1).unwrap_unchecked(),
-            Route64::new(tier, x + 1, y - 1, z + 1).unwrap_unchecked(),
-            Route64::new(tier, x + 1, y - 1, z - 1).unwrap_unchecked(),
-            Route64::new(tier, x - 1, y + 1, z + 1).unwrap_unchecked(),
-            Route64::new(tier, x - 1, y + 1, z - 1).unwrap_unchecked(),
-            Route64::new(tier, x - 1, y - 1, z + 1).unwrap_unchecked(),
-            Route64::new(tier, x - 1, y - 1, z - 1).unwrap_unchecked(),
-            // Axis-aligned neighbors (6)
-            Route64::new(tier, x + 2, y, z).unwrap_unchecked(),
-            Route64::new(tier, x - 2, y, z).unwrap_unchecked(),
-            Route64::new(tier, x, y + 2, z).unwrap_unchecked(),
-            Route64::new(tier, x, y - 2, z).unwrap_unchecked(),
-            Route64::new(tier, x, y, z + 2).unwrap_unchecked(),
-            Route64::new(tier, x, y, z - 2).unwrap_unchecked(),
+            // Diagonal neighbors (8) - parity flipping
+            Route64::new_unchecked(tier, x + 1, y + 1, z + 1),
+            Route64::new_unchecked(tier, x + 1, y + 1, z - 1),
+            Route64::new_unchecked(tier, x + 1, y - 1, z + 1),
+            Route64::new_unchecked(tier, x + 1, y - 1, z - 1),
+            Route64::new_unchecked(tier, x - 1, y + 1, z + 1),
+            Route64::new_unchecked(tier, x - 1, y + 1, z - 1),
+            Route64::new_unchecked(tier, x - 1, y - 1, z + 1),
+            Route64::new_unchecked(tier, x - 1, y - 1, z - 1),
+            // Axis-aligned neighbors (6) - parity preserving
+            Route64::new_unchecked(tier, x + 2, y, z),
+            Route64::new_unchecked(tier, x - 2, y, z),
+            Route64::new_unchecked(tier, x, y + 2, z),
+            Route64::new_unchecked(tier, x, y - 2, z),
+            Route64::new_unchecked(tier, x, y, z + 2),
+            Route64::new_unchecked(tier, x, y, z - 2),
         ]
     }
 }

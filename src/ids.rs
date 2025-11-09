@@ -502,9 +502,12 @@ impl Route64 {
     ///
     /// # Safety
     /// Caller must ensure:
-    /// - tier is in range 0-3
-    /// - coordinates are within 20-bit signed range
-    /// - coordinates have valid parity (all even or all odd)
+    /// - `tier` is in range 0-3
+    /// - `x`, `y`, `z` are within 20-bit signed range: -524288 to 524287
+    /// - Coordinates have valid BCC parity: (x % 2 == y % 2 == z % 2)
+    /// - Coordinate arithmetic in caller code does not overflow
+    ///
+    /// Violating these invariants results in undefined behavior.
     #[inline(always)]
     pub unsafe fn new_unchecked(tier: u8, x: i32, y: i32, z: i32) -> Self {
         let mut value = 0u64;

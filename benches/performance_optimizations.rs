@@ -1,6 +1,6 @@
 //! Benchmarks for performance optimizations (SIMD, parallel, GPU)
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use octaindex3d::{BatchIndexBuilder, BatchNeighborCalculator, Route64};
 
 #[cfg(feature = "parallel")]
@@ -8,6 +8,7 @@ use octaindex3d::{ParallelBatchIndexBuilder, ParallelBatchNeighborCalculator};
 
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
+use std::hint::black_box;
 
 // Generate test routes with proper parity
 fn generate_test_routes(count: usize, seed: u64) -> Vec<Route64> {

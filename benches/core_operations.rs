@@ -1,7 +1,8 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use octaindex3d::{lattice, morton, neighbors, Galactic128, Index64, Route64};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
+use std::hint::black_box;
 
 // Benchmark Morton encoding/decoding
 fn bench_morton_encode(c: &mut Criterion) {
