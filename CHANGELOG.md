@@ -13,9 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pollster` from 0.3.0 to 0.4.0
 - Updated `crossterm` from 0.28.1 to 0.29.0
 - Updated `clap` from 4.5.50 to 4.5.51
+- Updated `zerocopy` from 0.7.35 to 0.8.27
+- Updated `cudarc` from 0.12.1 to 0.17.7 (CUDA backend API changes)
 
 ### Fixed
 - Added advisory ignore for unmaintained `paste` crate (RUSTSEC-2024-0436) used by metal/wgpu dependencies
+- Fixed CUDA backend for cudarc 0.17.7 API changes (CudaDevice → CudaContext)
 
 ## [0.4.3] - 2025-11-02
 
