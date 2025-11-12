@@ -7,7 +7,7 @@ db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
 yanked = "deny"
 # Ignore serde_cbor unmaintained warning (dev dependency via criterion)
-# Ignore paste unmaintained warning (temporary - will be resolved by metal update to 0.32.0)
+# Ignore paste unmaintained warning (used by metal and wgpu-hal dependencies)
 ignore = ["RUSTSEC-2021-0127", "RUSTSEC-2024-0436"]
 
 [licenses]

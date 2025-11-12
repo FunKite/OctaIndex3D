@@ -15,7 +15,7 @@ use crate::error::{Error, Result};
 use crate::Route64;
 
 #[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
-use cudarc::driver::CudaDevice;
+use cudarc::driver::CudaContext;
 #[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 use std::sync::Arc;
 
@@ -23,7 +23,7 @@ use std::sync::Arc;
 #[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 pub struct CudaBackend {
     #[allow(dead_code)] // Will be used when kernel execution is implemented
-    device: Arc<CudaDevice>,
+    device: Arc<CudaContext>,
 }
 
 #[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
@@ -31,7 +31,7 @@ impl CudaBackend {
     /// Create a new CUDA backend
     pub fn new() -> Result<Self> {
         // Initialize CUDA
-        let device = CudaDevice::new(0).map_err(|e| {
+        let device = CudaContext::new(0).map_err(|e| {
             Error::InvalidFormat(format!("Failed to initialize CUDA device: {:?}", e))
         })?;
 
@@ -125,7 +125,7 @@ impl CudaBackend {
 /// Check if CUDA is available
 #[cfg(all(feature = "gpu-cuda", not(any(target_os = "macos", target_os = "ios"))))]
 pub fn is_cuda_available() -> bool {
-    std::panic::catch_unwind(|| CudaDevice::new(0))
+    std::panic::catch_unwind(|| CudaContext::new(0))
         .map(|result| result.is_ok())
         .unwrap_or(false)
 }
