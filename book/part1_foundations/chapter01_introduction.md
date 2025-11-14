@@ -203,7 +203,7 @@ For a bandlimited 3D signal (like a smooth temperature field or electromagnetic 
 
 **Theorem 1.1** (Petersen & Middleton, 1962): *For a spherically bandlimited signal in three dimensions, the optimal sampling lattice is the Body-Centered Cubic (BCC) lattice, which requires **29% fewer samples** than a simple cubic lattice to achieve the same reconstruction quality.*
 
-This means that for the same memory budget, a BCC lattice can represent higher-resolution data, or equivalently, it uses less memory for the same fidelity. In a world where atmospheric models have billions of grid points and medical scans consume terabytes, a 29% reduction is transformative.
+Chapter 2 gives the mathematical details and proof sketch for this result; for now, the key takeaway is that geometry alone buys you a roughly one‑third improvement in sampling efficiency over cubic grids.
 
 ### 1.2.5 Existing Alternatives and Their Limitations
 

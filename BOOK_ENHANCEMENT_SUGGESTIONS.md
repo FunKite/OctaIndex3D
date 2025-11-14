@@ -324,8 +324,9 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 #### Grammar and Style
 - [x] Chapter 1, line 305: Simplify "The time is right for BCC lattices to finally achieve their potential"
 - [x] Chapter 2, line 78: Change colon to em dash for consistency
-- [ ] Standardize capitalization of "Level of Detail" vs "level of detail" vs "LOD"
+- [x] Standardize capitalization of "Level of Detail" vs "level of detail" vs "LOD"
 - [ ] Fix redundant explanations of 29% efficiency claim (consolidate)
+  - **Progress:** Chapter 1 now defers detailed discussion of the 29% result to Chapter 2, reducing duplication while keeping the narrative hook.
 
 #### Technical Corrections
 - [ ] Chapter 2, line 120: Standardize LaTeX notation (`$\mathcal{L}_{BCC}$` vs `\mathcal{L}_{BCC}`)

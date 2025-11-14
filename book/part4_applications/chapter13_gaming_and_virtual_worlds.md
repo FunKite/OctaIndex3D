@@ -11,7 +11,7 @@ By the end of this chapter, you will be able to:
 
 ---
 
-## 13.1 Voxel Engines and Level of Detail
+## 13.1 Voxel Engines and Level of Detail (LOD)
 
 Voxel engines represent worlds as collections of volumetric elements:
 
@@ -27,7 +27,7 @@ OctaIndex3D containers can:
 - Store voxel data keyed by `Index64` or `Hilbert64`.
 - Support multiple LODs for distant and nearby regions.
 
-Level-of-detail management:
+Level-of-Detail (LOD) management:
 
 - Renders coarse voxels far away.
 - Refines to fine voxels near the camera or player.

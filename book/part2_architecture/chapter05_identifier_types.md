@@ -47,7 +47,7 @@ OctaIndex3D instead adopts a **portfolio of identifier types**, each optimized f
 At a high level, a `Galactic128` identifier encodes:
 
 - A **frame identifier** (which coordinate system we are in).
-- A **level of detail** (coarse vs. fine resolution).
+- A **Level of Detail (LOD)** (coarse vs. fine resolution).
 - A **BCC lattice coordinate** within that frame.
 
 Conceptually, you can think of `Galactic128` as:
@@ -87,7 +87,7 @@ This is not the exact on-disk layout, but it captures the idea:
 
 At a conceptual level, an `Index64` consists of:
 
-- A **level of detail** field.
+- A **Level of Detail (LOD)** field.
 - Interleaved bits for the BCC lattice coordinates `(x, y, z)`.
 
 The details of BCC-specific Morton encoding are covered in Chapter 3; here we focus on architectural consequences:
@@ -254,4 +254,3 @@ We also saw how:
 - **Human-readable encodings** make debugging and interoperability practical without sacrificing type safety.
 
 Together, these identifier types form the connective tissue between the architectural concepts of Part II and the concrete implementation techniques explored in Part III.
-

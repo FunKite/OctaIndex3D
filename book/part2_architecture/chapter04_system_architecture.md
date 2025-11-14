@@ -106,7 +106,7 @@ Identifiers answer the question: *“How do we refer to this location and its ne
 
 Each identifier type encodes:
 
-- A **level of detail** (LOD) or scale.
+- A **Level of Detail (LOD)** or scale.
 - A **lattice position** consistent with the parity constraint.
 - A small amount of **type-level context** (e.g., “global” vs. “local”).
 
@@ -374,4 +374,3 @@ With this architectural context, you are ready to dive deeper:
 - Chapter 6 will explain how **coordinate reference systems** are modeled, registered, and transformed in a way that remains safe under heavy concurrency.
 
 Together, these chapters complete the conceptual bridge from the theory of BCC lattices (Part I) to the implementation details explored in Part III.
-
