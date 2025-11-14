@@ -153,6 +153,77 @@ By factoring queries into reusable building blocks, the library allows applicati
 - Start with high-level operations (e.g., `nearest_neighbor`) and later customize or replace pieces.
 - Mix-and-match query implementations with different container types.
 
+### 4.2.5 Putting It Together: A Minimal Workflow
+
+To make these abstractions concrete, consider a small end-to-end workflow:
+
+1. Choose or register a **frame** that matches your domain.  
+2. Create **identifiers** in that frame at the desired Level of Detail (LOD).  
+3. Store application data in a **container** keyed by those identifiers.  
+4. Run **queries** in frame coordinates, letting the library handle the lattice details.
+
+In Rust, a minimal sketch looks like this:
+
+```rust
+use octaindex3d::{
+    FrameDescriptor, FrameId, Galactic128, Index64, Result, register_frame,
+};
+use octaindex3d::container::ContainerWriter;
+use std::io::Cursor;
+
+fn main() -> Result<()> {
+    // 1. Register a local frame for a warehouse.
+    let desc = FrameDescriptor::new(
+        "warehouse_A_ENU",
+        "WGS-84",
+        "Local ENU frame for warehouse A",
+        true,   // right-handed
+        1.0,    // meters at tier 0
+    );
+    let frame_id: FrameId = 42;
+    register_frame(frame_id, desc)?;
+
+    // 2. Create a global ID and a Morton index at a chosen LOD.
+    let global_id = Galactic128::new(
+        frame_id,
+        5,      // scale mantissa
+        1,      // scale tier
+        10,     // LOD
+        0,      // user attributes
+        2, 4, 6 // lattice coordinates
+    )?;
+
+    let index_id = Index64::new(
+        frame_id,
+        0,      // scale tier
+        5,      // LOD
+        100, 200, 300, // 16-bit Morton coordinates
+    )?;
+
+    // 3. Write a tiny occupancy frame to an in-memory container.
+    let mut buffer = Vec::new();
+    {
+        let mut writer = ContainerWriter::new(Cursor::new(&mut buffer))?;
+        let occupancy_bytes = [1u8, 0, 1, 0]; // toy example
+        writer.write_frame(&occupancy_bytes)?;
+        writer.finish()?;
+    }
+
+    println!("Global ID: {global_id}");
+    println!("Index ID:  {index_id}");
+    println!("Container bytes written: {}", buffer.len());
+
+    Ok(())
+}
+```
+
+This example is intentionally small, but it illustrates the architectural flow:
+
+- Frames provide **context** (which world and units).  
+- Identifiers provide **stable handles** into the BCC lattice.  
+- Containers provide **storage and serialization**.  
+- Queries (introduced later in this chapter and in Part III) operate on these building blocks rather than on ad hoc coordinate triples.
+
 ---
 
 ## 4.3 Type System Design

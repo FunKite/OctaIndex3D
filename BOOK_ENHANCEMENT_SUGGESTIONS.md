@@ -648,7 +648,8 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 3. [ ] Create first 5 figures (Figures 1.1-1.5)
 4. [ ] Run initial performance benchmarks
 5. [ ] Set up solutions manual structure
-6. [ ] Begin Chapter 4 full content development
+6. [ ] Begin Chapter 4 full content development  
+   - **Progress:** Section 4.2.5 added with a concrete frame → identifier → container workflow and runnable Rust sketch.
 
 ---
 
