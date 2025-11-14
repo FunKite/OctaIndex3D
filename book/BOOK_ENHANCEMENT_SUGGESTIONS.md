@@ -9,12 +9,12 @@
 
 ## Executive Summary
 
-The OctaIndex3D book demonstrates **exceptional quality** in its completed sections (Part I - Foundations), with clear writing, rigorous mathematics, and practical code examples. At this point the book is roughly **halfway complete by content volume**: Part I is finished, and Parts II-V are in a solid mid-draft state with structure and examples in place but many sections, figures, and exercises still missing. This document provides a prioritized roadmap for turning that strong spine into a complete, production-ready book.
+The OctaIndex3D book demonstrates **exceptional quality** in its completed sections (Part I - Foundations), with clear writing, rigorous mathematics, and practical code examples. At this point the book is roughly **halfway complete by content volume**: Part I is finished, and Parts II-V are in a solid mid-draft state with structure and examples in place but many sections and figures still missing. This document provides a prioritized roadmap for turning that strong spine into a complete, production-ready guide.
 
 ### Current Status
 - ✅ **Part I (Chapters 1-3):** Publication-ready quality (with minor fixes)
 - ✅ **Front Matter:** Complete and professional
-- ⚠️ **Parts II-V (Chapters 4-16):** Mid-draft (~200-500 lines per chapter vs 700+ target); core arcs are present but many sections, figures, and exercises are still skeletal
+- ⚠️ **Parts II-V (Chapters 4-16):** Mid-draft (~200-500 lines per chapter vs 700+ target); core arcs are present but many sections and figures are still skeletal
 - ⚠️ **Appendices A-H:** A-C and E are skeletal (11-20 lines each); Appendix D plus the newer appendices F-H are partially drafted but still need platform-specific setup, migration, and tuning content
 - ❌ **Visual Assets:** 0 of 60+ figures and tables created
 - ❌ **Bibliography & Index:** Not yet created
@@ -82,7 +82,7 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
   - Include SLAM integration examples
   - Add motion planning algorithms
   - Include real-time performance analysis
-  - **Progress (2025-11-14):** Chapter 10 expanded with occupancy value representations and log-odds grids, SLAM integration patterns, multi-resolution global/local planning (including non-A* planners), real-time budgeting and degradation strategies, and a detailed UAV mapping/planning loop case study; chapter now at ~500 lines with remaining work focused on additional exercises, figures, and tables.
+  - **Progress (2025-11-14):** Chapter 10 expanded with occupancy value representations and log-odds grids, SLAM integration patterns, multi-resolution global/local planning (including non-A* planners), real-time budgeting and degradation strategies, and a detailed UAV mapping/planning loop case study; chapter now at ~500 lines with remaining work focused on additional figures, tables, and example-driven workflows.
 
 - [ ] **Chapter 11: Geospatial Analysis** (currently 332 lines → needs 700+)
   - Complete atmospheric modeling case study
@@ -98,7 +98,7 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
   - Include particle simulation integration
   - Add numerical analysis applications
   - Include HPC integration strategies
-  - **Progress (2025-11-14):** Chapter 12 expanded with a crystallography defect-analysis case study, molecular modeling on BCC grids, stencil and refinement patterns for CFD, volumetric isosurface/subvolume workflows, particle binning and SPH integration, plus an HPC-focused section on domain decomposition and accelerator integration; chapter now at ~360 lines with remaining work focused on numerical analysis examples, additional figures, and exercises.
+  - **Progress (2025-11-14):** Chapter 12 expanded with a crystallography defect-analysis case study, molecular modeling on BCC grids, stencil and refinement patterns for CFD, volumetric isosurface/subvolume workflows, particle binning and SPH integration, plus an HPC-focused section on domain decomposition and accelerator integration; chapter now at ~360 lines with remaining work focused on numerical analysis examples and additional figures.
 
 - [ ] **Chapter 13: Gaming and Virtual Worlds** (currently 279 lines → needs 700+)
   - Complete 3D maze game case study
@@ -106,7 +106,7 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
   - Include LOD streaming implementation
   - Add multiplayer spatial indexing
   - Include performance optimization for games
-  - **Progress (2025-11-14):** Chapter 13 expanded with chunking/streaming and LOD transition patterns for voxel engines, multi-layer procedural generation, index-based navigation grids and gameplay queries, and an extended 3D maze case study including game-loop structure and extensibility; chapter now at ~280 lines with remaining work focused on multiplayer-specific indexing patterns, performance tuning, figures, and exercises.
+  - **Progress (2025-11-14):** Chapter 13 expanded with chunking/streaming and LOD transition patterns for voxel engines, multi-layer procedural generation, index-based navigation grids and gameplay queries, and an extended 3D maze case study including game-loop structure and extensibility; chapter now at ~280 lines with remaining work focused on multiplayer-specific indexing patterns, performance tuning, and additional figures.
 
 #### Part V: Advanced Topics (Chapters 14-16)
 - [ ] **Chapter 14: Distributed and Parallel** (currently 374 lines → needs 700+)
@@ -173,7 +173,6 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 - [ ] Include step-by-step walkthroughs
 - [ ] Add real-world integration examples
 - [ ] Include common patterns and anti-patterns
-- [ ] Add solution code for selected exercises
 
 **Estimated Effort:** 500-800 lines of reference material
 
@@ -243,7 +242,7 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 
 ### 2.1 Complete Chapter 3
 
-**Current Status (updated 2025-11-14):** Chapter 3 is complete in the repo (~800+ lines) with sections 3.1–3.9, Key Concepts, and Exercises.
+**Current Status (updated 2025-11-14):** Chapter 3 is complete in the repo (~800+ lines) with sections 3.1–3.9, Key Concepts, and implementation-focused walkthroughs.
 
 **Missing Sections (original checklist, now completed):**
 - [x] Complete 3.4.2: Cross-LOD Neighbors (currently incomplete)
@@ -252,7 +251,6 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 - [x] Add 3.7: Hilbert Curves (mentioned but not written)
 - [x] Add 3.8: Comparative Analysis (mentioned but not written)
 - [x] Add 3.9: Summary and Key Takeaways
-- [x] Add exercises section
 - [x] Add further reading section
 
 **Status:** Completed for this edition; future work is limited to minor polish and cross-reference cleanup.
@@ -423,23 +421,7 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 
 ---
 
-### 3.3 Add Worked Solutions for Exercises
-
-**Current Status:** Exercises provided but no solutions
-
-**Improvements:**
-- [ ] Add worked solutions for selected exercises (30-50% of total)
-- [ ] Include step-by-step explanations
-- [ ] Add hints for remaining exercises
-- [ ] Create separate solutions manual (for instructors)
-
-**Deliverable:** `book/solutions/` directory or instructor-only repository
-
-**Estimated Effort:** 20-30 hours
-
----
-
-### 3.4 Improve Formatting Consistency
+### 3.3 Improve Formatting Consistency
 
 **Current Issues:**
 - Inconsistent list formatting (some use `**Bold**:`, others use `*Italic*:`)
@@ -459,7 +441,7 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 
 ---
 
-### 3.5 Create Companion Resources
+### 3.4 Create Companion Resources
 
 **Interactive Tutorials:**
 - [ ] Build interactive web tutorials at `octaindex3d.dev/tutorials`
@@ -473,13 +455,11 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 - [ ] Include platform comparison charts
 - [ ] Add community benchmark submissions
 
-**Instructor Resources:**
+**Instructor Resources (Optional, low priority):**
 - [ ] Create lecture slide decks (PowerPoint/Beamer/reveal.js)
-- [ ] Add lab exercise templates
-- [ ] Create assignment rubrics
 - [ ] Include sample syllabi for course integration
 
-**Estimated Effort:** 40-80 hours (substantial web development work)
+**Estimated Effort:** 30-60 hours (web and content development)
 
 ---
 
@@ -654,9 +634,9 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 2. [x] Complete Chapter 3 missing sections
 3. [ ] Create first 5 figures (Figures 1.1-1.5)
 4. [ ] Run initial performance benchmarks
-5. [ ] Set up solutions manual structure
+5. [ ] Add at least one end-to-end integration walkthrough (e.g., robotics or geospatial)
 6. [x] Begin Chapter 4 full content development  
-   - **Progress:** Section 4.2.5 added with a concrete frame → identifier → container workflow and runnable Rust sketch; Section 4.2.6 added to describe architectural patterns and component interactions; Exercises and Further Reading sections drafted for Chapter 4, bringing the chapter to ~570 lines.
+   - **Progress:** Section 4.2.5 added with a concrete frame → identifier → container workflow and runnable Rust sketch; Section 4.2.6 added to describe architectural patterns and component interactions; example-driven walkthroughs and Further Reading sections drafted for Chapter 4, bringing the chapter to ~570 lines.
 
 ---
 

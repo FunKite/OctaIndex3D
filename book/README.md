@@ -182,7 +182,7 @@ After working through Part I—skimming what you know, slowing down where it is 
 | **Total Pages** | ~78 pages |
 | **Total Words** | ~18,700 words |
 | **Chapters** | 3 |
-| **Exercises** | 42 |
+| **Hands-on Scenarios** | 40+ |
 | **Code Examples** | 17 |
 | **Formal Theorems** | 15+ |
 | **Reading Time** | 8-12 hours |
@@ -201,14 +201,14 @@ After working through Part I—skimming what you know, slowing down where it is 
 ### For Researchers
 1. Read all chapters sequentially
 2. Work through mathematical proofs
-3. Attempt research-level exercises
-4. Explore Further Reading sections
+3. Recreate key derivations in your own notation
+4. Explore Further Reading sections and compare approaches
 
 ### For Students
 1. Read chapters in order
-2. Do exercises after each chapter
-3. Implement example code
-4. Build simple BCC grid before moving to Part II
+2. Rebuild the core examples from scratch
+3. Experiment by changing parameters and data scales
+4. Build a simple BCC-backed project before moving to Part II
 
 ### For Domain Specialists
 1. Start with Chapter 1 for your domain
