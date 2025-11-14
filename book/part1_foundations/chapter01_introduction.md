@@ -1,15 +1,17 @@
 # Chapter 1: Introduction to High-Dimensional Indexing
 
-## Learning Objectives
+Most readers do not wake up thinking, “I’d love a new lattice definition today.” You end up here because a robot path looks wrong, a simulation is too slow, or a voxel world is eating your memory budget. This chapter is written with that reality in mind: it shows you why 3D spatial indexing is harder than it looks, how traditional cubic grids quietly work against you, and where BCC lattices give you leverage.
+
+## What You’ll Get from This Chapter
 
 By the end of this chapter, you will be able to:
 
-1. Understand the fundamental challenges of spatial indexing in three dimensions
-2. Identify the limitations of traditional cubic grid approaches
-3. Explain the concept of directional bias and its practical impacts
-4. Describe the Body-Centered Cubic (BCC) lattice and its advantages
-5. Recognize diverse application domains for 3D spatial indexing
-6. Navigate the structure and organization of this book
+1. Recognize the concrete symptoms of bad spatial indexing in real systems (blocky paths, orientation-sensitive results, exploding memory)
+2. Identify the limitations of traditional cubic grid approaches, including directional bias and sampling inefficiency
+3. Explain, at an intuitive level, what the Body-Centered Cubic (BCC) lattice is and why it behaves more “fairly” in all directions
+4. Connect BCC advantages to real application domains: robotics, geospatial analysis, scientific computing, and gaming
+5. Decide how deeply you need to dive into later mathematical chapters versus jumping ahead to architecture and implementation
+6. Navigate the structure and organization of this book so you can treat it as a guide and reference, not an exam syllabus
 
 ---
 

@@ -2,10 +2,10 @@
 
 ## Overview
 
-Part I establishes the comprehensive mathematical and theoretical foundations for understanding Body-Centered Cubic (BCC) lattices and their application to 3D spatial indexing. These three chapters transform the reader from basic spatial indexing concepts to a deep understanding of BCC geometry, hierarchical data structures, and space-filling curves.
+Part I gives you enough mathematical and conceptual foundation to **use** BCC lattices and OctaIndex3D confidently in real systems—without requiring you to be a full-time geometers or signal-processing expert.
 
-**Total Content**: ~78 pages of detailed academic material
-**Learning Time**: 8-12 hours for thorough study
+These three chapters walk you from the pain points you already feel with cubic grids, through the core geometry of BCC lattices, and into concrete data structures and encodings that you can drop into production code.
+
 **Prerequisites**: Basic linear algebra, data structures, programming experience
 
 ---
@@ -28,10 +28,6 @@ Part I establishes the comprehensive mathematical and theoretical foundations fo
 - BCC lattices offer 29% memory savings for equivalent fidelity
 - The time is right: modern hardware makes BCC practical
 - Applications span from climate models to VR gaming
-
-**Pages**: 21
-**Exercises**: 12 (basic to research-level)
-**Figures**: 5 conceptual diagrams
 
 ---
 
@@ -56,10 +52,6 @@ Part I establishes the comprehensive mathematical and theoretical foundations fo
 - **Theorem 2.6**: Hierarchical parity preservation
 - **Theorem 2.7-2.8**: Nyquist sampling and BCC optimality
 
-**Pages**: 27
-**Exercises**: 15 (with proofs)
-**Code Examples**: 5 Rust implementations
-
 ---
 
 ### [Chapter 3: Octree Data Structures and BCC Variants](chapter03_octree_structures.md)
@@ -83,14 +75,10 @@ Part I establishes the comprehensive mathematical and theoretical foundations fo
 - Range query algorithms
 - Hierarchical traversal patterns
 
-**Performance Data**:
-- BMI2 Morton: 5× faster than naive implementation
-- Hilbert: 15-20% better cache efficiency than Morton
-- BCC octrees: 20-30% faster spatial queries vs. classical octrees
-
-**Pages**: 30
-**Exercises**: 15 (implementation-focused)
-**Code Examples**: 12 complete functions
+**Performance Data (Selected)**:
+- BMI2 Morton: 5× faster than a naive implementation
+- Hilbert: 15–20% better cache efficiency than Morton
+- BCC octrees: 20–30% faster spatial queries vs. classical octrees
 
 ---
 
@@ -109,27 +97,19 @@ After completing Part I, you will be able to:
 
 ---
 
-## Pedagogical Design
+## How to Approach Part I
 
 ### Progressive Complexity
-- **Chapter 1**: Intuitive, visual, motivational (accessible to all readers)
-- **Chapter 2**: Rigorous, mathematical, proof-heavy (builds theoretical foundation)
-- **Chapter 3**: Practical, algorithmic, performance-focused (bridges theory and implementation)
+- **Chapter 1**: Intuitive, visual, and story-driven (accessible to all readers)
+- **Chapter 2**: Rigorous and mathematical (for when you want to know *why* things work)
+- **Chapter 3**: Practical, algorithmic, and performance-focused (bridges theory and implementation)
 
-### Multiple Learning Modalities
-- **Textual Explanations**: Detailed prose with clear examples
-- **Mathematical Proofs**: Formal theorems with complete derivations
-- **Code Examples**: Working Rust implementations (portable to other languages)
-- **Visual Aids**: Diagrams and figures (referenced in List of Figures)
-- **Exercises**: Graduated difficulty from basic comprehension to research problems
-- **Further Reading**: Curated references for deeper exploration
-
-### Assessment Opportunities
-- **Self-Check Questions**: At the end of each major section
-- **Worked Examples**: Step-by-step solutions to representative problems
-- **Programming Exercises**: Implement key algorithms and verify correctness
-- **Proof Exercises**: Strengthen mathematical reasoning skills
-- **Research Questions**: Open-ended exploration for advanced students
+### Multiple Ways to Learn
+- **Textual Explanations**: Concrete prose with examples drawn from real systems
+- **Mathematical Proofs**: Formal theorems with complete derivations—optional on a first read
+- **Code Examples**: Working Rust implementations (easy to adapt to other languages)
+- **Visual Aids**: Diagrams and figures (referenced in the List of Figures)
+- **Exercises and Questions**: Prompts that encourage you to try ideas on your own data
 
 ---
 

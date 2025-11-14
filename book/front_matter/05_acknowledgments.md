@@ -33,6 +33,14 @@ This book represents the synthesis of knowledge from multiple disciplines spanni
 
 This collaboration represents a new paradigm in technical authorship—human expertise directing AI capabilities toward productive ends.
 
+**GPT-5.1 (OpenAI)**, my second AI collaboration partner, who:
+- Helped reshape textbook-style sections into a practical, guide-like narrative
+- Proposed realistic, end-to-end scenarios drawn from robotics, geospatial work, scientific computing, and gaming
+- Emphasized integration patterns and “how this feels in a real codebase”
+- Assisted with maintaining consistency of tone and structure across chapters and parts
+
+Together, these systems allowed for a much faster and broader exploration of design options than would have been possible with human effort alone.
+
 **Early reviewers and testers** who provided invaluable feedback on pre-release versions:
 - The Rust gamedev working group, who tested pathfinding performance
 - Geospatial researchers who validated the GIS integration features

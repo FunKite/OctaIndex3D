@@ -2,15 +2,17 @@
 
 ## Who This Book Is For
 
-This book is written for multiple audiences:
+The goal of this book is to help you understand OctaIndex3D and apply it to real-world problems and applications. Everything else—definitions, proofs, benchmarks—is in service of that goal.
 
-**Software Engineers and Developers** who work with 3D spatial data and want practical, production-ready solutions. You'll find working code examples, performance benchmarks, and real-world integration patterns.
+This book is written for multiple audiences, but with a single guiding principle: **you should be able to pick it up, flip to the part that matches your current problem, and walk away with something you can use.**
 
-**Computer Science Researchers** interested in spatial data structures, geometric algorithms, and high-performance computing. The mathematical foundations are rigorous, and the experimental results are reproducible.
+**Software Engineers and Developers** who work with 3D spatial data and want practical, production-ready solutions. You'll find working code examples, performance benchmarks, “gotchas” we hit in real projects, and integration patterns that drop cleanly into existing systems.
 
-**Domain Specialists** in robotics, geospatial analysis, scientific computing, and game development. Each application domain receives dedicated treatment with concrete use cases.
+**Computer Science Researchers** interested in spatial data structures, geometric algorithms, and high-performance computing. The mathematical foundations are rigorous and fully cited, but always tied back to concrete design decisions.
 
-**Students** learning about data structures, computational geometry, or spatial databases. The book progresses pedagogically from fundamentals to advanced topics.
+**Domain Specialists** in robotics, geospatial analysis, scientific computing, and game development. Each application domain receives dedicated treatment with end-to-end scenarios rather than toy problems.
+
+**Students and Self-Taught Developers** learning about data structures, computational geometry, or spatial databases. The book progresses from intuition and pictures to proofs and implementations, and you are explicitly encouraged to skim or skip proofs on a first pass.
 
 No prior knowledge of crystallography or BCC lattices is assumed. We build everything from first principles. However, readers should be comfortable with:
 - Basic linear algebra (vectors, matrices)
@@ -18,27 +20,38 @@ No prior knowledge of crystallography or BCC lattices is assumed. We build every
 - Programming concepts (preferably in Rust, though examples are accessible to Python/C++/Java developers)
 - Elementary calculus (for optimization and complexity analysis)
 
+If any of these feel rusty, you can still follow the narrative parts and examples; the formal sections are there when you are ready to double-check your intuition.
+
 ## How This Book Is Organized
 
-The book follows a carefully structured pedagogical progression:
+The book is intentionally structured so you **do not** have to read it cover-to-cover in order. Think of it as a set of connected guides and field notes:
 
-**Part I: Foundations (Chapters 1-3)** establishes the mathematical and theoretical groundwork. We begin with the problems inherent in traditional spatial indexing, introduce the BCC lattice and its geometric properties, and develop the core data structures.
+**Part I: Foundations (Chapters 1-3)** establishes the mathematical and conceptual groundwork. We begin with the problems inherent in traditional spatial indexing, introduce the BCC lattice and its geometric properties, and develop the core data structures that show up throughout the rest of the book.
 
-**Part II: Architecture and Design (Chapters 4-6)** presents the OctaIndex3D system architecture. We detail the three identifier types (Galactic128, Index64, Route64), explain space-filling curves and their implementations, and discuss the frame registry for coordinate systems.
+**Part II: Architecture and Design (Chapters 4-6)** presents the OctaIndex3D system architecture. We detail the three identifier types (Galactic128, Index64, Route64), explain space-filling curves and their implementations, and discuss the frame registry for coordinate systems. This is the “how do I plug this into my system?” part.
 
-**Part III: Implementation (Chapters 7-9)** dives into practical engineering. Topics include performance optimization (BMI2, SIMD, GPU), container formats for data storage, and comprehensive testing strategies.
+**Part III: Implementation (Chapters 7-9)** dives into practical engineering. Topics include performance optimization (BMI2, SIMD, GPU), container formats for data storage, and comprehensive testing strategies. If you are on-call for a system that uses OctaIndex3D, this is likely where you will live.
 
-**Part IV: Applications (Chapters 10-13)** demonstrates real-world usage across robotics, geospatial analysis, scientific computing, and gaming. Each chapter includes complete working examples.
+**Part IV: Applications (Chapters 10-13)** demonstrates real-world usage across robotics, geospatial analysis, scientific computing, and gaming. Each chapter includes complete working examples and “day-in-the-life” style walkthroughs of real workloads.
 
-**Part V: Advanced Topics (Chapters 14-16)** explores cutting-edge developments: distributed processing, machine learning integration, and future research directions.
+**Part V: Advanced Topics (Chapters 14-16)** explores cutting-edge developments: distributed processing, machine learning integration, and future research directions. These chapters are meant to spark ideas and research questions as much as to document current practice.
 
-Each chapter includes:
-- **Learning Objectives** - Clear goals for the chapter
-- **Key Concepts** - Highlighted definitions and theorems
-- **Code Examples** - Practical implementations in Rust
-- **Performance Analysis** - Benchmarks and complexity analysis
-- **Exercises** - Problems ranging from basic to research-level
-- **Further Reading** - Curated references for deeper exploration
+Each chapter includes, in some form:
+- **What You’ll Get** – A quick description of why you might care
+- **Key Ideas** – The 2–4 concepts that unlock everything else
+- **Code and Patterns** – Practical implementations in Rust and how to adapt them
+- **Performance Notes** – Benchmarks, complexity analysis, and trade-offs
+- **Deep Dives** – Proofs, derivations, and references when you want them
+
+## A Running Example: From Blocky Paths to Natural Motion
+
+To keep the material grounded, several chapters revisit a common story:
+
+> A robotics team is flying autonomous drones through a warehouse. The planner uses a cubic grid. The paths are safe but “blocky,” the drones burn more battery than expected, and small changes in coordinate frames produce surprisingly different trajectories.
+
+In Part I, we use this scenario to show how directional bias and anisotropy show up in real systems. In Part II, we map the warehouse and its frames onto OctaIndex3D’s architecture. In Part III, we implement BCC-aware data structures and encodings that the planner can call directly. In Part IV, we compare the old and new systems on actual metrics: path length, collision rate, and energy usage.
+
+You can mentally substitute your own domain—geospatial tiles, climate grids, voxel worlds—but the core questions remain the same: **How do we represent 3D space so that our algorithms see the world as faithfully and efficiently as possible?**
 
 ## The Philosophy Behind This Work
 
@@ -103,7 +116,7 @@ All resources are freely available and will be maintained long-term.
 
 While the code and text are my own, this work builds on decades of research by brilliant minds in crystallography, signal processing, and computer science. Specific acknowledgments appear in the formal Acknowledgments section, but I want to emphasize: this book synthesizes existing knowledge into a new application domain. The novelty is in the engineering, not the mathematics.
 
-The collaboration with Claude (Anthropic's AI assistant) deserves special mention. Claude contributed to code optimization, benchmark design, and iterative refinement of explanations. This represents one of the first technical books co-created with AI, and I believe it demonstrates how human expertise and AI capabilities can combine synergistically.
+The collaboration with Claude (Anthropic's AI assistant) and GPT-5.1 (OpenAI's AI assistant) deserves special mention. Claude contributed to code optimization, benchmark design, and iterative refinement of explanations. GPT-5.1 helped reshape the material into a practical, story-driven guide, focusing on real-world workflows and integration patterns. Together, these systems made it possible to iterate faster and explore more alternatives than would have been feasible otherwise. This represents one of the first technical books co-created with AI, and I believe it demonstrates how human expertise and AI capabilities can combine synergistically.
 
 ## A Final Word
 

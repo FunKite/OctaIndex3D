@@ -1,4 +1,4 @@
-# Copyright
+## Copyright
 
 © 2025 Michael A. McLarney
 
@@ -17,10 +17,18 @@
 **Companion website:**
 https://github.com/FunKite/OctaIndex3D
 
-**License:**
-- MIT License - Source code and implementations
-- CC BY-NC-SA 4.0 - Book content for educational use
-
 ---
 
-This is an independent publication. All rights reserved. No part of this book may be reproduced in any form by any electronic or mechanical means (including photocopying, recording, or information storage and retrieval) without permission in writing from the author, except for brief quotations in reviews and educational contexts under fair use provisions.
+**License**
+
+- **Source Code** (OctaIndex3D library and examples): MIT License  
+  See `LICENSE` in the repository root.
+- **Book Content** (prose, figures, and narrative material in `book/`):  
+  Creative Commons Attribution 4.0 International (CC BY 4.0).  
+  See `book/LICENSE.md` or https://creativecommons.org/licenses/by/4.0/
+
+You are free to share and adapt the book content, including for commercial
+purposes, provided that you give appropriate credit, provide a link to the
+license, and indicate if changes were made. This license applies only to the
+book content and does not alter the MIT licensing of the OctaIndex3D source
+code.

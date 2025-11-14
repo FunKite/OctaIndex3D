@@ -12,6 +12,14 @@ By the end of this chapter, you will be able to:
 6. Apply sampling theory to explain BCC optimality
 7. Measure geometric isotropy quantitatively
 
+If Chapter 1 was about *why* cubic grids struggle in practice, this chapter is about *what to use instead* and *how it works under the hood*.
+We will alternate between:
+
+- **Formal statements** (definitions, theorems, proofs) that make the geometry precise, and
+- **Intuitive explanations** that connect those statements to mental pictures and implementation details.
+
+You do not need to memorize the proofs. Treat them as guarantees that the geometric tricks you’ll use later are built on solid ground.
+
 ---
 
 ## 2.1 Lattices in Three-Dimensional Space
@@ -26,6 +34,14 @@ $$
 \mathcal{L} = \\{ n_1 \mathbf{v}_1 + n_2 \mathbf{v}_2 + n_3 \mathbf{v}_3 : n_1, n_2, n_3 \in \mathbb{Z} \\}
 $$
 
+Informally, you can think of a lattice as:
+
+- Pick three directions in space (the basis vectors).
+- Allow integer steps forward or backward along each direction.
+- Mark every point you can reach that way.
+
+The resulting infinite, regularly repeating point set is your lattice.
+
 **Example 2.1** (Simple Cubic Lattice): The standard basis vectors $\mathbf{e}_1 = (1,0,0)$, $\mathbf{e}_2 = (0,1,0)$, $\mathbf{e}_3 = (0,0,1)$ generate the simple cubic (SC) lattice:
 
 $$
@@ -33,6 +49,12 @@ $$
 $$
 
 This is the familiar integer grid in three dimensions.
+
+Concretely:
+
+- $(0,0,0)$ is the origin.
+- $(1,0,0)$, $(0,1,0)$, and $(0,0,1)$ are one step along the $x$, $y$, and $z$ axes.
+- Any integer triple $(n_1,n_2,n_3)$ is some number of steps along each axis.
 
 ### 2.1.2 Fundamental Domain
 
@@ -47,6 +69,14 @@ V = |\det(\mathbf{v}_1, \mathbf{v}_2, \mathbf{v}_3)|
 $$
 
 This volume represents the "density" of the lattice—how many lattice points per unit volume.
+
+An easy way to build intuition:
+
+- In 1D, if points are spaced $h$ units apart, each point “owns” an interval of length $h$.
+- In 2D, if points lie on a square grid with spacing $h$, each point “owns” a square of area $h^2$.
+- In 3D, the fundamental domain plays the same role: it is the **volume of space per lattice point**.
+
+Different choices of basis vectors may describe the same geometric lattice; their fundamental domains can look different but always tile space without gaps or overlaps.
 
 ### 2.1.3 Common 3D Lattices
 
@@ -72,6 +102,14 @@ Three important lattice types appear in crystallography and physics:
 
 For computational purposes, we'll work with an equivalent integer representation of BCC.
 
+You can picture these three lattices as:
+
+- **SC**: One point at each cube corner.
+- **FCC**: SC plus a point at the center of each cube face.
+- **BCC**: SC plus a single point at the center of each cube.
+
+At a distance, all three look like “cubes everywhere,” but the internal arrangement of points inside each cube is different. That hidden structure is what drives differences in isotropy and sampling efficiency.
+
 ---
 
 ## 2.2 The Body-Centered Cubic Lattice
@@ -87,6 +125,16 @@ $$
 $$
 
 This is the set of all integer points where the coordinate sum is even.
+
+You can check membership with a mental parity test:
+
+- $(0,0,0)$: $0 + 0 + 0 = 0$ (even) → in BCC
+- $(1,0,0)$: $1 + 0 + 0 = 1$ (odd) → not in BCC
+- $(1,1,0)$: $1 + 1 + 0 = 2$ (even) → in BCC
+- $(2,1,1)$: $2 + 1 + 1 = 4$ (even) → in BCC
+- $(2,0,1)$: $2 + 0 + 1 = 3$ (odd) → not in BCC
+
+In code, this often becomes a simple `(x + y + z) & 1 == 0` check.
 
 **Lemma 2.1** (Parity Constraint): A point $(x, y, z)$ is in $\mathcal{L}_{BCC}$ if and only if:
 $$
@@ -113,6 +161,14 @@ Then $\mathcal{L}_{BCC} = \mathcal{L}_e \cup \mathcal{L}_o$, and these sets are 
 
 **Geometric Interpretation**: $\mathcal{L}_e$ forms a cubic grid with spacing 2. $\mathcal{L}_o$ is the same cubic grid shifted by $(1, 1, 1)$. The "body-centered" name comes from the fact that odd points sit at the centers of the cubes formed by even points.
 
+Another way to visualize this:
+
+- Draw a coarse $2 \times 2 \times 2$ block of even points at coordinates like $(0,0,0)$, $(2,0,0)$, …, $(2,2,2)$.
+- Place a point at the center of that block, at $(1,1,1)$.
+- Repeat this pattern in all directions.
+
+From far away, the even and odd sublattices interleave into a very uniform cloud of points, but up close the alternating structure is clear.
+
 ### 2.2.3 Density and Efficiency
 
 **Proposition 2.1** (BCC Density): The BCC lattice contains exactly half of the points of the integer cubic lattice $\mathbb{Z}^3$.
@@ -122,6 +178,13 @@ Then $\mathcal{L}_{BCC} = \mathcal{L}_e \cup \mathcal{L}_o$, and these sets are 
 **Corollary 2.1**: In a volume of $N^3$, the simple cubic lattice has $\approx N^3$ points, while the BCC lattice has $\approx \frac{N^3}{2}$ points.
 
 However, this 50% reduction comes with better geometric properties, as we'll see.
+
+For example, over a $256 \times 256 \times 256$ region:
+
+- A simple cubic grid stores about $16.8$ million samples.
+- A BCC lattice covering the same region stores about half as many samples, yet still supports faithful reconstruction of bandlimited signals.
+
+This “do more with fewer points” property is a central reason to care about BCC.
 
 ### 2.2.4 Closure Under Addition and Subtraction
 
@@ -157,6 +220,13 @@ V(\mathbf{p}) = \\{ \mathbf{x} \in \mathbb{R}^3 : |\mathbf{x} - \mathbf{p}| \leq
 $$
 
 The Voronoi cell is the region of space "owned" by a lattice point. Voronoi cells partition space—every point in $\mathbb{R}^3$ belongs to exactly one cell (with boundaries shared between cells).
+
+In 2D, this picture is familiar:
+
+- For a square grid, each point owns a square.
+- For a hexagonal grid, each point owns a regular hexagon.
+
+We are now doing the same construction in 3D. The **shape** of the Voronoi cell tells you what a “locally fair” neighborhood looks like around each lattice point.
 
 **For a simple cubic lattice**, the Voronoi cell is a **cube** with side length 1 (assuming unit lattice spacing).
 
@@ -201,6 +271,8 @@ Imagine the truncated octahedron as:
 
 The result is a polyhedron that "looks" approximately spherical from a distance but packs perfectly to fill space.
 
+If you took horizontal slices through a truncated octahedron, the cross-sections would smoothly morph between hexagons and squares as you move up and down. This “rounded cube” behavior is why BCC neighborhoods feel much closer to spheres than the boxy neighborhoods of a simple cubic grid.
+
 ---
 
 ## 2.4 Geometric Properties and Isotropy
@@ -214,6 +286,12 @@ $$
 $$
 
 where $\sigma$ is the standard deviation and $\mu$ is the mean.
+
+In plain language:
+
+- $\mu$ is the **typical neighbor distance**.
+- $\sigma$ measures how much those distances **vary** as you look in different directions.
+- CV is a unitless “unevenness score” for those distances.
 
 For a perfectly isotropic structure, CV = 0 (all directions identical). Higher CV indicates greater anisotropy.
 
@@ -254,6 +332,13 @@ $$
 
 **Result**: BCC has **3× lower variation** in neighbor distances than cubic grids, indicating much better isotropy.
 
+You do not need to memorize these particular numbers. What matters is the qualitative picture:
+
+- Cubic grids have three distinct neighbor distance scales ($1$, $\sqrt{2}$, $\sqrt{3}$) that are relatively far apart.
+- BCC has only two scales ($\sqrt{3}$ and $2$) that are closer together.
+
+The smaller spread of neighbor distances is precisely what the low CV is measuring, and it is what gives BCC its more direction-agnostic behavior.
+
 ### 2.4.3 Quantitative Isotropy Theorem
 
 **Theorem 2.3** (BCC Isotropy): The Body-Centered Cubic lattice has a neighbor distance coefficient of variation of approximately 0.073, compared to 0.211 for face-edge-vertex connectivity in simple cubic lattices.
@@ -283,6 +368,8 @@ For BCC lattices:
 - **Second neighbors** (next-nearest): 6 points at distance $2$
 
 In this book, "14-neighbor connectivity" means using both first and second neighbors.
+
+Any time you see “expand to all 14 neighbors” in later algorithms, it refers to this exact stencil of 8 opposite-parity and 6 same-parity neighbors.
 
 ### 2.5.2 Opposite-Parity Neighbors
 
@@ -383,6 +470,13 @@ pub fn neighbors_route64(cell: Route64) -> Vec<Route64> {
 
 The parity check in the filter is defensive—for properly constructed BCC neighbors, it should never fail.
 
+Reading this top-to-bottom:
+
+- `BCC_NEIGHBORS_14` encodes the mathematical offsets defined earlier in this section.
+- `neighbors_route64` adds each offset to the current cell’s coordinates.
+- The parity test is a safety net that rejects any offset that would leave the BCC lattice.
+- `Route64::new` converts the raw coordinates into the Morton-encoded index used throughout the rest of the system.
+
 ---
 
 ## 2.6 Hierarchical Refinement
@@ -394,6 +488,13 @@ Many applications require representing data at multiple resolutions:
 - **Fine** levels for nearby or high-importance regions
 
 The BCC lattice supports clean hierarchical refinement.
+
+You can think of LOD levels as zoom levels in a map:
+
+- At a coarse zoom, one cell might summarize an entire neighborhood.
+- At a fine zoom, individual buildings or even rooms might each occupy their own cells.
+
+Our goal is to move between these zoom levels while preserving the BCC structure and its parity properties.
 
 ### 2.6.2 Parent-Child Relationship
 
@@ -410,6 +511,14 @@ $$
 $$
 
 where $\delta_x, \delta_y, \delta_z \in \\{0, 1\\}$ and $\delta_x + \delta_y + \delta_z \equiv (x_p + y_p + z_p) \pmod{2}$ (parity preservation).
+
+As a concrete example, suppose $(x_p, y_p, z_p) = (3, 1, 2)$:
+
+- The parent sum is $3 + 1 + 2 = 6$ (even), so it lies on the BCC lattice.
+- Children live at coordinates $(6 + \delta_x, 2 + \delta_y, 4 + \delta_z)$.
+- Only those $(\delta_x, \delta_y, \delta_z)$ with even sum (0 or 2) preserve parity and are valid BCC children.
+
+This gives exactly 8 children arranged in a local BCC pattern around the parent.
 
 ### 2.6.3 Parity Preservation
 
@@ -455,6 +564,13 @@ $$
 
 Intuitively, a bandlimited function has no "infinitely sharp" features—it's smooth at some scale.
 
+In 1D audio terms:
+
+- A pure sine wave at 440 Hz, or a chord containing a few harmonics up to 5 kHz, is effectively bandlimited.
+- An ideal click (Dirac impulse) is not bandlimited; it needs infinitely many frequencies.
+
+Here we are applying the same idea to functions over 3D space instead of time.
+
 ### 2.7.2 Nyquist-Shannon Theorem in 3D
 
 **Theorem 2.7** (Nyquist-Shannon, 3D): A bandlimited function $f: \mathbb{R}^3 \to \mathbb{R}$ with spherical bandwidth $\omega_{max}$ can be perfectly reconstructed from samples on a lattice $\mathcal{L}$ if the sampling density is at least:
@@ -464,6 +580,9 @@ $$
 $$
 
 The **minimum lattice density** to achieve this sampling rate determines which lattice is most efficient.
+
+In 1D, Nyquist is often summarized as “sample at least twice the highest frequency.”  
+In 3D, we instead talk about placing lattice points so that their **copies in frequency space** (the reciprocal lattice) do not overlap when convolved with the spherical bandwidth of the signal.
 
 ### 2.7.3 Petersen-Middleton Theorem
 
@@ -479,6 +598,13 @@ Specifically, the BCC lattice requires **29% fewer samples** than a simple cubic
 5. Calculating the number of lattice points in a sphere shows BCC requires $\frac{1}{1.29} \approx 0.775$ times as many points as SC
 
 For the full proof, see Petersen & Middleton (1962) or Appendix A.1. $\square$
+
+A useful way to remember this result:
+
+- In the **spatial domain**, BCC looks like a slightly exotic but regular point pattern.
+- In the **frequency domain**, its reciprocal lattice (FCC) is exceptionally good at packing spheres without overlap.
+
+That optimal packing is exactly what sampling theory demands when the signal’s bandwidth is spherically bounded.
 
 ### 2.7.4 Practical Implications
 

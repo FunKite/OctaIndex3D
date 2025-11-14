@@ -51,9 +51,36 @@ Claude is trained using Constitutional AI (CAI), a method designed to make AI sy
 
 ---
 
+## GPT-5.1 (OpenAI)
+
+**GPT-5.1** is an AI assistant created by OpenAI, designed to help developers, researchers, and practitioners move quickly from ideas to working systems. For this book, GPT-5.1 contributed as a co-author by:
+
+- **Shaping the Guide Perspective**: Reframing academic material into a practical, story-driven guide for engineers and domain experts
+- **API- and UX-Oriented Writing**: Emphasizing how OctaIndex3D fits into real codebases, workflows, and production environments
+- **Example Design**: Proposing realistic scenarios, failure modes, and “you will probably see this in the wild” patterns
+- **Cross-Linking Concepts**: Helping connect mathematical results to concrete design decisions and trade-offs
+- **Consistency and Structure**: Maintaining a coherent voice across chapters, parts, and front matter as the book evolved
+
+**Areas of Focus:**
+- Developer experience and integration patterns
+- Narrative examples rooted in robotics, geospatial, scientific computing, and gaming
+- Explanations that bridge from intuition to implementation details
+- Refactoring textbook-style passages into practical, field-guide style material
+
+**About OpenAI:**
+
+OpenAI is an AI research and deployment company whose mission is to ensure that artificial general intelligence benefits all of humanity. GPT-5.1 is part of a family of models aimed at being reliable, steerable tools that augment human creativity and expertise.
+
+**More Information:**
+- Website: https://openai.com
+- Research: https://openai.com/research
+- Documentation: https://platform.openai.com/docs
+
+---
+
 ## A Note on Human-AI Collaboration
 
-This book is one of the first comprehensive technical works to be explicitly co-authored by a human expert and an AI assistant. We chose to make this collaboration transparent because we believe it represents an important development in how knowledge is created and shared.
+This book is one of the first comprehensive technical works to be explicitly co-authored by a human expert and multiple AI assistants. We chose to make this collaboration transparent because we believe it represents an important development in how knowledge is created and shared.
 
 **What the human brought:**
 - Creative vision for the project
@@ -61,23 +88,24 @@ This book is one of the first comprehensive technical works to be explicitly co-
 - Judgment about trade-offs and priorities
 - Connection to the broader community
 
-**What the AI brought:**
+**What the AI assistants brought:**
 - Rapid synthesis of information
 - Consistent attention to detail
 - Exploration of alternative approaches
 - Tireless iteration and refinement
 - Breadth of knowledge across disciplines
+- Multiple complementary perspectives on explanation and structure
 
 **What we created together:**
 - A rigorously tested implementation
 - Comprehensive documentation
-- Pedagogically sound explanations
+- A practical, story-driven guide to OctaIndex3D
 - Reproducible benchmarks
 - This book
 
-The collaboration was iterative: Michael would propose ideas, Claude would analyze and extend them, Michael would critique and refine, and the cycle would repeat. The result is (we hope) better than either could have produced alone.
+The collaboration was iterative: Michael would propose ideas, GPT-5.1 and Claude would analyze and extend them, Michael would critique and refine, and the cycle would repeat. The result is (we hope) better than any contributor could have produced alone.
 
-We expect human-AI collaboration in technical work to become increasingly common. This book serves as an existence proof that such partnerships can produce high-quality, rigorous, and useful results.
+We expect human-AI collaboration in technical work to become increasingly common. This book serves as an existence proof that such partnerships can produce high-quality, rigorous, and genuinely useful results.
 
 The code is open-source. The methods are transparent. The results are reproducible. Judge for yourself whether this approach works.
 
