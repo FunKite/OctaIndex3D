@@ -87,6 +87,12 @@ You should see one identifier for the center cell and 14 neighbor identifiers. T
 - You get **hierarchical identifiers** (`Index64`) that encode level of detail
 - Neighbor queries are a single method call, not hand‑rolled index arithmetic
 
+If the program does not compile:
+
+- Make sure your `Cargo.toml` uses a released `octaindex3d` version that matches the crate on `crates.io`.
+- Check that your Rust toolchain is recent enough (see the main `README.md` for the recommended version).
+- If you are compiling on older hardware, temporarily turn off CPU‑specific features and re‑enable them later using the Performance Tuning Cookbook.
+
 ---
 
 ## 0.4 Where to Go Next
@@ -98,4 +104,3 @@ Once you have the quick‑start example running, you have options:
 - **For performance and deployment concerns**, read Chapter 7 (Performance Optimization), Chapter 8 (Container Formats), and Appendix C (Benchmarks).
 
 If you get stuck during installation or with platform‑specific quirks, Appendix D (Installation and Setup) contains an expanding troubleshooting section. For definitions of terms like BCC, LOD, Morton encoding, and Hilbert curves, see the Glossary in the back matter.
-

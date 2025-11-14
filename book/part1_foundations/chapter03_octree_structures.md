@@ -89,7 +89,7 @@ impl OctreeNode {
 ### 3.1.3 Octree Operations
 
 **Point Location** (find which leaf contains a point):
-```
+```text
 1. Start at root
 2. Determine which of 8 children contains the point
 3. Recursively descend
@@ -98,7 +98,7 @@ impl OctreeNode {
 Time complexity: $O(\log n)$ for balanced trees, $O(d)$ where $d$ is depth.
 
 **Range Query** (find all points in a region):
-```
+```text
 1. Start at root
 2. If node's bounds don't intersect query region: return empty
 3. If node is a leaf: return points in query region

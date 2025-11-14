@@ -86,6 +86,11 @@ Throughout this book:
 
 - **Asymptotic notation**: $O(n)$ for worst-case upper bound, $\Theta(n)$ for tight bound, $\Omega(n)$ for lower bound.
 
+- **Hardware terminology**:  
+  - *SIMD* (Single Instruction, Multiple Data) refers to vector instructions such as NEON (ARM) and AVX2 (x86_64).  
+  - *BMI2* (Bit Manipulation Instruction Set 2) refers to x86_64 instructions like PDEP/PEXT used for fast Morton encoding/decoding.  
+  - *LOD* (Level of Detail) is an integer scale index; lower LODs are coarser, higher LODs are finer.
+
 ## Companion Resources
 
 This book is accompanied by extensive online resources:

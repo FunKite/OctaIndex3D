@@ -329,7 +329,7 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 
 #### Technical Corrections
 - [ ] Chapter 2, line 120: Standardize LaTeX notation (`$\mathcal{L}_{BCC}$` vs `\mathcal{L}_{BCC}`)
-- [ ] Define BMI2, SIMD, LOD on first use in each chapter
+- [x] Define BMI2, SIMD, LOD on first use in each chapter
 - [ ] Ensure consistent voice throughout (prefer "we" and "you" over passive)
 
 #### Date and Version
