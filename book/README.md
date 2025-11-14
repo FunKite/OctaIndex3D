@@ -29,6 +29,8 @@ You can treat it as:
 - Domain specialists in robotics, geospatial, scientific computing, or gaming who need practical recipes, not just theory
 - Students and self-taught developers who learn best from concrete examples and stories grounded in real projects
 
+For a chapter-by-chapter roadmap, progress notes, and remaining work estimates, see: [Book Enhancement Suggestions](BOOK_ENHANCEMENT_SUGGESTIONS.md).
+
 ---
 
 ## Current Status
