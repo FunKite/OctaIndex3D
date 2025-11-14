@@ -110,6 +110,10 @@ Historical performance data across hardware platforms.
 https://github.com/FunKite/OctaIndex3D/discussions
 Community Q&A, implementation tips, and research ideas.
 
+**Errata**
+https://github.com/FunKite/OctaIndex3D/blob/main/book/ERRATA.md
+Log of known issues and corrections to the book text.
+
 All resources are freely available and will be maintained long-term.
 
 ## Acknowledgments
