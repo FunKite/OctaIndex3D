@@ -100,6 +100,13 @@ Architecturally, the streaming format shares serialization logic with the sequen
 - Strong checksums per chunk.
 - Clear boundaries so that partial writes can be detected.
 
+In practice, a common pattern is:
+
+- Log to the streaming format in real time (from robots, services, or batch jobs).
+- Periodically compact or re-pack those logs into a sequential container optimized for analysis.
+
+This keeps write paths simple and robust while still enabling high-performance reads later.
+
 ---
 
 ## 8.4 Compression Strategies
@@ -125,6 +132,12 @@ This enables:
 
 - Fast random access (only the relevant blocks need decompression).
 - Experimentation with different compression schemes without changing the format.
+
+From an operational standpoint:
+
+- Start with a **fast, lightweight codec** (e.g., LZ4) to validate the pipeline.
+- Profile end-to-end performance and I/O volumes.
+- Only introduce heavier compression (e.g., Zstd with higher levels) if disk or bandwidth becomes the bottleneck.
 
 ---
 
@@ -176,6 +189,12 @@ Applications can:
 
 - Continue to read old files while gradually migrating.
 - Detect and reject files written by incompatible future versions.
+
+For long-lived deployments, it is helpful to:
+
+- Maintain a **migration playbook** describing supported versions and upgrade paths.
+- Include container-format version checks in CI and integration tests.
+- Treat on-disk formats as part of the public surface area, with the same care as APIs.
 
 ---
 

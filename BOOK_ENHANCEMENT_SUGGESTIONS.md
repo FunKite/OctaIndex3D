@@ -33,20 +33,20 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 **Chapters Needing Full Development:**
 
 #### Part II: Architecture (Chapters 4-6)
-- [x] **Chapter 4: System Architecture** (currently 378 lines → needs 700+)
+- [x] **Chapter 4: System Architecture** (currently ~500 lines → needs 700+)
   - Expand architectural patterns section
   - Add complete component interaction diagrams
   - Include error handling strategies
-  - Add exercises and further reading
+  - Add concise implementation checklists and example workflows
 
-- [ ] **Chapter 5: Identifier Types** (currently ~200 lines → needs 700+)
+- [ ] **Chapter 5: Identifier Types** (currently ~290 lines → needs 700+)
   - Expand Galactic128, Index64, Route64, Hilbert64 coverage
   - Add conversion examples between all types
   - Include Bech32m encoding/decoding details
   - Add performance comparison tables
   - Include validation and error handling
 
-- [ ] **Chapter 6: Coordinate Systems** (currently 165 lines → needs 700+)
+- [ ] **Chapter 6: Coordinate Systems** (currently ~300 lines → needs 700+)
   - Expand frame reference system discussion
   - Add WGS84 integration details
   - Include coordinate transformation examples
@@ -54,21 +54,21 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
   - Include GIS integration case studies
 
 #### Part III: Implementation (Chapters 7-9)
-- [ ] **Chapter 7: Performance Optimization** (currently 137 lines → needs 700+)
+- [ ] **Chapter 7: Performance Optimization** (currently ~240 lines → needs 700+)
   - Complete BMI2, SIMD, AVX2 optimization sections
   - Add profiling and benchmarking methodologies
   - Include platform-specific optimization guides
   - Add memory layout optimization
   - Include cache efficiency analysis
 
-- [ ] **Chapter 8: Container Formats** (currently 193 lines → needs 700+)
+- [ ] **Chapter 8: Container Formats** (currently ~210 lines → needs 700+)
   - Expand v2 streaming container format
   - Add compression algorithm comparisons
   - Include serialization/deserialization examples
   - Add migration guide from v1 to v2
   - Include error recovery strategies
 
-- [ ] **Chapter 9: Testing and Validation** (currently 137 lines → needs 700+)
+- [ ] **Chapter 9: Testing and Validation** (currently ~165 lines → needs 700+)
   - Add complete property-based testing examples
   - Include fuzzing strategies
   - Add performance regression testing
@@ -648,8 +648,8 @@ The OctaIndex3D book demonstrates **exceptional quality** in its completed secti
 3. [ ] Create first 5 figures (Figures 1.1-1.5)
 4. [ ] Run initial performance benchmarks
 5. [ ] Set up solutions manual structure
-6. [ ] Begin Chapter 4 full content development  
-   - **Progress:** Section 4.2.5 added with a concrete frame → identifier → container workflow and runnable Rust sketch.
+6. [x] Begin Chapter 4 full content development  
+   - **Progress:** Section 4.2.5 added with a concrete frame → identifier → container workflow and runnable Rust sketch; Section 4.2.6 added to describe architectural patterns and component interactions; Exercises and Further Reading sections drafted for Chapter 4, bringing the chapter to ~570 lines.
 
 ---
 

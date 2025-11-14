@@ -39,7 +39,7 @@ Architecturally, the frame registry:
 OctaIndex3D ships with a small set of **built-in frames** that cover common use cases:
 
 - **ECEF (Earth-Centered, Earth-Fixed)**: a Cartesian frame with origin at the Earth’s center of mass.
-- **WGS84 Geodetic**: latitude, longitude, and height above the WGS84 ellipsoid.
+- **WGS84 Geodetic**: latitude, longitude, and ellipsoidal height above the WGS84 ellipsoid.
 - **ENU (East–North–Up)**: local tangent-plane frames attached to specific anchor points.
 - **Generic Cartesian**: unit-agnostic, application-defined Cartesian frames (e.g., game worlds measured in meters or arbitrary units).
 
@@ -48,6 +48,31 @@ Each built-in frame:
 - Has a stable identifier string (e.g., `"ECEF"`, `"WGS84"`).
 - Provides forward and inverse transformations to a canonical internal Cartesian representation.
 - Encodes any necessary metadata (ellipsoid parameters, epochs, geoid models).
+
+### 6.2.1 WGS84 and ECEF in Practice
+
+Most real-world geospatial data is expressed in WGS84 latitude/longitude and either ellipsoidal or orthometric height. OctaIndex3D’s built-in WGS84 frame wraps the familiar formulas:
+
+- **Forward (WGS84 → ECEF)**: convert $(\varphi, \lambda, h)$ to $(x, y, z)$ using the WGS84 semi-major axis $a$, eccentricity $e$, and prime vertical radius of curvature $N(\varphi)$.
+- **Inverse (ECEF → WGS84)**: recover geodetic coordinates from $(x, y, z)$ using an iterative or closed-form algorithm.
+
+Conceptually:
+
+```text
+WGS84 (lat, lon, h)
+    ⇄  ECEF (x, y, z)
+    ⇄  Local ENU (e, n, u)
+```
+
+OctaIndex3D does not attempt to *replace* established geodesy libraries; instead, it:
+
+- Encapsulates the formulas and constants behind a stable API.
+- Provides hooks to integrate with external libraries when higher geodetic fidelity is required (e.g., time-varying plate motion models or alternate datums).
+
+From the perspective of the spatial index:
+
+- WGS84 is “just another frame” with a known transform to the canonical Cartesian representation.
+- Higher-level systems (GIS, navigation, mapping) are free to treat the WGS84 frame as their primary interface, while OctaIndex3D handles the conversion to lattice indices.
 
 Applications can:
 
@@ -90,6 +115,33 @@ Internally, the registry:
 
 Once registered, frames become immutable—any changes must go through explicit migration paths, keeping behavior reproducible.
 
+### 6.3.1 Local ENU Frames
+
+A common pattern is to define **local ENU frames** anchored at specific locations in WGS84:
+
+- Choose an anchor point $(\varphi_0, \lambda_0, h_0)$ in WGS84.
+- Convert it to ECEF coordinates $(x_0, y_0, z_0)$.
+- Define a local orthonormal basis $(\hat{e}, \hat{n}, \hat{u})$ at that point.
+
+The forward transform ENU → ECEF then becomes:
+
+```text
+P_ecef = P_anchor + e * \hat{e} + n * \hat{n} + u * \hat{u}
+```
+
+and the inverse ECEF → ENU subtracts the anchor and projects onto the basis vectors.
+
+OctaIndex3D’s frame definition API captures this structure explicitly:
+
+- Frames are tagged as “local” or “global”.
+- Metadata records the anchor geodetic point and parent frame.
+- Transformations are guaranteed to be continuous and invertible in a neighborhood of the anchor.
+
+This allows applications to:
+
+- Attach multiple ENU frames to different sites (warehouses, depots, landing pads).
+- Convert between them via the shared parent (e.g., WGS84/ECEF).
+
 ---
 
 ## 6.4 Coordinate Transformations
@@ -124,6 +176,31 @@ When transforming into lattice indices:
 - The library rounds consistently according to a documented convention (e.g., round-to-nearest with ties broken toward even).
 - Any ambiguity is resolved before identifiers are constructed, so that invariants like parity are preserved.
 
+### 6.4.2 From Coordinates to Lattice Indices
+
+The final step from a continuous coordinate to a lattice identifier is where the CRS machinery meets the BCC theory from Part I:
+
+1. Start with a point expressed in some frame (e.g., WGS84, local ENU, game world).  
+2. Transform it into the canonical Cartesian frame associated with the BCC lattice.  
+3. Apply the lattice quantization rules (Section 2.x) to find the nearest BCC lattice point.  
+4. Construct an appropriate identifier (`Index64`, `Hilbert64`, or `Galactic128`) using smart constructors.  
+
+Architecturally, this step is centralized in a small set of functions:
+
+- `frame.to_index64(point, lod) -> Result<Index64, IndexError>`
+- `frame.to_galactic(point, lod) -> Result<Galactic128, IndexError>`
+
+These functions:
+
+- Apply frame transformations.
+- Enforce LOD bounds.
+- Handle edge cases near cell boundaries deterministically.
+
+By keeping this logic in one place, OctaIndex3D:
+
+- Ensures consistent behavior across all higher-level APIs.
+- Makes it straightforward to test precision and parity invariants in isolation.
+
 ---
 
 ## 6.5 GIS Integration
@@ -144,6 +221,33 @@ Care is taken to:
 - Surface mismatches between CRS definitions as explicit errors.
 - Avoid silent unit conversions (e.g., meters vs. feet).
 - Preserve metadata necessary for round-trip fidelity where possible.
+
+### 6.5.1 Case Study: WGS84 Tiles to OctaIndex3D
+
+Consider a workflow where:
+
+1. You receive terrain tiles as GeoTIFFs in WGS84 (EPSG:4326).  
+2. You want to index them in OctaIndex3D for fast 3D queries.  
+
+An integration pipeline might:
+
+- Use GDAL (or a similar library) to read GeoTIFFs and obtain georeferenced coordinates.
+- Map the GeoTIFF’s CRS to the corresponding OctaIndex3D frame (e.g., `"EPSG:4326"` → `WGS84`).
+- For each sample point or pixel center:
+  - Convert WGS84 → ECEF → canonical Cartesian.
+  - Quantize to a BCC lattice point at the desired LOD.
+  - Construct an `Index64` and store associated elevation or intensity values in a container.
+
+On export:
+
+- Reverse the process: identifiers → canonical Cartesian → WGS84 → GeoTIFF or GeoJSON.
+- Preserve CRS metadata and any tiling scheme identifiers (e.g., TMS, XYZ) alongside the container.
+
+From the application’s perspective:
+
+- GIS tools “see” familiar WGS84 data.
+- OctaIndex3D “sees” only Cartesian coordinates and lattice indices.
+- The frame registry sits in the middle, ensuring that conversions are consistent and explicit.
 
 ---
 
@@ -166,6 +270,19 @@ From an architectural standpoint, this means:
 - Applications can safely clone handles to the registry and use them freely in parallel code.
 - The cost of CRS handling remains predictable under load.
 
+### 6.6.1 Caching Strategies
+
+Caching deserves special care in concurrent systems:
+
+- **Path caches** store precomputed transformation chains between frequently-used frame pairs (e.g., `WGS84` ↔ `ECEF`, `ECEF` ↔ `local_warehouse_ENU`).
+- **Parameter caches** hold derived constants for expensive geodetic formulas.
+
+OctaIndex3D’s architecture favors:
+
+- Read-only caches shared across threads once constructed.
+- Construction-time initialization where feasible, so that no synchronization is needed in hot paths.
+- Clear documentation about which caches are per-registry and which are per-process, so that applications can reason about memory usage.
+
 ---
 
 ## 6.7 Summary
@@ -179,4 +296,3 @@ In this chapter, we examined how OctaIndex3D models coordinate reference systems
 - **GIS integration** and **thread safety** ensure that OctaIndex3D plays well with existing ecosystems and high-concurrency workloads.
 
 With frames and identifiers in place, Part II has now established the architectural context needed to understand the implementation details of Part III.
-

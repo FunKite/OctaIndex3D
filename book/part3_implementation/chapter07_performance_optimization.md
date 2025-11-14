@@ -71,7 +71,41 @@ This layered approach ensures:
 
 ---
 
-## 7.3 SIMD and Batch Processing
+## 7.3 Profiling Before Tuning
+
+Before applying any optimization technique, OctaIndex3D follows a simple rule:
+
+> **Measure first, optimize second.**
+
+Optimizing the wrong part of the system is a common failure mode. To avoid this:
+
+- Use **microbenchmarks** to measure the cost of core operations (encoding, neighbor queries, container lookups).
+- Use **application-level benchmarks** to capture realistic workloads.
+- Collect **profiles** (CPU, cache misses, branch mispredictions) to see where time is actually spent.
+
+On typical Rust toolchains, the workflow might involve:
+
+- `cargo bench` or `criterion`-based benchmarks for stable micro-measurements.
+- `perf`, `vtune`, or `dtrace` for system-level profiling.
+- Hardware performance counters exposed via platform-specific tools.
+
+The goal is to identify:
+
+- Hot functions (Morton/Hilbert encoding, container iteration, query loops).
+- Hot *paths* (where data structures and algorithms interact).
+- Places where cache misses or branch mispredictions dominate.
+
+Only after locating true hot spots does it make sense to:
+
+- Introduce BMI2- or SIMD-specific code.
+- Restructure data layouts.
+- Change algorithms.
+
+This discipline keeps complexity proportional to actual performance needs.
+
+---
+
+## 7.4 SIMD and Batch Processing
 
 Single queries are important, but many real workloads operate on **batches**:
 
@@ -97,7 +131,7 @@ Even when explicit SIMD is not available, batching improves:
 
 ---
 
-## 7.4 Cache-Friendly Data Layouts
+## 7.5 Cache-Friendly Data Layouts
 
 Cache behavior often dominates raw arithmetic cost. To keep data hot in cache, OctaIndex3D favors:
 
@@ -137,7 +171,7 @@ OctaIndex3D does not mandate one layout; instead, it:
 
 ---
 
-## 7.5 Cross-Architecture Considerations
+## 7.6 Cross-Architecture Considerations
 
 While x86_64 with BMI2 and AVX2 is common, many applications run on:
 
@@ -157,7 +191,7 @@ OctaIndex3D’s performance story is thus:
 
 ---
 
-## 7.6 GPU Acceleration
+## 7.7 GPU Acceleration
 
 GPUs offer enormous parallel throughput but come with their own costs:
 
@@ -179,7 +213,25 @@ From an architectural perspective, OctaIndex3D:
 
 ---
 
-## 7.7 Summary
+## 7.8 Putting It Together: A Tuning Workflow
+
+Combining the ideas in this chapter, a typical tuning workflow for an OctaIndex3D-based application looks like:
+
+1. **Define metrics**: latency, throughput, tail behavior (p95/p99), and memory footprint.  
+2. **Benchmark the baseline**: run end-to-end and microbenchmarks; capture profiles.  
+3. **Identify hot spots**: use profiles to find the top contributors to CPU time and cache misses.  
+4. **Apply targeted optimizations**:  
+   - Use BMI2-accelerated Morton encoding where beneficial.  
+   - Introduce batching and, if appropriate, explicit SIMD.  
+   - Adjust data layouts (struct-of-arrays vs. array-of-structs).  
+5. **Re-measure**: confirm that changes improve the right metrics and do not regress others.  
+6. **Iterate conservatively**: stop when performance is “good enough” for the current requirements; avoid premature complexity.  
+
+This workflow balances performance gains with maintainability and portability.
+
+---
+
+## 7.9 Summary
 
 In this chapter, we explored how OctaIndex3D turns the theoretical and architectural foundations of earlier parts into high-performance implementations:
 
@@ -190,4 +242,3 @@ In this chapter, we explored how OctaIndex3D turns the theoretical and architect
 - We considered where **GPU acceleration** fits into the broader picture.
 
 The next chapter applies these performance principles to the design of concrete container formats and persistence mechanisms.
-

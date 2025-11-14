@@ -239,7 +239,42 @@ Applications can freely log and exchange these encodings, then parse them back i
 
 ---
 
-## 5.8 Summary
+## 5.8 Performance Characteristics and Trade-offs
+
+Choosing an identifier type is ultimately a performance and ergonomics decision. While Chapter 7 will dive into microbenchmarks, it is helpful to have a high-level mental model here.
+
+At a coarse level, you can think in terms of three metrics:
+
+- **Key width**: how many bits/bytes does the identifier occupy?
+- **CPU cost**: how expensive are common operations (comparisons, neighbor lookups, conversions)?
+- **Locality / scan quality**: how well does the ordering preserve spatial locality when stored in arrays or B-trees?
+
+The table below summarizes typical trade-offs:
+
+| Identifier  | Width | Encoding    | CPU Cost (per op) | Locality for Scans | Typical Use Case                          |
+|------------|-------|------------|--------------------|--------------------|-------------------------------------------|
+| `Index64`  | 64b   | Morton BCC | Very low           | Good               | General-purpose spatial indexing          |
+| `Route64`  | 64b   | Morton + route bits | Low      | Good               | Path planning, local routing              |
+| `Hilbert64`| 64b   | Hilbert BCC| Moderate           | Very good          | Scan-heavy analytics, cache-sensitive R/W |
+| `Galactic128` | 128b | Frame + 64b index | Higher  | Good               | Global storage, cross-system integration  |
+
+Notes:
+
+- “CPU Cost” is relative and assumes well-optimized bit-twiddling implementations on modern CPUs.
+- “Locality for Scans” is a qualitative measure; exact behavior depends on data distributions and access patterns.
+- Actual performance numbers are workload- and hardware-dependent; always validate with benchmarks.
+
+Architecturally, the recommended pattern is:
+
+1. Use `Galactic128` at **system boundaries** (storage, logs, cross-service APIs).  
+2. Convert to `Index64` or `Hilbert64` at **computation boundaries** (query engines, in-memory containers).  
+3. Use `Route64` in **algorithm-specific internals** where routing context matters.  
+
+This separation allows the codebase to evolve in each dimension without forcing a one-size-fits-all identifier.
+
+---
+
+## 5.9 Summary
 
 In this chapter, we examined the portfolio of identifier types that OctaIndex3D uses to represent locations in BCC lattices:
 

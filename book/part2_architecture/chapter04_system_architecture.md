@@ -224,6 +224,64 @@ This example is intentionally small, but it illustrates the architectural flow:
 - Containers provide **storage and serialization**.  
 - Queries (introduced later in this chapter and in Part III) operate on these building blocks rather than on ad hoc coordinate triples.
 
+### 4.2.6 Architectural Patterns and Component Interactions
+
+Under the hood, OctaIndex3D follows a small set of architectural patterns that keep the system understandable even as it grows:
+
+- A **layered core → adapters → applications** structure.
+- Clear **ownership boundaries** between modules.
+- A bias toward **immutable data flow** in the hot path.
+
+At a high level, you can visualize the system in three concentric layers:
+
+1. **Core layer**  
+   - Lattice math (parity, refinement, neighbor sets)  
+   - Identifier encodings (`Index64`, `Route64`, `Hilbert64`, `Galactic128`)  
+   - Frame registry and transforms  
+
+2. **Container and query layer**  
+   - Streaming container readers/writers  
+   - In-memory container implementations  
+   - Query primitives (range, k-NN, ray casting)  
+
+3. **Integration layer**  
+   - Application-specific adapters (ROS, GIS, game engines)  
+   - Service APIs (gRPC/HTTP)  
+   - Offline batch tools and CLI utilities  
+
+In a typical deployment, control flows *downward* from applications into the core, while data flows *upward* as typed results. This mirrors a classic **ports-and-adapters** (hexagonal) architecture:
+
+- **Ports** are expressed as Rust traits (`ContainerReader`, `ContainerWriter`, query traits).
+- **Adapters** are concrete implementations for specific storage backends or protocols.
+- The **core** has no knowledge of filesystems, databases, or network stacks.
+
+#### Component interaction: ingest → index → query
+
+To make this concrete, imagine an ingest pipeline storing LiDAR tiles into an OctaIndex3D container and serving queries over gRPC:
+
+1. A **data source** (LiDAR files, sensor stream, or message bus) feeds points into an *ingest service*.  
+2. The ingest service uses the **frame registry** to interpret coordinates in their native CRS.  
+3. For each point, the service constructs a **frame-aware identifier** (`Galactic128` or `Index64`) using smart constructors that validate parity and LOD.  
+4. Identifiers and payloads are batched and written to a **container writer** that serializes them into a streaming container format.  
+5. A separate **query service** opens the same container via a **container reader**, exposes a gRPC or HTTP API, and implements range / k-NN queries.  
+6. Queries arrive in frame coordinates, are converted into lattice identifiers, resolved against the container, and returned as application-specific DTOs.  
+
+In diagram form (Figure 4.1 in the finished book), the main components would appear as:
+
+- **Ingest Service** → **Frame Registry** → **Identifier Encoder** → **Container Writer** → **Storage Backend**  
+- **Query Service** → **Frame Registry** → **Container Reader** → **Query Engine** → **Response Encoder**  
+
+The important point is that *all* of these components depend on a small, stable core:
+
+- Frames and identifiers define the *language* spoken at module boundaries.
+- Containers and queries implement *behavior* without leaking transport or storage details.
+
+This separation pays off in practice:
+
+- You can swap in a new storage backend (e.g., S3 instead of local disk) without changing identifier code.
+- You can evolve container formats (v1 → v2) while keeping frame and identifier APIs stable.
+- You can embed the same core in very different environments (embedded robot vs. cloud service) with minimal duplication.
+
 ---
 
 ## 4.3 Type System Design

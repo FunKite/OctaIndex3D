@@ -48,6 +48,12 @@ For example, tests for Morton encoding verify that:
 - Encoding followed by decoding yields the original coordinates.
 - Neighbor relationships are preserved at each level of detail.
 
+In the Rust repository, this typically translates to:
+
+- `#[test]` functions colocated with the code they exercise.
+- A small number of **golden cases** (hand-checked values) for each major operation.
+- Tests that stay at the level of public APIs, not internal helper functions, so that refactors are easier.
+
 ---
 
 ## 9.3 Property-Based Testing
@@ -65,6 +71,12 @@ These tests are particularly valuable because:
 
 - They explore corner cases that hand-written examples might miss.
 - They detect assumptions that only hold for narrow input ranges.
+
+In practice, property tests in OctaIndex3D follow a few rules of thumb:
+
+- Use **bounded domains** that reflect real inputs (e.g., LOD ranges, realistic coordinate bounds).
+- Start from a small set of high-value properties rather than trying to cover everything.
+- Keep failing cases reproducible by recording seeds and shrinking results into regression tests where appropriate.
 
 ---
 
@@ -91,6 +103,11 @@ Benchmarks are accompanied by:
 - Documentation of hardware and compiler settings.
 - Scripts that allow others to reproduce results.
 
+For day-to-day development:
+
+- Maintain a **small, fast benchmark suite** that can be run locally when working on hot-path code.
+- Reserve heavier, long-running benchmarks for scheduled runs (nightly/weekly) or for release candidates.
+
 ---
 
 ## 9.5 Cross-Platform Validation
@@ -105,6 +122,12 @@ When platform-specific bugs are found:
 
 - Regression tests are added to prevent recurrence.
 - Workarounds are clearly documented.
+
+As a practical checklist when changing low-level code:
+
+- Run tests at multiple optimization levels (debug vs. release).
+- Exercise both “fast path” and “fallback” implementations (e.g., with and without BMI2).
+- Confirm that tolerances and invariants behave as expected on at least one non-x86_64 platform.
 
 ---
 
@@ -122,6 +145,12 @@ Release processes include:
 - Verifying that previously published containers remain readable.
 - Updating any reference benchmark results when performance characteristics change.
 
+For teams integrating OctaIndex3D into their own systems, a minimal CI setup usually includes:
+
+- `cargo test` over the full workspace on every change.
+- A subset of OctaIndex3D’s benchmarks focused on the parts you exercise most.
+- Compatibility checks that load a small corpus of existing containers to catch accidental format regressions early.
+
 ---
 
 ## 9.7 Summary
@@ -134,4 +163,3 @@ In this chapter, we saw how OctaIndex3D’s implementation is validated:
 - **CI pipelines** and release validation keep these practices applied consistently over time.
 
 With Part III complete, we have now traversed the full path from theory (Part I) through architecture (Part II) to concrete, tested implementation. The remaining parts of the book focus on applications and advanced topics built on this foundation.
-
