@@ -7,15 +7,71 @@
 [![Crates.io](https://img.shields.io/crates/v/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 [![Documentation](https://docs.rs/octaindex3d/badge.svg)](https://docs.rs/octaindex3d)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Rust](https://img.shields.io/badge/rust-1.82+-orange.svg)](https://www.rust-lang.org)
+[![Rust](https://img.shields.io/badge/rust-1.77+-orange.svg)](https://www.rust-lang.org)
+[![CI](https://github.com/FunKite/OctaIndex3D/workflows/CI/badge.svg)](https://github.com/FunKite/OctaIndex3D/actions)
+[![Downloads](https://img.shields.io/crates/d/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 
-[Documentation](https://docs.rs/octaindex3d) | [Whitepaper](WHITEPAPER.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples)
+[Documentation](https://docs.rs/octaindex3d) | [Whitepaper](WHITEPAPER.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](CHANGELOG.md)
 
 </div>
+
+## Table of Contents
+
+- [What's New](#whats-new)
+- [Overview](#overview)
+- [Why BCC Lattice?](#why-bcc-lattice)
+- [Interactive 3D Maze Game](#-interactive-3d-maze-game)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [ID System Architecture](#id-system-architecture-v030)
+- [Examples](#examples)
+- [Streaming Container Format](#streaming-container-format)
+- [Performance](#performance)
+- [Use Cases](#use-cases)
+- [Comparison with Alternatives](#comparison-with-alternatives)
+- [Platform Support](#platform-support)
+- [FAQ](#faq)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [Research and Citation](#research-and-citation)
+
+## What's New
+
+### Version 0.4.3 (Latest)
+
+- **Interactive 3D Octahedral Maze Game**: Play procedurally-generated mazes with BCC lattice pathfinding
+- **BCC-14 Prim's Algorithm Demo**: Spanning tree generation on 549K nodes with A* pathfinding
+- **GitHub Community Standards**: Full CONTRIBUTING.md, issue templates, security policies
+- **Enhanced Security**: CodeQL analysis and automated security scanning
+- **CLI Utilities**: Encode/decode coordinates, calculate distances, explore neighbors
+
+See the full [Changelog](CHANGELOG.md) for detailed release history.
 
 ## Overview
 
 OctaIndex3D is a high-performance 3D spatial indexing and routing library based on a **Body-Centered Cubic (BCC) lattice** with **truncated octahedral cells**.
+
+### 30-Second Quick Start
+
+```bash
+# Try the interactive 3D maze game (fastest way to experience BCC lattice!)
+cargo install octaindex3d --features cli
+octaindex3d play --difficulty medium
+
+# Or use as a library
+cargo add octaindex3d
+```
+
+```rust
+use octaindex3d::{Route64, neighbors::neighbors_route64};
+
+// Create a BCC lattice point
+let point = Route64::new(0, 10, 20, 30)?;
+
+// Get all 14 neighbors
+let neighbors = neighbors_route64(point);
+assert_eq!(neighbors.len(), 14);
+```
 
 ### Key Features
 
@@ -135,28 +191,77 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
+# Minimal installation
 octaindex3d = "0.4"
 
-# Optional features
+# Recommended (includes common features)
 octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "container_v2"] }
+
+# Full-featured (for advanced use cases)
+octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "container_v2", "gis_geojson", "zstd"] }
+```
+
+### As a CLI Tool
+
+```bash
+# Install the interactive maze game and utilities
+cargo install octaindex3d --features cli
+
+# Run the maze game
+octaindex3d play --difficulty medium
+
+# Explore other CLI commands
+octaindex3d --help
 ```
 
 ### Available Features
 
-- **`cli`**: Interactive 3D maze game and command-line utilities
-- **`parallel`**: Multi-threaded batch operations with Rayon (recommended)
-- **`simd`**: SIMD-accelerated operations (BMI2, AVX2, NEON)
-- **`hilbert`**: Hilbert64 space-filling curve with better locality than Morton
-- **`container_v2`**: Append-friendly streaming container format with checkpoints
-- **`gis_geojson`**: GeoJSON export with WGS84 coordinate conversion
-- **`zstd_compression`**: Zstd compression (in addition to default LZ4)
+| Feature | Default | Description | When to Use |
+|---------|---------|-------------|-------------|
+| **`serde`** | ✅ Yes | Serialization support | Data persistence, JSON export |
+| **`parallel`** | ✅ Yes | Multi-threaded batch operations (Rayon) | Processing 1000+ items |
+| **`simd`** | ✅ Yes | SIMD acceleration (BMI2, AVX2, NEON) | Performance optimization |
+| **`lz4`** | ✅ Yes | LZ4 compression | Container storage |
+| **`hilbert`** | ❌ No | Hilbert64 space-filling curve | Better spatial locality than Morton |
+| **`container_v2`** | ❌ No | Streaming container format | Append-friendly storage, large datasets |
+| **`gis_geojson`** | ❌ No | GeoJSON export (WGS84) | GIS integration (QGIS, ArcGIS) |
+| **`cli`** | ❌ No | Interactive maze game & CLI utilities | Interactive use, demos |
+| **`zstd`** | ❌ No | Zstd compression (slower, better ratio) | High compression needs |
+| **`pathfinding`** | ❌ No | Legacy pathfinding APIs | Compatibility with v0.2.x |
+| **`gpu-metal`** | ❌ No | Metal GPU acceleration (macOS) | Massive batch operations (millions) |
+| **`gpu-cuda`** | ❌ No | CUDA GPU acceleration (Linux) | Massive batch operations (millions) |
+| **`gpu-vulkan`** | ❌ No | Vulkan GPU acceleration (experimental) | Experimental GPU support |
+
+**Recommended combinations:**
+```toml
+# For general use
+octaindex3d = { version = "0.4", features = ["hilbert", "parallel"] }
+
+# For GIS applications
+octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "gis_geojson"] }
+
+# For data storage systems
+octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "container_v2", "zstd"] }
+
+# For interactive development
+octaindex3d = { version = "0.4", features = ["cli"] }
+```
 
 ### Build from Source
 
 ```bash
 git clone https://github.com/FunKite/OctaIndex3D
-cd octaindex3d
+cd OctaIndex3D
 cargo build --release
+
+# Run tests
+cargo test
+
+# Run benchmarks
+cargo bench
+
+# Run the maze game
+cargo run --release --features cli --bin octaindex3d -- play
 ```
 
 ## Quick Start
@@ -461,9 +566,181 @@ For detailed performance analysis and benchmarks, see:
 - **Urban Planning**: 3D city models, airspace management, building information
 - **GIS Integration**: Export to WGS84 for visualization in QGIS, ArcGIS, etc.
 
+## Comparison with Alternatives
+
+| Feature | OctaIndex3D (BCC) | H3 (Hexagonal) | S2 (Spherical) | Octree |
+|---------|-------------------|----------------|----------------|--------|
+| **Dimensionality** | 3D | 2D (Earth surface) | 2D (Sphere) | 3D |
+| **Cell Shape** | Truncated Octahedron | Hexagon | Spherical quad | Cube |
+| **Neighbors** | 14 (uniform) | 6 | 4-8 (variable) | 6-26 |
+| **Isotropy** | Excellent | Good | Excellent | Poor |
+| **Hierarchical** | Yes (8:1) | Yes (7:1) | Yes (4:1) | Yes (8:1) |
+| **Space-Filling Curve** | Morton/Hilbert | H3 | S2 Cell | Z-order |
+| **Efficiency vs Cubic** | +29% | N/A | N/A | Baseline |
+| **Best For** | 3D volumes | Geospatial 2D | Global spherical | Adaptive 3D |
+| **Rust Native** | Yes | No (C bindings) | No (C++) | Various |
+
+**When to choose OctaIndex3D:**
+- You need true 3D volumetric indexing (not just surface)
+- You want optimal sampling efficiency (29% fewer points than cubic)
+- You need isotropic neighbor relationships for pathfinding or analysis
+- You're working with atmospheric, oceanic, geological, or urban 3D data
+- You want a pure Rust implementation with modern performance features
+
+## Platform Support
+
+### Supported Platforms
+
+| Platform | Architecture | Status | SIMD | GPU |
+|----------|-------------|--------|------|-----|
+| **Linux** | x86_64 | ✅ Full | BMI2, AVX2, AVX-512 | CUDA, Vulkan |
+| **Linux** | aarch64 | ✅ Full | NEON | - |
+| **macOS** | Apple Silicon (M1+) | ✅ Full | NEON | Metal |
+| **macOS** | x86_64 | ✅ Full | BMI2, AVX2 | - |
+| **Windows** | x86_64 | ✅ Full | BMI2, AVX2 | - |
+| **Windows** | aarch64 | ⚠️ Tier 2 | NEON | - |
+
+### Minimum Requirements
+
+- **Rust**: 1.77+ (MSRV)
+- **CPU**: Any 64-bit processor
+- **Memory**: 100MB+ recommended for typical workloads
+- **Optional**: BMI2 support for hardware-accelerated Morton encoding (Intel Haswell+, AMD Zen+)
+
+### GPU Acceleration (Optional)
+
+- **Metal**: macOS with Metal-capable GPU (M1+ or Intel with Metal support)
+- **CUDA**: NVIDIA GPU with CUDA 12.0+ and compute capability 5.0+
+- **Vulkan**: Linux with Vulkan-capable GPU (experimental)
+
+## FAQ
+
+### General Questions
+
+**Q: What is a BCC lattice?**
+A: A Body-Centered Cubic lattice is a 3D crystal structure where each point has one point at the center of each cube. It's the optimal structure for sampling 3D space, requiring 29% fewer points than a cubic grid for the same fidelity.
+
+**Q: How does this compare to octrees?**
+A: While octrees partition space hierarchically, OctaIndex3D uses a regular BCC lattice with truncated octahedral cells. This provides consistent topology, isotropic neighbor relationships, and efficient space-filling curves, making it better for uniform spatial indexing and pathfinding.
+
+**Q: Can I use this for 2D applications?**
+A: While optimized for 3D, you can use OctaIndex3D for 2D by fixing one coordinate (e.g., z=0). However, dedicated 2D libraries like H3 may be more efficient for purely 2D use cases.
+
+**Q: What are the ID types used for?**
+A:
+- **Galactic128**: Global unique IDs with frame/tier/LOD hierarchy (128-bit)
+- **Index64**: Morton-encoded IDs for spatial locality and range queries (64-bit)
+- **Hilbert64**: Hilbert curve IDs with better locality than Morton (64-bit, requires `hilbert` feature)
+- **Route64**: Local routing coordinates for neighbor traversal (64-bit, signed)
+
+**Q: Is this suitable for real-time applications?**
+A: Yes! OctaIndex3D is designed for high performance with SIMD acceleration, hardware Morton encoding (BMI2), and efficient neighbor lookups. The maze game demonstrates real-time pathfinding on large graphs.
+
+### Performance Questions
+
+**Q: Do I need a special CPU for good performance?**
+A: No. OctaIndex3D works on any 64-bit CPU. However, modern CPUs with BMI2 (Intel Haswell 2013+, AMD Zen 2017+) get hardware-accelerated Morton encoding for 5-10x faster performance on encoding operations.
+
+**Q: Should I enable the `parallel` feature?**
+A: Yes, for batch operations on datasets with 1000+ items. The `parallel` feature (enabled by default) uses Rayon for multi-threaded processing.
+
+**Q: What about GPU acceleration?**
+A: GPU features are optional and experimental. They're useful for massive batch operations (millions of points) but add complexity. Start with CPU features first.
+
+### Usage Questions
+
+**Q: How do I convert between ID types?**
+A: Use the `From`/`Into` traits:
+```rust
+let index: Index64 = galactic128.try_into()?;
+let hilbert: Hilbert64 = index.try_into()?;
+let route: Route64 = index.try_into()?;
+```
+
+**Q: How do I get a cell's neighbors?**
+A: Use the neighbor functions:
+```rust
+use octaindex3d::neighbors::neighbors_route64;
+let neighbors = neighbors_route64(route); // Returns Vec<Route64> with 14 neighbors
+```
+
+**Q: Can I store custom data with cells?**
+A: Yes, use your own HashMap or spatial data structure with IDs as keys. For legacy code, see the `Layer` API in the documentation.
+
+## Troubleshooting
+
+### Build Issues
+
+**Issue**: Build fails with "feature `xyz` not found"
+**Solution**: Update your Cargo.toml to use the correct feature names. See [Installation](#installation) for available features.
+
+**Issue**: CUDA build fails
+**Solution**: CUDA support requires CUDA 12.0+ and is only available on non-Windows platforms. Ensure you have CUDA toolkit installed:
+```bash
+# Ubuntu/Debian
+sudo apt-get install nvidia-cuda-toolkit
+
+# Verify
+nvcc --version
+```
+
+**Issue**: Metal build fails on macOS
+**Solution**: Ensure you're using a Metal-capable macOS version (10.11+). Update Xcode command-line tools:
+```bash
+xcode-select --install
+```
+
+### Runtime Issues
+
+**Issue**: "Parity violation" error when creating coordinates
+**Solution**: BCC lattice points must satisfy `(x + y + z) % 2 == 0`. Ensure your coordinates follow this constraint:
+```rust
+// Valid BCC points (even sum)
+Route64::new(0, 0, 0, 0)?;  // 0+0+0 = 0 ✓
+Route64::new(0, 1, 1, 0)?;  // 1+1+0 = 2 ✓
+Route64::new(0, 2, 3, 1)?;  // 2+3+1 = 6 ✓
+
+// Invalid (odd sum)
+Route64::new(0, 1, 0, 0)?;  // 1+0+0 = 1 ✗ Error!
+```
+
+**Issue**: Morton encoding seems slow
+**Solution**: If you have a modern CPU (Intel Haswell 2013+ or AMD Zen 2017+), ensure the `simd` feature is enabled (it's on by default). Check if BMI2 is being used:
+```bash
+# Linux
+lscpu | grep bmi2
+
+# macOS
+sysctl machdep.cpu.features | grep BMI2
+```
+
+**Issue**: Container v2 files won't open
+**Solution**: Ensure you're using the `container_v2` feature. V2 containers are incompatible with v0.2.x readers:
+```toml
+octaindex3d = { version = "0.4", features = ["container_v2"] }
+```
+
+### Getting Help
+
+- **Documentation**: Check [docs.rs/octaindex3d](https://docs.rs/octaindex3d)
+- **Examples**: See the [examples/](examples/) directory
+- **Issues**: [Open an issue](https://github.com/FunKite/OctaIndex3D/issues) for bugs or feature requests
+- **Discussions**: [GitHub Discussions](https://github.com/FunKite/OctaIndex3D/discussions) for questions
+- **Security**: See [SECURITY.md](SECURITY.md) for reporting vulnerabilities
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+- Code of conduct and community guidelines
+- How to submit bug reports and feature requests
+- Development setup and coding standards
+- Pull request process and review guidelines
+
+Feel free to:
+- Open an [issue](https://github.com/FunKite/OctaIndex3D/issues) for bugs or feature requests
+- Submit a pull request with improvements
+- Start a [discussion](https://github.com/FunKite/OctaIndex3D/discussions) for questions or ideas
+- Improve documentation or examples
 
 ## License
 
