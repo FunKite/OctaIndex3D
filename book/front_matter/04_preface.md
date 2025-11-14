@@ -116,5 +116,4 @@ The code is open-source. The mathematics is public domain. The ideas are yours t
 ---
 
 *Michael A. McLarney*
-*San Francisco, California*
 *November 2025*

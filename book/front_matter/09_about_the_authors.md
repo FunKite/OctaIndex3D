@@ -2,33 +2,14 @@
 
 ## Michael A. McLarney
 
-**Michael A. McLarney** is a software engineer and researcher specializing in spatial algorithms, high-performance computing, and autonomous systems. He holds a background in computer science and has spent over a decade building real-time systems for robotics, geospatial analysis, and distributed computing.
-
-His work bridges the gap between theoretical computer science and practical engineering, with a focus on translating academic research into production-quality software. Prior to OctaIndex3D, Michael contributed to autonomous vehicle navigation systems, large-scale geospatial databases, and real-time sensor fusion platforms.
-
-Michael's approach to software engineering emphasizes mathematical rigor, performance measurement, and open-source collaboration. He believes that the best way to advance the field is through transparent sharing of knowledge, code, and experimental results.
-
-He currently works on spatial computing problems in San Francisco, California, where he continues to explore the intersection of geometry, algorithms, and modern hardware architectures.
-
-**Areas of Expertise:**
-- Spatial data structures and algorithms
-- High-performance computing and optimization
-- Computational geometry
-- Real-time systems and embedded programming
-- Rust systems programming
-
-**Select Publications:**
-- McLarney, M. A., & Claude. (2025). "OctaIndex3D: A High-Performance 3D Spatial Indexing System Based on Body-Centered Cubic Lattice." *Technical Report*.
-- McLarney, M. A. (2024). "Adaptive Hierarchical Refinement in BCC Lattices for Autonomous Navigation." *Proceedings of Spatial Computing Symposium*.
+**Michael A. McLarney** is a software architect, engineer, and researcher specializing in spatial algorithms, artificial intelligence, and databases. His work bridges the gap between theoretical computer science and practical engineering, with a focus on translating academic research into production-quality software. Michael's approach to software engineering emphasizes mathematical rigor, performance measurement, and open-source collaboration. He believes that the best way to advance the field is through transparent sharing of knowledge, code, and experimental results.
 
 **Open Source Contributions:**
 - OctaIndex3D (Creator and Lead Maintainer)
-- Various contributions to Rust ecosystem libraries (rayon, criterion, geo)
+- Solunatus (Creator and Lead Maintainer)
 
 **Contact:**
 - GitHub: [@FunKite](https://github.com/FunKite)
-- Email: michael@octaindex3d.dev
-- Website: https://octaindex3d.dev
 
 ---
 
@@ -75,7 +56,6 @@ Claude is trained using Constitutional AI (CAI), a method designed to make AI sy
 This book is one of the first comprehensive technical works to be explicitly co-authored by a human expert and an AI assistant. We chose to make this collaboration transparent because we believe it represents an important development in how knowledge is created and shared.
 
 **What the human brought:**
-- Years of domain expertise in spatial algorithms
 - Creative vision for the project
 - Practical engineering experience
 - Judgment about trade-offs and priorities
