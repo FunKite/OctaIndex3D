@@ -48,6 +48,56 @@ Because connectivity and neighbor counts are uniform, model designers can reason
 
 ---
 
+### 15.1.1 Building Graphs from Containers
+
+To feed GNNs, you need:
+
+- A node feature matrix.
+- An edge list (or adjacency structure).
+
+With OctaIndex3D:
+
+1. Iterate over a container to collect:
+   - Identifiers for selected cells (nodes).
+   - Per-cell features (scalars, vectors, categorical values).
+2. For each node, use neighbor queries to:
+   - Enumerate neighbors within a given radius or LOD band.
+   - Emit directed or undirected edges as pairs of integer node indices.
+3. Convert identifiers to consecutive node indices via a mapping table.
+
+This process yields:
+
+- `X`: a dense tensor of shape `[num_nodes, num_features]`.
+- `E`: an edge index tensor (e.g., shape `[2, num_edges]` in PyTorch Geometric).
+
+Because BCC neighbors are consistent, you can:
+
+- Control the effective receptive field by stacking GNN layers.
+- Reason about how many LODs and neighbor rings a model “sees”.
+
+### 15.1.2 Spatial Attention on BCC Graphs
+
+Attention mechanisms (as in transformers or graph attention networks) require:
+
+- Well-defined neighborhoods.
+- Relative position encodings.
+
+On BCC graphs, relative positions can be:
+
+- Derived from lattice coordinates associated with each identifier.
+- Encoded as small integer offsets or learned embeddings.
+
+Typical patterns:
+
+- **Graph attention networks (GATs)** where attention weights depend on:
+  - Feature similarity between neighboring cells.
+  - Encoded relative offsets (e.g., “neighbor in +x direction”).
+- **Transformer-style blocks** on local BCC patches:
+  - Use BCC cells as tokens.
+  - Add positional encodings based on lattice coordinates and LOD.
+
+This lets models learn anisotropic behavior when appropriate, while starting from an isotropic underlying graph.
+
 ## 15.2 Point Clouds and Feature Extraction
 
 Many machine learning tasks involve point clouds:
@@ -84,6 +134,47 @@ Because the binning step is deterministic and reversible, labels produced by dow
 
 ---
 
+### 15.2.1 Voxelization Schemes
+
+Point clouds can be voxelized onto BCC lattices in several ways:
+
+- **Static voxelization**:
+  - Choose a fixed LOD and spatial extent.
+  - Bin all points into that grid.
+  - Use it for batch training or evaluation.
+- **Dynamic voxelization**:
+  - Center grids around regions of interest (e.g., around a vehicle).
+  - Rebuild or update grids per frame.
+
+OctaIndex3D helps by:
+
+- Providing frame-aware coordinate transforms.
+- Offering consistent binning across frames and sensors.
+
+Design choices include:
+
+- Whether to keep empty cells (dense tensors) or omit them (sparse tensors).
+- How to normalize features (per-cell counts, log counts, min–max scaling).
+
+### 15.2.2 Multi-LOD Features
+
+Multi-resolution representations often improve robustness:
+
+- Coarse LOD captures context.
+- Fine LOD captures detail.
+
+With BCC containers:
+
+- Maintain separate containers for multiple LODs.
+- Extract features from each and concatenate:
+  - Coarse features: aggregated statistics over larger cells.
+  - Fine features: local detail around objects or regions.
+
+Models can then:
+
+- Attend to coarse context while focusing on fine details when necessary.
+- Generalize across sensor resolutions by relying on shared structure across LODs.
+
 ## 15.3 3D Object Detection and Trajectory Prediction
 
 In domains like autonomous driving:
@@ -115,6 +206,47 @@ Here, BCC indexing ensures that the notion of “local neighborhood” is isotro
 
 ---
 
+### 15.3.1 Label Projection and Consistency
+
+Supervised learning requires labels that align with inputs. With BCC-indexed inputs:
+
+- 3D bounding boxes, instance masks, or semantic labels:
+  - Can be projected into the same frame as the BCC lattice.
+  - Can be converted to sets of BCC cells (e.g., “all cells intersecting this box”).
+
+This enables:
+
+- Cell-level labels (classification per cell).
+- Object-level labels with cell-level support (e.g., instance IDs assigned to cells).
+
+Maintaining consistency:
+
+- Use the same frame registry for both labels and data.
+- Store label information in containers keyed by the same identifiers as features.
+
+### 15.3.2 Training Data Generation Pipelines
+
+Training pipelines often:
+
+- Start from raw logs (sensor data, simulation outputs).
+- Produce curated datasets for ML frameworks.
+
+An OctaIndex3D-centric pipeline might:
+
+1. Ingest raw data and labels into BCC containers using frames and identifiers.
+2. Run feature extraction passes to compute per-cell and per-object features.
+3. Snapshot containers and export:
+   - Features as tensors or Arrow/Parquet tables.
+   - Labels as aligned tensors or columns using the same identifiers.
+4. Use lightweight Python loaders that:
+   - Read exported data.
+   - Construct batches for training.
+
+Because identifiers are stable, you can:
+
+- Recompute features with new algorithms while preserving label alignment.
+- Merge additional modalities or annotations into existing datasets.
+
 ## 15.4 Framework Integration
 
 While OctaIndex3D is implemented in Rust, many ML workflows use:
@@ -142,7 +274,92 @@ This division of labor respects the strengths of each ecosystem while keeping BC
 
 ---
 
-## 15.5 Summary
+### 15.4.1 PyTorch-Oriented Workflow
+
+In a typical PyTorch setup:
+
+1. Rust/OctaIndex3D code:
+   - Builds containers from raw data.
+   - Exports Arrow arrays or flat buffers of features and identifiers.
+2. A thin binding layer:
+   - Converts Arrow arrays or buffers into `torch.Tensor` objects.
+   - Handles device placement (CPU/GPU).
+3. PyTorch models:
+   - Consume tensors as usual.
+   - Treat identifiers either as:
+     - Implicit (ordering in tensors encodes position).
+     - Explicit (separate tensor of indices or lattice coordinates).
+
+This keeps:
+
+- Heavy numeric work (neighbor queries, aggregation) in Rust.
+- Model experimentation and training loops in Python.
+
+### 15.4.2 Serving and Online Inference
+
+For online inference (production serving):
+
+- Rust-based services using OctaIndex3D:
+  - Maintain live containers keyed by BCC indices.
+  - Extract features for the current request (e.g., around a vehicle or region).
+- A model runtime:
+  - Receives feature tensors over FFI or RPC.
+  - Produces predictions (e.g., occupancy probabilities, trajectories).
+
+Because both training and serving use the same indexing and feature extraction logic:
+
+- Training/serving skew is reduced.
+- Debugging mispredictions is easier (you can inspect the exact BCC cells used).
+
+---
+
+## 15.5 Data Pipelines and Training
+
+Machine learning projects succeed or fail on their **data pipelines** at least as much as on model architectures. OctaIndex3D supports robust pipelines by:
+
+- Providing a stable spatial index across experiments.
+- Making it cheap to recompute features or add new ones.
+
+### 15.5.1 Offline Training Pipelines
+
+An offline pipeline might:
+
+1. Periodically run feature extraction jobs over large BCC containers.
+2. Export features and labels as:
+   - Parquet files partitioned by time, region, or LOD.
+   - Arrow streams for direct ingestion by training clusters.
+3. Use distributed training frameworks (PyTorch DDP, Horovod, etc.) to:
+   - Read partitions in parallel.
+   - Train models on shared schemas.
+
+Because identifiers are unchanged across runs:
+
+- You can add new labels or features without reindexing.
+- Experiments remain comparable even as feature sets evolve.
+
+### 15.5.2 Online Learning and Feedback
+
+Some systems incorporate:
+
+- Online learning.
+- Active learning and human-in-the-loop annotation.
+
+OctaIndex3D helps by:
+
+- Allowing you to log:
+   - The identifiers of cells involved in each prediction.
+   - The features used.
+   - The model outputs and eventual outcomes (labels).
+- Providing an easy path to:
+   - Pull those logged identifiers.
+   - Reconstruct their feature vectors from historical containers.
+
+This supports:
+
+- Targeted retraining on difficult regions or edge cases.
+- Spatial analyses of where models perform poorly.
+
+## 15.6 Summary
 
 In this chapter, we saw how OctaIndex3D connects with machine learning:
 
@@ -150,5 +367,6 @@ In this chapter, we saw how OctaIndex3D connects with machine learning:
 - **Point cloud processing** uses BCC binning for feature extraction.
 - **3D object detection and trajectory prediction** benefit from multi-scale BCC representations.
 - Integration with **ML frameworks** leverages FFI, Arrow, and tensor exports.
+- Robust **data pipelines and training workflows** build on stable BCC identifiers and containers.
 
 The final chapter looks ahead to future research directions and potential evolutions of the OctaIndex3D ecosystem.
