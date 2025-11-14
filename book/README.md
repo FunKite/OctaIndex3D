@@ -282,7 +282,7 @@ Found an error? Have a suggestion?
 2. **Suggestions**: Open a discussion or email
 3. **Corrections**: Submit a pull request
 
-Errata log: [book/ERRATA.md](ERRATA.md) (when created)
+Errata log: [book/ERRATA.md](ERRATA.md)
 
 ---
 

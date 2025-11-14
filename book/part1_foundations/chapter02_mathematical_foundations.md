@@ -70,7 +70,7 @@ $$
 
 This volume represents the "density" of the lattice—how many lattice points per unit volume.
 
-An easy way to build intuition:
+An easy way to build intuition—
 
 - In 1D, if points are spaced $h$ units apart, each point “owns” an interval of length $h$.
 - In 2D, if points lie on a square grid with spacing $h$, each point “owns” a square of area $h^2$.

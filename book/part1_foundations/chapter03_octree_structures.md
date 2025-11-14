@@ -69,12 +69,13 @@ impl OctreeNode {
             child_points[octant].push(point);
         }
 
-        let children = child_points.into_iter()
+        let children: [OctreeNode; 8] = child_points
+            .into_iter()
             .zip(octants.iter())
             .map(|(pts, &bbox)| Self::build(pts, bbox, max_points))
             .collect::<Vec<_>>()
             .try_into()
-            .unwrap();
+            .expect("exactly 8 octants from subdivide()");
 
         Self {
             bounds,

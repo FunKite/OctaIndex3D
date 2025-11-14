@@ -6,6 +6,7 @@
 - Copyright
 - Dedication
 - Preface
+- Quick Start Guide
 - Acknowledgments
 - Table of Contents
 - List of Figures
@@ -249,6 +250,27 @@ E.2 Hierarchical Aggregation
 E.3 Streaming Data Processing
 E.4 Pathfinding Implementation
 E.5 GIS Integration
+
+### Appendix F: Migration Guide
+F.1 When a Migration Is Worth It
+F.2 Mapping Cubic Grids to BCC Coordinates
+F.3 Octree to BCC‑Octree Migration
+
+### Appendix G: Performance Tuning Cookbook
+G.1 Choosing CPU Features
+G.2 Memory vs. Speed Trade‑offs
+G.3 Profiling Checklist
+
+### Appendix H: Integration Examples
+H.1 Rust Ecosystem Integration
+H.2 Geospatial Tools
+H.3 Game Engines and Simulation Frameworks
+
+### Glossary
+Key Terms and Acronyms
+
+### Errata
+Known Issues and Corrections
 
 ---
 

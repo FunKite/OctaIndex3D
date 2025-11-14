@@ -129,4 +129,4 @@ The code is open-source. The mathematics is public domain. The ideas are yours t
 ---
 
 *Michael A. McLarney*
-*November 2025*
+*November 14, 2025*

@@ -309,7 +309,7 @@ The barrier to trying new approaches is much lower. An open-source BCC library c
 **5. Application Demands**
 Autonomous vehicles need real-time 3D path planning with minimal directional bias. VR needs low-latency spatial queries. Scientific simulations push toward exascale. The demand for better spatial indexing is stronger than ever.
 
-**The time is right for BCC lattices to finally achieve their potential.**
+**In short, BCC lattices are now a practical, compelling choice.**
 
 ---
 
