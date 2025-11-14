@@ -18,6 +18,7 @@ exclude = [
     "TIER1_OPTIMIZATIONS.md",
     "docs/",
     ".github/workflows/internal/*",
+    "book/",
 ]
 
 [[bin]]
