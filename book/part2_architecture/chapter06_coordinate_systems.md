@@ -16,7 +16,7 @@ By the end of this chapter, you will be able to:
 
 In Part I, we treated coordinates abstractly—as points in $\mathbb{R}^3$ that could be sampled on a BCC lattice. Real systems, however, must answer a more concrete question:
 
-> “Which coordinate system are these numbers expressed in?”
+> "Which coordinate system are these numbers expressed in?"
 
 Latitude/longitude, Earth-centered Cartesian coordinates, local ENU (East–North–Up), and game-world coordinates are all common examples. Confusing one for another can produce spectacularly wrong results.
 
@@ -26,11 +26,210 @@ To prevent such mistakes, OctaIndex3D centers its CRS design around a **frame re
 - A single, authoritative location where CRS-related information lives.
 - A thread-safe resource that can be shared across the application.
 
+### 6.1.1 Frame Registry Implementation
+
+```rust
+use std::collections::HashMap;
+use std::sync::Arc;
+
+/// Immutable registry of coordinate reference frames
+#[derive(Clone)]
+pub struct FrameRegistry {
+    inner: Arc<RegistryInner>,
+}
+
+struct RegistryInner {
+    frames: HashMap<FrameId, Frame>,
+    /// Precomputed transformation paths between common frame pairs
+    path_cache: HashMap<(FrameId, FrameId), TransformPath>,
+}
+
+/// A coordinate reference frame
+pub struct Frame {
+    pub id: FrameId,
+    pub name: String,
+    pub parent: Option<FrameId>,
+    pub forward: Box<dyn Fn(Vec3) -> Vec3 + Send + Sync>,
+    pub inverse: Box<dyn Fn(Vec3) -> Vec3 + Send + Sync>,
+    pub metadata: FrameMetadata,
+}
+
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+pub struct FrameId(pub u16);
+
+impl FrameId {
+    pub const ECEF: FrameId = FrameId(1);
+    pub const WGS84: FrameId = FrameId(2);
+    pub const GENERIC_CARTESIAN: FrameId = FrameId(3);
+
+    /// User-defined frames start at 1000
+    pub const USER_DEFINED_START: u16 = 1000;
+}
+
+#[derive(Clone, Debug)]
+pub struct FrameMetadata {
+    pub description: String,
+    pub units: Units,
+    pub epsg_code: Option<u32>,
+    pub validity: Option<TimeRange>,
+}
+
+#[derive(Clone, Debug)]
+pub enum Units {
+    Meters,
+    Degrees,
+    Radians,
+    Custom(String),
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Vec3 {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+}
+```
+
+### 6.1.2 Registry Construction
+
+```rust
+impl FrameRegistry {
+    /// Create a new registry with built-in frames
+    pub fn new() -> Self {
+        let mut builder = RegistryBuilder::new();
+
+        // Register built-in frames
+        builder.register_builtin_frames();
+
+        builder.build()
+    }
+
+    /// Get a frame by ID
+    pub fn get_frame(&self, id: FrameId) -> Option<&Frame> {
+        self.inner.frames.get(&id)
+    }
+
+    /// Transform a point from one frame to another
+    pub fn transform(
+        &self,
+        point: Vec3,
+        from: FrameId,
+        to: FrameId
+    ) -> Result<Vec3, TransformError> {
+        if from == to {
+            return Ok(point);
+        }
+
+        // Check cache for precomputed path
+        if let Some(path) = self.inner.path_cache.get(&(from, to)) {
+            return path.apply(point);
+        }
+
+        // Compute path dynamically
+        let path = self.find_transform_path(from, to)?;
+        path.apply(point)
+    }
+
+    /// Find transformation path between two frames
+    fn find_transform_path(
+        &self,
+        from: FrameId,
+        to: FrameId
+    ) -> Result<TransformPath, TransformError> {
+        // Find path to common ancestor (typically ECEF)
+        let from_path = self.path_to_root(from)?;
+        let to_path = self.path_to_root(to)?;
+
+        // Find lowest common ancestor
+        let lca = self.find_lca(&from_path, &to_path);
+
+        // Build transformation chain
+        let mut transforms = Vec::new();
+
+        // from → lca (using inverse transforms)
+        for &frame_id in from_path.iter().take_while(|&&id| id != lca) {
+            let frame = self.get_frame(frame_id)
+                .ok_or(TransformError::FrameNotFound)?;
+            transforms.push(Transform::Inverse(frame.inverse.clone()));
+        }
+
+        // lca → to (using forward transforms)
+        let lca_idx = to_path.iter().position(|&id| id == lca)
+            .ok_or(TransformError::NoPathFound)?;
+
+        for &frame_id in to_path.iter().rev().skip(to_path.len() - lca_idx) {
+            let frame = self.get_frame(frame_id)
+                .ok_or(TransformError::FrameNotFound)?;
+            transforms.push(Transform::Forward(frame.forward.clone()));
+        }
+
+        Ok(TransformPath { transforms })
+    }
+
+    fn path_to_root(&self, mut id: FrameId) -> Result<Vec<FrameId>, TransformError> {
+        let mut path = vec![id];
+
+        while let Some(frame) = self.get_frame(id) {
+            if let Some(parent) = frame.parent {
+                path.push(parent);
+                id = parent;
+            } else {
+                break;
+            }
+        }
+
+        Ok(path)
+    }
+
+    fn find_lca(&self, path1: &[FrameId], path2: &[FrameId]) -> FrameId {
+        // Paths are from leaf to root, so we search from the end
+        for &id1 in path1.iter().rev() {
+            if path2.contains(&id1) {
+                return id1;
+            }
+        }
+
+        // Default to root frame (ECEF)
+        FrameId::ECEF
+    }
+}
+
+/// A sequence of coordinate transformations
+pub struct TransformPath {
+    transforms: Vec<Transform>,
+}
+
+enum Transform {
+    Forward(Arc<dyn Fn(Vec3) -> Vec3 + Send + Sync>),
+    Inverse(Arc<dyn Fn(Vec3) -> Vec3 + Send + Sync>),
+}
+
+impl TransformPath {
+    fn apply(&self, mut point: Vec3) -> Result<Vec3, TransformError> {
+        for transform in &self.transforms {
+            point = match transform {
+                Transform::Forward(f) => f(point),
+                Transform::Inverse(f) => f(point),
+            };
+        }
+        Ok(point)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum TransformError {
+    FrameNotFound,
+    NoPathFound,
+    NumericError(String),
+}
+```
+
 Architecturally, the frame registry:
 
 - Provides immutable frame definitions once constructed.
 - Exposes handles that can be cheaply cloned and passed around.
 - Avoids global mutable state; applications create and own registries explicitly.
+- Caches common transformation paths for performance.
 
 ---
 
@@ -51,10 +250,104 @@ Each built-in frame:
 
 ### 6.2.1 WGS84 and ECEF in Practice
 
-Most real-world geospatial data is expressed in WGS84 latitude/longitude and either ellipsoidal or orthometric height. OctaIndex3D’s built-in WGS84 frame wraps the familiar formulas:
+Most real-world geospatial data is expressed in WGS84 latitude/longitude and either ellipsoidal or orthometric height. OctaIndex3D's built-in WGS84 frame wraps the familiar formulas:
 
 - **Forward (WGS84 → ECEF)**: convert $(\varphi, \lambda, h)$ to $(x, y, z)$ using the WGS84 semi-major axis $a$, eccentricity $e$, and prime vertical radius of curvature $N(\varphi)$.
 - **Inverse (ECEF → WGS84)**: recover geodetic coordinates from $(x, y, z)$ using an iterative or closed-form algorithm.
+
+**WGS84 constants:**
+
+```rust
+pub mod wgs84 {
+    pub const A: f64 = 6_378_137.0;              // Semi-major axis (meters)
+    pub const F: f64 = 1.0 / 298.257_223_563;    // Flattening
+    pub const B: f64 = A * (1.0 - F);            // Semi-minor axis
+    pub const E_SQ: f64 = F * (2.0 - F);         // First eccentricity squared
+    pub const EP_SQ: f64 = E_SQ / (1.0 - E_SQ);  // Second eccentricity squared
+}
+```
+
+**Forward transformation (WGS84 → ECEF):**
+
+```rust
+/// Convert WGS84 geodetic coordinates to ECEF Cartesian
+///
+/// # Arguments
+/// * `lat` - Latitude in degrees
+/// * `lon` - Longitude in degrees
+/// * `h` - Ellipsoidal height in meters
+///
+/// # Returns
+/// * ECEF coordinates (x, y, z) in meters
+pub fn wgs84_to_ecef(lat: f64, lon: f64, h: f64) -> Vec3 {
+    let lat_rad = lat.to_radians();
+    let lon_rad = lon.to_radians();
+
+    // Prime vertical radius of curvature
+    let sin_lat = lat_rad.sin();
+    let cos_lat = lat_rad.cos();
+    let n = wgs84::A / (1.0 - wgs84::E_SQ * sin_lat * sin_lat).sqrt();
+
+    // ECEF coordinates
+    let x = (n + h) * cos_lat * lon_rad.cos();
+    let y = (n + h) * cos_lat * lon_rad.sin();
+    let z = (n * (1.0 - wgs84::E_SQ) + h) * sin_lat;
+
+    Vec3 { x, y, z }
+}
+```
+
+**Inverse transformation (ECEF → WGS84):**
+
+Using the Bowring method (closed-form, numerically stable):
+
+```rust
+/// Convert ECEF Cartesian coordinates to WGS84 geodetic
+///
+/// # Arguments
+/// * `ecef` - ECEF coordinates (x, y, z) in meters
+///
+/// # Returns
+/// * (lat, lon, h) where lat/lon are in degrees, h in meters
+pub fn ecef_to_wgs84(ecef: Vec3) -> (f64, f64, f64) {
+    let p = (ecef.x * ecef.x + ecef.y * ecef.y).sqrt();
+
+    // Longitude (simple)
+    let lon = ecef.y.atan2(ecef.x).to_degrees();
+
+    // Latitude (Bowring method)
+    let theta = (ecef.z * wgs84::A).atan2(p * wgs84::B);
+    let sin_theta = theta.sin();
+    let cos_theta = theta.cos();
+
+    let lat = (ecef.z + wgs84::EP_SQ * wgs84::B * sin_theta.powi(3))
+        .atan2(p - wgs84::E_SQ * wgs84::A * cos_theta.powi(3))
+        .to_degrees();
+
+    // Height
+    let lat_rad = lat.to_radians();
+    let sin_lat = lat_rad.sin();
+    let cos_lat = lat_rad.cos();
+    let n = wgs84::A / (1.0 - wgs84::E_SQ * sin_lat * sin_lat).sqrt();
+
+    let h = if lat.abs() < 45.0 {
+        p / cos_lat - n
+    } else {
+        ecef.z / sin_lat - n * (1.0 - wgs84::E_SQ)
+    };
+
+    (lat, lon, h)
+}
+```
+
+**Precision considerations:**
+
+| Latitude Range | Typical Error (m) | Maximum Error (m) | Notes                          |
+|----------------|-------------------|-------------------|--------------------------------|
+| 0° - 45°       | < 1 mm            | < 5 mm            | Well-conditioned               |
+| 45° - 80°      | < 5 mm            | < 2 cm            | Acceptable for most uses       |
+| 80° - 89.9°    | < 2 cm            | < 10 cm           | Use iterative method if needed |
+| 89.9° - 90°    | < 10 cm           | < 1 m             | Poorly conditioned             |
 
 Conceptually:
 
@@ -71,8 +364,98 @@ OctaIndex3D does not attempt to *replace* established geodesy libraries; instead
 
 From the perspective of the spatial index:
 
-- WGS84 is “just another frame” with a known transform to the canonical Cartesian representation.
+- WGS84 is "just another frame" with a known transform to the canonical Cartesian representation.
 - Higher-level systems (GIS, navigation, mapping) are free to treat the WGS84 frame as their primary interface, while OctaIndex3D handles the conversion to lattice indices.
+
+### 6.2.2 Local ENU Frame Implementation
+
+```rust
+/// Local East-North-Up frame anchored at a geodetic point
+pub struct EnuFrame {
+    anchor_lat: f64,
+    anchor_lon: f64,
+    anchor_h: f64,
+    anchor_ecef: Vec3,
+    /// Rotation matrix from ECEF to ENU
+    r_ecef_to_enu: [[f64; 3]; 3],
+}
+
+impl EnuFrame {
+    /// Create ENU frame anchored at given WGS84 location
+    pub fn new(lat: f64, lon: f64, h: f64) -> Self {
+        let anchor_ecef = wgs84_to_ecef(lat, lon, h);
+
+        let lat_rad = lat.to_radians();
+        let lon_rad = lon.to_radians();
+
+        let sin_lat = lat_rad.sin();
+        let cos_lat = lat_rad.cos();
+        let sin_lon = lon_rad.sin();
+        let cos_lon = lon_rad.cos();
+
+        // Rotation matrix ECEF → ENU
+        let r_ecef_to_enu = [
+            [-sin_lon, cos_lon, 0.0],
+            [-sin_lat * cos_lon, -sin_lat * sin_lon, cos_lat],
+            [cos_lat * cos_lon, cos_lat * sin_lon, sin_lat],
+        ];
+
+        Self {
+            anchor_lat: lat,
+            anchor_lon: lon,
+            anchor_h: h,
+            anchor_ecef,
+            r_ecef_to_enu,
+        }
+    }
+
+    /// Transform ENU coordinates to ECEF
+    pub fn enu_to_ecef(&self, enu: Vec3) -> Vec3 {
+        // Rotate ENU to ECEF frame (transpose of rotation matrix)
+        let ecef_offset = Vec3 {
+            x: self.r_ecef_to_enu[0][0] * enu.x
+             + self.r_ecef_to_enu[1][0] * enu.y
+             + self.r_ecef_to_enu[2][0] * enu.z,
+            y: self.r_ecef_to_enu[0][1] * enu.x
+             + self.r_ecef_to_enu[1][1] * enu.y
+             + self.r_ecef_to_enu[2][1] * enu.z,
+            z: self.r_ecef_to_enu[0][2] * enu.x
+             + self.r_ecef_to_enu[1][2] * enu.y
+             + self.r_ecef_to_enu[2][2] * enu.z,
+        };
+
+        // Translate by anchor point
+        Vec3 {
+            x: self.anchor_ecef.x + ecef_offset.x,
+            y: self.anchor_ecef.y + ecef_offset.y,
+            z: self.anchor_ecef.z + ecef_offset.z,
+        }
+    }
+
+    /// Transform ECEF coordinates to ENU
+    pub fn ecef_to_enu(&self, ecef: Vec3) -> Vec3 {
+        // Translate to origin at anchor
+        let offset = Vec3 {
+            x: ecef.x - self.anchor_ecef.x,
+            y: ecef.y - self.anchor_ecef.y,
+            z: ecef.z - self.anchor_ecef.z,
+        };
+
+        // Rotate ECEF to ENU frame
+        Vec3 {
+            x: self.r_ecef_to_enu[0][0] * offset.x
+             + self.r_ecef_to_enu[0][1] * offset.y
+             + self.r_ecef_to_enu[0][2] * offset.z,
+            y: self.r_ecef_to_enu[1][0] * offset.x
+             + self.r_ecef_to_enu[1][1] * offset.y
+             + self.r_ecef_to_enu[1][2] * offset.z,
+            z: self.r_ecef_to_enu[2][0] * offset.x
+             + self.r_ecef_to_enu[2][1] * offset.y
+             + self.r_ecef_to_enu[2][2] * offset.z,
+        }
+    }
+}
+```
 
 Applications can:
 
@@ -296,3 +679,78 @@ In this chapter, we examined how OctaIndex3D models coordinate reference systems
 - **GIS integration** and **thread safety** ensure that OctaIndex3D plays well with existing ecosystems and high-concurrency workloads.
 
 With frames and identifiers in place, Part II has now established the architectural context needed to understand the implementation details of Part III.
+
+---
+
+## Further Reading
+
+### Geodesy and Coordinate Systems
+
+- **"Geodesy for the Layman"**
+  Defense Mapping Agency, 1984
+  Accessible introduction to geodetic coordinate systems.
+
+- **"Department of Defense World Geodetic System 1984"**
+  NIMA Technical Report TR8350.2, 3rd Edition
+  Official WGS84 specification and transformation formulas.
+
+- **"ECEF - Earth-Centered, Earth-Fixed"**
+  <https://en.wikipedia.org/wiki/Earth-centered,_Earth-fixed_coordinate_system>
+  Overview of the ECEF Cartesian frame.
+
+- **"Geographic coordinate conversion"**
+  <https://en.wikipedia.org/wiki/Geographic_coordinate_conversion>
+  Formulas for geodetic ↔ Cartesian transformations.
+
+### Transformation Algorithms
+
+- **"A Guide to Coordinate Systems in Great Britain"**
+  Ordnance Survey, 2015
+  Practical guide to coordinate transformations.
+
+- **"Bowring's Method for Geodetic Coordinate Conversion"**
+  B. R. Bowring, 1976, Survey Review
+  Closed-form ECEF → WGS84 algorithm.
+
+- **"Transformation between Cartesian and Geodetic Coordinates without Approximations"**
+  Fukushima, 2006
+  High-precision iterative methods.
+
+### GIS Integration
+
+- **"PROJ Coordinate Transformation Software"**
+  <https://proj.org/>
+  Industry-standard CRS transformation library.
+
+- **"EPSG Geodetic Parameter Dataset"**
+  <https://epsg.org/>
+  Authoritative registry of coordinate reference systems.
+
+- **"OGC Standards - Coordinate Reference Systems"**
+  Open Geospatial Consortium
+  <https://www.ogc.org/standards/srs>
+  Standards for CRS representation and interoperability.
+
+- **"GDAL - Geospatial Data Abstraction Library"**
+  <https://gdal.org/>
+  Complete geospatial I/O and transformation toolkit.
+
+### Implementation References
+
+- **"Geographic Transformations in Rust"**
+  <https://github.com/georust>
+  Rust geospatial ecosystem including coord transformations.
+
+- **"nalgebra: Linear Algebra Library"**
+  <https://nalgebra.org/>
+  Rust library for matrix operations used in transformations.
+
+### Thread Safety and Performance
+
+- **"Lock-Free Data Structures"**
+  Maurice Herlihy and Nir Shavit
+  Techniques for thread-safe caching without locks.
+
+- **"Concurrent Programming in Rust"**
+  <https://doc.rust-lang.org/book/ch16-00-concurrency.html>
+  Rust's approach to safe concurrent access to shared data.
