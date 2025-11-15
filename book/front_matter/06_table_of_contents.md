@@ -274,6 +274,14 @@ Known Issues and Corrections
 
 ---
 
-## Bibliography
+## Resources and Further Reading
+Essential Documentation
+Practical Guides and Tutorials
+Reference Implementations
+Tools and Utilities
+Books and In-Depth Resources
+Academic Papers (Selected)
+Community and Support
+Standards and Specifications
 
 ## Index
