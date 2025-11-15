@@ -486,7 +486,581 @@ All of these behaviors can be implemented as policies over:
 
 The underlying frame and container structure remains unchanged, reducing complexity in the higher-level autonomy stack.
 
-## 10.6 Summary
+## 10.6 Performance Tuning for Robotics
+
+Achieving real-time performance in robotics requires careful tuning of data structures, algorithms, and system parameters. OctaIndex3D provides several tuning knobs specific to robotic applications.
+
+### 10.6.1 Memory Footprint Optimization
+
+Memory is often constrained on embedded robotic platforms. Key strategies include:
+
+**LOD-Based Memory Budgets**
+
+```rust
+struct MemoryBudget {
+    coarse_lod: u8,
+    fine_lod: u8,
+    coarse_radius_m: f32,
+    fine_radius_m: f32,
+}
+
+impl MemoryBudget {
+    /// Estimate memory usage for this budget configuration
+    fn estimate_bytes(&self) -> usize {
+        let coarse_cells = self.sphere_cell_count(self.coarse_lod, self.coarse_radius_m);
+        let fine_cells = self.sphere_cell_count(self.fine_lod, self.fine_radius_m);
+
+        // Assuming LogOdds (4 bytes) per cell
+        (coarse_cells + fine_cells) * 4
+    }
+
+    fn sphere_cell_count(&self, lod: u8, radius_m: f32) -> usize {
+        // Approximate number of BCC cells in a sphere
+        let cell_size = self.cell_size_at_lod(lod);
+        let volume = (4.0 / 3.0) * std::f32::consts::PI * radius_m.powi(3);
+        (volume / cell_size.powi(3)) as usize
+    }
+
+    fn cell_size_at_lod(&self, lod: u8) -> f32 {
+        // Example: 10cm at LOD 0, halving each level
+        0.1 * (0.5_f32).powi(lod as i32)
+    }
+}
+```
+
+**Sparse vs Dense Storage Trade-offs**
+
+For mostly-empty spaces (warehouses, open fields):
+- Use sparse containers (`HashMap` or `BTreeMap`)
+- Only allocate cells that have been observed
+
+For dense environments (urban canyons, forests):
+- Consider dense arrays for local regions around the robot
+- Use bit-packing for binary occupancy at fine LODs
+
+### 10.6.2 Update Rate Tuning
+
+Different components can run at different rates:
+
+```rust
+struct UpdateSchedule {
+    mapping_hz: f32,
+    global_plan_hz: f32,
+    local_plan_hz: f32,
+    control_hz: f32,
+}
+
+impl Default for UpdateSchedule {
+    fn default() -> Self {
+        Self {
+            mapping_hz: 10.0,      // Update occupancy grid at 10 Hz
+            global_plan_hz: 1.0,    // Replan global route at 1 Hz
+            local_plan_hz: 10.0,    // Update local path at 10 Hz
+            control_hz: 50.0,       // Send control commands at 50 Hz
+        }
+    }
+}
+```
+
+**Adaptive Update Strategies**
+
+```rust
+fn adaptive_mapping_rate(robot_velocity: f32, obstacle_density: f32) -> f32 {
+    let base_rate = 10.0;
+
+    // Increase rate when moving fast or in dense environments
+    let velocity_factor = (robot_velocity / 2.0).clamp(0.5, 2.0);
+    let density_factor = (obstacle_density * 2.0).clamp(0.5, 2.0);
+
+    base_rate * velocity_factor * density_factor
+}
+```
+
+### 10.6.3 Sensor-Specific Optimizations
+
+Different sensors have different characteristics that affect integration:
+
+**LiDAR Integration**
+
+```rust
+struct LidarConfig {
+    max_range_m: f32,
+    angular_resolution_deg: f32,
+    points_per_scan: usize,
+}
+
+fn integrate_lidar_scan(
+    grid: &mut OccupancyGrid,
+    config: &LidarConfig,
+    pose: Pose3,
+    ranges: &[f32],
+) {
+    // Batch ray updates for cache efficiency
+    const BATCH_SIZE: usize = 64;
+
+    for batch in ranges.chunks(BATCH_SIZE) {
+        let mut hits = Vec::with_capacity(BATCH_SIZE);
+        let mut traversed = Vec::with_capacity(BATCH_SIZE * 10);
+
+        // Collect all ray updates in batch
+        for (i, &range) in batch.iter().enumerate() {
+            if range > config.max_range_m {
+                continue;
+            }
+
+            let angle = (i as f32) * config.angular_resolution_deg.to_radians();
+            let ray = compute_ray(pose, angle, range);
+
+            traversed.extend(ray.traversed_cells);
+            if let Some(hit) = ray.hit_cell {
+                hits.push(hit);
+            }
+        }
+
+        // Apply all updates together
+        grid.batch_integrate_misses(&traversed);
+        grid.batch_integrate_hits(&hits);
+    }
+}
+```
+
+**RGB-D Camera Integration**
+
+```rust
+struct RgbdConfig {
+    width: u32,
+    height: u32,
+    fx: f32,  // Focal length x
+    fy: f32,  // Focal length y
+    cx: f32,  // Principal point x
+    cy: f32,  // Principal point y
+    max_depth_m: f32,
+}
+
+fn integrate_rgbd_frame(
+    grid: &mut OccupancyGrid,
+    config: &RgbdConfig,
+    pose: Pose3,
+    depth_image: &[f32],  // width × height depth values
+) {
+    // Downsample for performance
+    const SKIP: u32 = 4;
+
+    for y in (0..config.height).step_by(SKIP as usize) {
+        for x in (0..config.width).step_by(SKIP as usize) {
+            let idx = (y * config.width + x) as usize;
+            let depth = depth_image[idx];
+
+            if depth <= 0.0 || depth > config.max_depth_m {
+                continue;
+            }
+
+            // Back-project pixel to 3D point in camera frame
+            let x_cam = ((x as f32) - config.cx) * depth / config.fx;
+            let y_cam = ((y as f32) - config.cy) * depth / config.fy;
+            let point_cam = Vec3::new(x_cam, y_cam, depth);
+
+            // Transform to world frame and integrate
+            let point_world = pose.transform_point(point_cam);
+            let index = grid.frame.world_to_index(point_world, grid.lod);
+            grid.integrate_hit(index);
+        }
+    }
+}
+```
+
+## 10.7 Safety and Reliability Considerations
+
+Robotic systems operating in the real world must handle failures gracefully and provide safety guarantees.
+
+### 10.7.1 Map Consistency Checks
+
+Detect and handle corrupted or inconsistent maps:
+
+```rust
+struct MapValidator {
+    max_occupancy_change: f32,
+    consistency_threshold: f32,
+}
+
+impl MapValidator {
+    fn validate_update(
+        &self,
+        old_grid: &OccupancyGrid,
+        new_grid: &OccupancyGrid,
+    ) -> Result<(), MapError> {
+        // Check for unrealistic changes
+        for (id, new_val) in new_grid.cells.iter() {
+            if let Some(old_val) = old_grid.cells.get(id) {
+                let change = (new_val.to_probability() - old_val.to_probability()).abs();
+                if change > self.max_occupancy_change {
+                    return Err(MapError::ExcessiveChange {
+                        index: *id,
+                        change
+                    });
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+```
+
+### 10.7.2 Collision Safety Margins
+
+Maintain conservative safety margins for collision checking:
+
+```rust
+struct SafetyMargins {
+    robot_radius_m: f32,
+    safety_inflation_m: f32,
+    dynamic_margin_m: f32,
+}
+
+impl SafetyMargins {
+    fn effective_radius(&self, velocity: f32) -> f32 {
+        // Increase margin with velocity
+        let velocity_margin = (velocity / 5.0).min(0.5);  // Cap at 0.5m
+        self.robot_radius_m + self.safety_inflation_m +
+            self.dynamic_margin_m + velocity_margin
+    }
+
+    fn is_safe_cell(
+        &self,
+        grid: &OccupancyGrid,
+        index: Index64,
+        velocity: f32,
+    ) -> bool {
+        let radius = self.effective_radius(velocity);
+        let lod = grid.lod;
+
+        // Check cell and its neighbors
+        let neighbors = index.get_neighbors_in_radius(radius, lod);
+        for neighbor in neighbors {
+            if let Some(prob) = grid.cells.get(&neighbor) {
+                if prob.to_probability() > 0.5 {
+                    return false;  // Occupied
+                }
+            }
+        }
+
+        true
+    }
+}
+```
+
+### 10.7.3 Graceful Degradation Policies
+
+Define fallback behaviors when systems are overloaded:
+
+```rust
+enum DegradationLevel {
+    Normal,
+    ReducedMapping,
+    LocalOnly,
+    Emergency,
+}
+
+struct DegradationPolicy {
+    cpu_threshold_pct: f32,
+    memory_threshold_pct: f32,
+}
+
+impl DegradationPolicy {
+    fn assess_level(
+        &self,
+        cpu_usage: f32,
+        memory_usage: f32,
+    ) -> DegradationLevel {
+        if cpu_usage > 95.0 || memory_usage > 95.0 {
+            DegradationLevel::Emergency
+        } else if cpu_usage > 85.0 || memory_usage > 85.0 {
+            DegradationLevel::LocalOnly
+        } else if cpu_usage > 75.0 || memory_usage > 75.0 {
+            DegradationLevel::ReducedMapping
+        } else {
+            DegradationLevel::Normal
+        }
+    }
+
+    fn apply_degradation(
+        &self,
+        level: DegradationLevel,
+        config: &mut SystemConfig,
+    ) {
+        match level {
+            DegradationLevel::Normal => {
+                // Full functionality
+            },
+            DegradationLevel::ReducedMapping => {
+                // Reduce mapping rate and radius
+                config.mapping_hz /= 2.0;
+                config.fine_radius_m /= 2.0;
+            },
+            DegradationLevel::LocalOnly => {
+                // Disable global planning, focus on local avoidance
+                config.global_plan_hz = 0.0;
+                config.coarse_lod_enabled = false;
+            },
+            DegradationLevel::Emergency => {
+                // Stop and wait for recovery
+                config.stop_and_hover = true;
+            },
+        }
+    }
+}
+```
+
+## 10.8 Integration with Existing Frameworks
+
+OctaIndex3D can integrate with popular robotics middleware and frameworks.
+
+### 10.8.1 ROS Integration Pattern
+
+For Robot Operating System (ROS/ROS2) integration:
+
+```rust
+// Pseudocode for ROS2 integration
+struct OctaIndexNode {
+    grid: OccupancyGrid,
+    frame_registry: FrameRegistry,
+
+    // ROS subscriptions
+    pointcloud_sub: Subscriber<PointCloud2>,
+    pose_sub: Subscriber<PoseStamped>,
+
+    // ROS publishers
+    map_pub: Publisher<OccupancyGrid>,
+    path_pub: Publisher<Path>,
+}
+
+impl OctaIndexNode {
+    fn pointcloud_callback(&mut self, msg: PointCloud2) {
+        // Convert ROS PointCloud2 to BCC cells
+        let pose = self.current_pose();
+        let points = parse_pointcloud2(&msg);
+
+        for point in points {
+            let world_point = self.transform_to_world(point, &msg.header.frame_id);
+            let index = self.grid.frame.world_to_index(world_point, self.grid.lod);
+            self.grid.integrate_hit(index);
+        }
+
+        // Publish updated map
+        self.publish_map();
+    }
+
+    fn publish_map(&self) {
+        // Convert BCC grid to ROS OccupancyGrid message
+        let ros_msg = self.bcc_to_ros_occupancy_grid(&self.grid);
+        self.map_pub.publish(ros_msg);
+    }
+}
+```
+
+### 10.8.2 Integration with Navigation Stacks
+
+Adapting OctaIndex3D for use with existing navigation software:
+
+```rust
+trait CostmapInterface {
+    fn get_cost(&self, x: f32, y: f32) -> u8;
+    fn get_size_x(&self) -> u32;
+    fn get_size_y(&self) -> u32;
+    fn get_resolution(&self) -> f32;
+}
+
+struct BccCostmapAdapter {
+    grid: OccupancyGrid,
+    origin: (f32, f32),
+    size: (u32, u32),
+    resolution: f32,
+}
+
+impl CostmapInterface for BccCostmapAdapter {
+    fn get_cost(&self, x: f32, y: f32) -> u8 {
+        let world_x = self.origin.0 + x;
+        let world_y = self.origin.1 + y;
+        let z = 0.0;  // Assume 2.5D for compatibility
+
+        let point = Vec3::new(world_x, world_y, z);
+        let index = self.grid.frame.world_to_index(point, self.grid.lod);
+
+        match self.grid.cells.get(&index) {
+            Some(log_odds) => {
+                let prob = log_odds.to_probability();
+                (prob * 254.0) as u8  // 0-254 cost range
+            },
+            None => 255,  // Unknown
+        }
+    }
+
+    fn get_size_x(&self) -> u32 { self.size.0 }
+    fn get_size_y(&self) -> u32 { self.size.1 }
+    fn get_resolution(&self) -> f32 { self.resolution }
+}
+```
+
+## 10.9 Troubleshooting Common Issues
+
+### 10.9.1 Poor Path Quality
+
+**Symptoms:** Paths are jagged, unnecessarily long, or exhibit grid-alignment artifacts.
+
+**Solutions:**
+
+1. **Verify heuristic admissibility:**
+   ```rust
+   // Ensure heuristic never overestimates
+   fn verify_heuristic(grid: &OccupancyGrid, start: Index64, goal: Index64) {
+       let heuristic_cost = euclidean_distance(start, goal);
+       let actual_cost = run_dijkstra(grid, start, goal);
+       assert!(heuristic_cost <= actual_cost, "Heuristic not admissible!");
+   }
+   ```
+
+2. **Check neighbor distance consistency:**
+   ```rust
+   // All 14 BCC neighbors should have similar distances
+   for neighbor in index.get_neighbors() {
+       let dist = index.distance_to(neighbor);
+       assert!((0.95..=1.05).contains(&dist), "Neighbor distance out of range");
+   }
+   ```
+
+3. **Use path smoothing post-processing:**
+   ```rust
+   fn smooth_path(raw_path: &[Index64], grid: &OccupancyGrid) -> Vec<Vec3> {
+       let mut smoothed = vec![raw_path[0].to_position()];
+
+       for window in raw_path.windows(3) {
+           // Try to shortcut between window[0] and window[2]
+           if can_connect_directly(grid, window[0], window[2]) {
+               continue;  // Skip window[1]
+           } else {
+               smoothed.push(window[1].to_position());
+           }
+       }
+
+       smoothed.push(raw_path.last().unwrap().to_position());
+       smoothed
+    }
+   ```
+
+### 10.9.2 High Latency or Missed Deadlines
+
+**Symptoms:** Planning or mapping takes longer than allocated time budget.
+
+**Solutions:**
+
+1. **Profile hot paths:**
+   ```bash
+   # Use perf or similar tools
+   perf record -g ./robot_node
+   perf report
+   ```
+
+2. **Reduce LOD or radius:**
+   ```rust
+   // Adjust based on available compute time
+   if last_planning_time > budget {
+       config.fine_radius_m *= 0.9;
+       config.fine_lod = config.fine_lod.saturating_sub(1);
+   }
+   ```
+
+3. **Enable early termination in A*:**
+   ```rust
+   fn a_star_with_timeout(
+       grid: &OccupancyGrid,
+       start: Index64,
+       goal: Index64,
+       timeout_ms: u64,
+   ) -> Option<Vec<Index64>> {
+       let start_time = Instant::now();
+
+       while let Some(current) = open_set.pop() {
+           if start_time.elapsed().as_millis() > timeout_ms as u128 {
+               return None;  // Timeout, return best-effort or previous path
+           }
+
+           // ... normal A* logic
+       }
+
+       Some(reconstruct_path(came_from, goal))
+   }
+   ```
+
+### 10.9.3 Memory Exhaustion
+
+**Symptoms:** Out-of-memory crashes or excessive swapping.
+
+**Solutions:**
+
+1. **Implement LRU eviction for distant cells:**
+   ```rust
+   struct LruOccupancyGrid {
+       cells: HashMap<Index64, LogOdds>,
+       access_times: HashMap<Index64, Instant>,
+       max_cells: usize,
+   }
+
+   impl LruOccupancyGrid {
+       fn insert(&mut self, index: Index64, value: LogOdds) {
+           if self.cells.len() >= self.max_cells {
+               self.evict_oldest();
+           }
+
+           self.cells.insert(index, value);
+           self.access_times.insert(index, Instant::now());
+       }
+
+       fn evict_oldest(&mut self) {
+           let oldest = self.access_times
+               .iter()
+               .min_by_key(|(_, &time)| time)
+               .map(|(&idx, _)| idx);
+
+           if let Some(idx) = oldest {
+               self.cells.remove(&idx);
+               self.access_times.remove(&idx);
+           }
+       }
+   }
+   ```
+
+2. **Use spatial bounds on container growth:**
+   ```rust
+   fn is_in_bounds(index: Index64, center: Vec3, max_radius: f32) -> bool {
+       let pos = index.to_position();
+       pos.distance_to(center) <= max_radius
+   }
+   ```
+
+## 10.10 Further Reading
+
+For readers interested in deepening their understanding of robotics and OctaIndex3D:
+
+**Occupancy Grids and Mapping:**
+- Moravec, H., & Elfes, A. (1985). "High resolution maps from wide angle sonar." *IEEE International Conference on Robotics and Automation*.
+- Thrun, S., Burgard, W., & Fox, D. (2005). *Probabilistic Robotics*. MIT Press.
+
+**Path Planning:**
+- LaValle, S. M. (2006). *Planning Algorithms*. Cambridge University Press.
+- Koenig, S., & Likhachev, M. (2002). "D* Lite." *AAAI/IAAI*, 476-483.
+
+**SLAM:**
+- Durrant-Whyte, H., & Bailey, T. (2006). "Simultaneous localization and mapping: Part I." *IEEE Robotics & Automation Magazine*, 13(2), 99-110.
+- Cadena, C., et al. (2016). "Past, present, and future of simultaneous localization and mapping: Toward the robust-perception age." *IEEE Transactions on Robotics*, 32(6), 1309-1332.
+
+**Real-Time Systems:**
+- Koopman, P., & Wagner, M. (2017). "Autonomous vehicle safety: An interdisciplinary challenge." *IEEE Intelligent Transportation Systems Magazine*, 9(1), 90-96.
+
+**BCC Lattices in Robotics:**
+- Yershova, A., & LaValle, S. M. (2007). "Deterministic sampling methods for spheres and SO(3)." *IEEE International Conference on Robotics and Automation*.
+
+## 10.11 Summary
 
 In this chapter, we saw how OctaIndex3D applies to robotics and autonomous systems:
 
@@ -495,6 +1069,10 @@ In this chapter, we saw how OctaIndex3D applies to robotics and autonomous syste
 - **Path planning** algorithms like A* and its relatives operate on neighbor queries with reduced directional bias.
 - **SLAM integration** uses frames to keep mapping and state estimation aligned.
 - **Real-time performance analysis** and degradation strategies help robots stay within strict timing budgets.
+- **Performance tuning** techniques optimize memory, update rates, and sensor-specific processing.
+- **Safety and reliability** considerations ensure robust operation in real-world conditions.
+- **Framework integration** patterns enable use with ROS and existing navigation stacks.
+- **Troubleshooting** guidance helps diagnose and resolve common issues.
 - A **UAV navigation case study** illustrates these ideas in a realistic setting, from mapping through planning and execution.
 
 The next chapter turns to geospatial analysis, where similar principles apply at much larger spatial scales.
