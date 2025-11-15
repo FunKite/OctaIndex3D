@@ -454,7 +454,7 @@ class BCCDataset(Dataset):
             sample = self.transform(sample)
 
         return sample
-```
+```rust
 
 ### 15.6.2 Custom Collation Function
 
@@ -520,7 +520,7 @@ def create_bcc_dataloader(
     )
 
     return dataloader
-```
+```rust
 
 ### 15.6.4 GPU Data Transfer Optimizations
 
@@ -742,7 +742,7 @@ class BCCTrainer:
 
             print(f"Epoch {epoch}: train_loss={train_metrics['train_loss']:.4f}, "
                   f"val_loss={val_metrics['val_loss']:.4f}")
-```
+```toml
 
 ### 15.7.2 Hyperparameter Tuning with Ray Tune
 
@@ -900,7 +900,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-```
+```rust
 
 ---
 
@@ -1061,7 +1061,7 @@ class BatchInferenceEngine:
         features_t = torch.tensor(features, dtype=torch.float32, device=self.device)
         predictions = self.model(features_t)
         return predictions.cpu().numpy()
-```
+```rust
 
 ### 15.8.3 Model Versioning and A/B Testing
 
@@ -1153,7 +1153,7 @@ class MixedPrecisionTrainer(BCCTrainer):
             num_batches += 1
 
         return {'train_loss': total_loss / num_batches}
-```
+```toml
 
 ### 15.9.2 Gradient Accumulation
 
@@ -1214,7 +1214,7 @@ def profile_training_step(model, sample_batch):
 
     # Export Chrome trace
     prof.export_chrome_trace('trace.json')
-```
+```python
 
 ---
 

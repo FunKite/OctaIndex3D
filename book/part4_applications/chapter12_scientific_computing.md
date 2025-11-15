@@ -245,7 +245,7 @@ fn get_sigma(_type_a: &str, _type_b: &str) -> f64 {
     // Simplified: return constant
     3.4
 }
-```
+```rust
 
 ### 12.1.3 Crystal Structure Analysis
 
@@ -710,7 +710,7 @@ impl BoundingBox {
         (0..n).map(move |i| min + i as f64 * step)
     }
 }
-```
+```rust
 
 ## 12.3 Volumetric Data Analysis
 
@@ -1031,7 +1031,7 @@ struct SpatialPartition {
     bounds: BoundingBox,
     ghost_width: f64,
 }
-```
+```rust
 
 #### Rayon for Shared-Memory Parallelism
 
@@ -1169,7 +1169,7 @@ mod gpu {
         }
     }
 }
-```
+```rust
 
 ## 12.7 Performance Optimization Techniques
 
@@ -1307,7 +1307,7 @@ unsafe fn compute_distances_simd(
 
     distances
 }
-```
+```rust
 
 ### 12.7.3 Memory Pool Allocation
 
@@ -1381,7 +1381,7 @@ impl Drop for ParticlePool {
 - Add softening parameters to prevent division by zero:
   ```rust
   let r_safe = (r2 + epsilon*epsilon).sqrt();  // epsilon = 1e-6
-  ```
+```rust
 - Clamp forces to maximum values:
   ```rust
   let force_mag = force_mag.min(max_force);
@@ -1389,7 +1389,7 @@ impl Drop for ParticlePool {
 - Use double precision for accumulation:
   ```rust
   let force_sum: f64 = forces.iter().map(|f| *f as f64).sum();
-  ```
+```rust
 
 ### 12.8.2 Performance Bottlenecks
 

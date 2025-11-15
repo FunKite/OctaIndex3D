@@ -466,7 +466,7 @@ pub fn neighbors_route64(cell: Route64) -> Vec<Route64> {
         })
         .collect()
 }
-```
+```bash
 
 The parity check in the filter is defensive—for properly constructed BCC neighbors, it should never fail.
 

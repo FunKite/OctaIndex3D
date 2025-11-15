@@ -102,7 +102,7 @@ mod tests {
         }
     }
 }
-```
+```rust
 
 This example demonstrates several best practices:
 
@@ -178,7 +178,7 @@ fn test_frame_transformation_round_trip() {
         assert!((point_back[i] - point_wgs84[i]).abs() < 1e-5);
     }
 }
-```
+```rust
 
 ---
 
@@ -289,7 +289,7 @@ proptest! {
         }
     }
 }
-```
+```rust
 
 #### Morton Code Ordering
 
@@ -354,7 +354,7 @@ proptest! {
         }
     }
 }
-```
+```rust
 
 ### 9.3.3 Shrinking and Debugging Failures
 
@@ -472,7 +472,7 @@ fn benchmark_neighbor_queries(c: &mut Criterion) {
 
 criterion_group!(benches, benchmark_encoding, benchmark_neighbor_queries);
 criterion_main!(benches);
-```
+```bash
 
 Run benchmarks with:
 
@@ -490,7 +490,7 @@ Criterion produces detailed statistical analysis, including:
 
 Criterion output looks like this:
 
-```
+```toml
 encoding/Index64::encode/5
                         time:   [12.453 ns 12.512 ns 12.578 ns]
                         change: [-2.1134% -0.8421% +0.4012%] (p = 0.19 > 0.05)
@@ -540,7 +540,7 @@ fn test_encoding_performance_threshold() {
         ns_per_op
     );
 }
-```
+```bash
 
 This approach is less rigorous than criterion but useful for catching major regressions in CI pipelines where statistical analysis would be too slow.
 
@@ -581,7 +581,7 @@ fuzz_target!(|data: &[u8]| {
         }
     }
 });
-```
+```bash
 
 Run the fuzzer:
 
@@ -623,7 +623,7 @@ fuzz_target!(|query: FuzzQuery| {
         let _ = container.range_query(idx, query.query_radius);
     }
 });
-```
+```bash
 
 ### 9.5.3 Reproducing Fuzz Failures
 
@@ -650,7 +650,7 @@ fn test_fuzz_crash_abc123() {
     let (x, y, z, lod) = idx.decode();
     assert!(lod < 21, "LOD overflow should be clamped");
 }
-```
+```rust
 
 ---
 
@@ -712,7 +712,7 @@ RUSTFLAGS="-C target-feature=-bmi2" cargo test
 
 # Test on ARM (cross-compilation or CI)
 cargo test --target aarch64-unknown-linux-gnu
-```
+```bash
 
 ---
 
@@ -858,7 +858,7 @@ Before releasing a new version:
 
    # Property tests with high iteration counts
    PROPTEST_CASES=100000 cargo test
-   ```
+```rust
 
 2. **Verify container format compatibility:**
 
@@ -909,7 +909,7 @@ Before releasing a new version:
            let _ = container.range_query(query, 10);
        }
    }
-   ```
+```bash
 
 4. **Update benchmark baselines:**
 
@@ -1106,7 +1106,7 @@ fn test_validate_all_fixtures() {
         }
     }
 }
-```
+```rust
 
 ---
 
@@ -1138,12 +1138,11 @@ fn test_validate_all_fixtures() {
 - Use `f64::EPSILON` for floating-point comparisons instead of exact equality
 - Test on multiple platforms locally using Docker or cross-compilation
 - Add platform-specific test annotations:
-
-```rust
-#[test]
-#[cfg(target_arch = "x86_64")]
-fn test_bmi2_specific() { /* ... */ }
-```
+  ```rust
+  #[test]
+  #[cfg(target_arch = "x86_64")]
+  fn test_bmi2_specific() { /* ... */ }
+  ```
 
 ### Memory Leaks in Tests
 

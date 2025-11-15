@@ -225,7 +225,7 @@ fn export_cells_to_geojson(
     }
     GeoJson::FeatureCollection(features)
 }
-```
+```rust
 
 The exact APIs will differ, but the pattern remains:
 
@@ -435,7 +435,7 @@ fn extract_europe_region(
         }
     }).collect()
 }
-```
+```rust
 
 **Computing Anomalies:**
 
@@ -604,7 +604,7 @@ impl AirQualityTwin {
             .unwrap_or_default()
     }
 }
-```
+```rust
 
 **Visualization Export:**
 
@@ -671,7 +671,7 @@ impl MmappedContainer {
         vec![]
     }
 }
-```
+```rust
 
 ### 11.6.2 Parallel Processing with Rayon
 
@@ -772,7 +772,7 @@ fn compute_summary(values: &[f32]) -> Summary {
         count,
     }
 }
-```
+```rust
 
 ## 11.7 Integration with Geospatial Tools
 
@@ -847,7 +847,7 @@ WHERE ST_Contains(
 AND timestamp > NOW() - INTERVAL '24 hours'
 ORDER BY temperature_k DESC
 LIMIT 100;
-```
+```bash
 
 ## 11.8 Further Reading
 

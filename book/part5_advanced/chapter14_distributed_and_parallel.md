@@ -524,7 +524,7 @@ impl ShardServer {
         Ok(results)
     }
 }
-```
+```rust
 
 ### 14.6.2 Google Cloud Platform Integration
 
@@ -642,7 +642,7 @@ struct PartitionMetadata {
     last_modified: chrono::DateTime<chrono::Utc>,
     access_count: u64,
 }
-```
+```rust
 
 ## 14.7 Monitoring and Observability
 
@@ -760,7 +760,7 @@ async fn traced_range_query(
     // Perform query with automatic trace propagation
     shard.handle_range_query(start, end).await
 }
-```
+```rust
 
 ### 14.7.3 Health Checks and Readiness Probes
 
@@ -814,7 +814,7 @@ fn create_health_router(shard: Arc<ShardServer>) -> Router {
       // Update routing tables
       Ok(("partition_a".to_string(), "partition_b".to_string()))
   }
-  ```
+```rust
 - Use consistent hashing with virtual nodes
 
 ### 14.8.2 Ghost Zone Synchronization Delays

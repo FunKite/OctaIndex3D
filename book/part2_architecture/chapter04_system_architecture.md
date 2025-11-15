@@ -215,7 +215,7 @@ fn main() -> Result<()> {
 
     Ok(())
 }
-```
+```rust
 
 This example is intentionally small, but it illustrates the architectural flow:
 
@@ -338,7 +338,7 @@ pub struct Indexed<F> {
     id: Index64,
     _frame: std::marker::PhantomData<F>,
 }
-```
+```rust
 
 Here, `F` is a zero-sized type representing the frame. At runtime, it costs nothing. At compile time, it ensures that:
 

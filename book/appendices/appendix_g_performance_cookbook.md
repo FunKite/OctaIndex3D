@@ -10,7 +10,7 @@ Use this cookbook when you need immediate performance improvements. For detailed
 
 ### G.1.1 Performance Problem Decision Tree
 
-```
+```text
 Is your application slow?
 │
 ├─> CPU-bound? (high CPU%, low memory bandwidth)
@@ -42,7 +42,7 @@ perf stat -e cache-references,cache-misses,L1-dcache-load-misses ./your_app
 
 # Memory bandwidth
 perf stat -e cycles,instructions,mem-loads,mem-stores ./your_app
-```
+```text
 
 **macOS (Instruments):**
 ```bash
@@ -56,7 +56,7 @@ xcrun xctrace record --template 'Allocations' --launch ./your_app
 **Cross-platform (Criterion benchmarks):**
 ```bash
 cargo bench --bench your_benchmark -- --profile-time=5
-```
+```toml
 
 ---
 
@@ -93,7 +93,7 @@ use octaindex3d::morton;
 
 // Library automatically selects best implementation at runtime
 let encoded = morton::encode(x, y, z); // Uses BMI2 if available, falls back otherwise
-```
+```toml
 
 **Feature flags (for fine-grained control):**
 ```toml
@@ -120,7 +120,7 @@ fn encode_fast(x: i32, y: i32, z: i32) -> u64 {
 fn encode_fast(x: i32, y: i32, z: i32) -> u64 {
     // Fallback implementation
 }
-```
+```rust
 
 ---
 
@@ -205,7 +205,7 @@ impl BufferPool {
         self.pool.lock().push(buffer);
     }
 }
-```
+```rust
 
 **Solution 2: Pre-allocate with capacity**
 ```rust
@@ -253,7 +253,7 @@ let all_candidates: HashSet<Index64> = ids.iter()
     .flat_map(|id| id.get_14_neighbors())
     .collect();
 let existing: Vec<_> = container.batch_lookup(&all_candidates);
-```
+```rust
 
 ### G.4.2 Range Query Optimization
 
@@ -294,7 +294,7 @@ points.sort_by_key(|(id, _)| hilbert::encode(*id));
 for (id, data) in points.iter() {
     process(id, data); // Sequential access, cache-friendly
 }
-```
+```python
 
 **Benchmark results (from Appendix C):**
 - Unsorted: 250 MB/s throughput, 45% cache miss rate
@@ -306,7 +306,7 @@ for (id, data) in points.iter() {
 
 ### G.5.1 Container Decision Tree
 
-```
+```text
 What's your access pattern?
 │
 ├─> Mostly sequential reads? → SequentialContainer
@@ -322,7 +322,7 @@ What's your access pattern?
 │   └─> Low latency critical? → Use ring buffer mode
 │
 └─> Mixed read/write? → InMemoryContainer + periodic flush to Sequential
-```
+```rust
 
 ### G.5.2 Container Performance Comparison
 
@@ -392,7 +392,7 @@ let writer = SequentialContainerWriter::builder()
     .path("data.bcc")
     .compression(CompressionCodec::Lz4)
     .build()?;
-```
+```toml
 
 ---
 
@@ -432,7 +432,7 @@ rustflags = ["-C", "target-cpu=apple-m1", "-C", "opt-level=3"]
 
 [target.aarch64-unknown-linux-gnu]
 rustflags = ["-C", "target-feature=+neon"]
-```
+```rust
 
 **Apple Silicon specific:**
 - Use Instruments for profiling (Time Profiler, Allocations)
@@ -493,7 +493,7 @@ let encoded = metal::batch_encode(&device, &coords)?; // 10-50× faster for larg
 fn shard_id(index: Index64) -> u8 {
     (index.morton_code() >> 58) as u8 // Top 6 bits = 64 shards
 }
-```
+```rust
 
 **Benefits:**
 - Spatially close points on same shard
@@ -530,7 +530,7 @@ for id in ids.iter() {
 
 // ✅ Fast - 1 round trip
 let all_data = remote_shard.batch_get(&ids).await?; // Single network call
-```
+```rust
 
 ---
 
@@ -565,7 +565,7 @@ process(coord2);
 
 // ✅ Fast - keep in most useful form
 process(coord); // Work with BccCoord directly
-```
+```rust
 
 **Anti-pattern 3: Small allocations in hot loops**
 ```rust
@@ -619,7 +619,7 @@ cargo build --release
 perf record -g ./your_app
 perf report
 # Output now shows morton::encode() is 10% (8× speedup)
-```
+```rust
 
 ---
 

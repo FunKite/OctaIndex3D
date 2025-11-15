@@ -44,7 +44,7 @@ Part I is complete and fully usable today. It contains everything you need to:
 
 ### 📋 Structure
 
-```
+```text
 book/
 ├── front_matter/
 │   ├── 01_title_page.md
@@ -68,7 +68,7 @@ book/
 ├── part4_applications/
 ├── part5_advanced/
 └── appendices/
-```
+```bash
 
 ---
 
@@ -248,7 +248,7 @@ git clone https://github.com/FunKite/OctaIndex3D
 cd OctaIndex3D
 cargo test   # Run test suite
 cargo bench  # Run benchmarks
-```
+```rust
 
 ### Documentation
 - **API Reference**: https://docs.rs/octaindex3d
@@ -302,7 +302,7 @@ If you use this book or OctaIndex3D in academic work:
   edition={First},
   url={https://github.com/FunKite/OctaIndex3D}
 }
-```
+```python
 
 ---
 

@@ -354,7 +354,7 @@ cargo bench --bench encoding
 
 # Generate HTML report
 cargo bench -- --save-baseline main
-```
+```rust
 
 ### C.10.2 Custom Benchmarks
 

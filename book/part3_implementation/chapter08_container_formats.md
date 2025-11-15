@@ -49,7 +49,7 @@ Conceptually, the file layout looks like:
 
 ```text
 [Header][Block 0][Index 0][Block 1][Index 1]... [Footer]
-```
+```rust
 
 Each data block contains:
 
@@ -114,7 +114,7 @@ struct BlockHeader {
 // - Identifier array: [num_entries × identifier_size]
 // - Payload array: [num_entries × payload_size]
 // - Padding to 64-byte alignment
-```
+```rust
 
 #### Index Block (appears every N data blocks)
 
@@ -344,7 +344,7 @@ impl SequentialContainerWriter {
         Ok(())
     }
 }
-```
+```rust
 
 ### 8.2.3 Reading Sequential Containers
 
@@ -567,7 +567,7 @@ struct StreamChunkHeader {
 // Followed by compressed payload:
 // - Identifier array
 // - Payload array
-```
+```rust
 
 Chunk flags:
 - `0x01`: Final chunk in stream
@@ -790,7 +790,7 @@ impl StreamingContainerReader {
         Ok(all_data)
     }
 }
-```
+```rust
 
 ### 8.3.4 Stream to Sequential Conversion
 
@@ -912,7 +912,7 @@ fn delta_decode_identifiers(deltas: &[u64]) -> Vec<u64> {
 
     ids
 }
-```
+```rust
 
 Delta encoding typically adds 10-15% additional compression when combined with Zstd, at minimal CPU cost.
 
@@ -1099,7 +1099,7 @@ impl ValidationReport {
         self.valid_blocks > 0 && self.errors.len() <= 1
     }
 }
-```
+```rust
 
 ### 8.5.2 Recovery Strategies
 
@@ -1264,7 +1264,7 @@ impl TransactionalWriter {
         Ok(())
     }
 }
-```
+```rust
 
 ---
 
@@ -1448,7 +1448,7 @@ impl SequentialContainerReader {
         })
     }
 }
-```
+```rust
 
 On disk, this means:
 

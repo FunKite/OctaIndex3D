@@ -513,7 +513,7 @@ pub fn encode_position(pos: Vec3, lod: u8) -> Result<Index64> {
 pub fn enc(p: Vec3, l: u8) -> Result<Index64> {
     // ...
 }
-```
+```rust
 
 ### 16.8.2 Documentation Standards
 
@@ -629,7 +629,7 @@ mod tests {
         prop_assert!((decoded - pos).magnitude() < 0.01);
     }
 }
-```
+```rust
 
 ### 16.8.4 Proposing New Features
 

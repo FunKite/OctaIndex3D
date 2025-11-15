@@ -17,7 +17,7 @@ Rather than exhaustive API coverage, these examples demonstrate practical integr
 [dependencies]
 octaindex3d = "0.1"
 nalgebra = "0.32"
-```
+```rust
 
 **Example: Camera frustum culling with BCC**
 
@@ -127,7 +127,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 [dependencies]
 octaindex3d = "0.1"
 ndarray = "0.15"
-```
+```rust
 
 **Example: Import volumetric data from ndarray**
 
@@ -214,7 +214,7 @@ fn main() {
 [dependencies]
 octaindex3d = "0.1"
 rayon = "1.7"
-```
+```rust
 
 **Example: Parallel neighbor aggregation**
 
@@ -284,7 +284,7 @@ fn main() {
 octaindex3d = "0.1"
 tokio = { version = "1", features = ["full"] }
 futures = "0.3"
-```
+```rust
 
 **Example: Async sensor data ingestion**
 
@@ -381,7 +381,7 @@ async fn main() {
 octaindex3d = "0.1"
 geojson = "0.24"
 serde_json = "1.0"
-```
+```rust
 
 **Example: Export BCC points to GeoJSON**
 
@@ -469,7 +469,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 [dependencies]
 octaindex3d = "0.1"
 gdal = "0.16"
-```
+```rust
 
 **Example: Import elevation data from GeoTIFF**
 
@@ -539,7 +539,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 [dependencies]
 octaindex3d = "0.1"
 postgres = "0.19"
-```
+```sql
 
 **Example: Store and query BCC data in PostGIS**
 
@@ -637,7 +637,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-```
+```toml
 
 ---
 
@@ -761,7 +761,7 @@ fn main() {
         .add_systems(Startup, (generate_terrain, render_voxels).chain())
         .run();
 }
-```
+```toml
 
 ### H.3.2 Godot Integration (via GDNative)
 
@@ -846,7 +846,7 @@ fn init(handle: InitHandle) {
 }
 
 godot_init!(init);
-```
+```python
 
 **Usage in GDScript:**
 ```gdscript
@@ -890,7 +890,7 @@ crate-type = ["cdylib"]
 octaindex3d = "0.1"
 pyo3 = { version = "0.20", features = ["extension-module"] }
 numpy = "0.20"
-```
+```rust
 
 **Example: Python bindings**
 
@@ -989,7 +989,7 @@ volume[volume < 0.5] = 0  # Sparsify
 
 container.from_numpy(volume)
 print(f"Imported {len(container)} non-zero voxels")
-```
+```rust
 
 ---
 
@@ -1123,7 +1123,7 @@ crate-type = ["cdylib"]
 octaindex3d = "0.1"
 wasm-bindgen = "0.2"
 web-sys = "0.3"
-```
+```rust
 
 **Example: WASM bindings**
 
@@ -1202,7 +1202,7 @@ async function main() {
 }
 
 main();
-```
+```python
 
 ---
 

@@ -109,7 +109,7 @@ The last metric—**isotropy**—is often overlooked but turns out to be critica
 
 When faced with the problem of discretizing three-dimensional space, the most intuitive solution is a **regular cubic grid**: divide space into unit cubes aligned with the coordinate axes.
 
-```
+```text
    z
    |
    |_____ y
