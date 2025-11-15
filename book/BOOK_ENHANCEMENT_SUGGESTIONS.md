@@ -434,7 +434,7 @@ The OctaIndex3D book demonstrates **exceptional quality** throughout all core ch
 
 #### Troubleshooting Guide
 - [x] Document common errors (parity violations, encoding errors, etc.)
-- [ ] Add platform-specific issues
+- [x] Add platform-specific issues
 - [x] Include build troubleshooting
 - [x] Add performance troubleshooting
 
@@ -560,22 +560,22 @@ The OctaIndex3D book demonstrates **exceptional quality** throughout all core ch
 
 **Potential Inconsistencies to Check:**
 
-- [ ] **Bech32m Encoding (Chapter 5):**
+- [x] **Bech32m Encoding (Chapter 5):**
   - Book describes Bech32m support
-  - Verify implementation exists in codebase
-  - Add tests if missing
+  - Verified implementation exists in codebase (`id.rs`, `ids.rs`, CLI, examples)
+  - Tests and examples already exercise Bech32m paths
 
-- [ ] **GPU Acceleration (Chapter 7):**
+- [x] **GPU Acceleration (Chapter 7):**
   - Book promises Metal, CUDA, Vulkan support
-  - Verify completeness of implementations
-  - Update book if features are experimental/incomplete
+  - Verified GPU backends exist (`gpu-metal`, `gpu-vulkan`, `gpu-cuda` features)
+  - Updated Appendix D to use correct feature flags (`gpu-metal`, `gpu-cuda`, `gpu-vulkan`) and to clarify platform/runtime requirements
 
-- [ ] **Apache Arrow Integration (Chapter 14):**
+- [x] **Apache Arrow Integration (Chapter 14):**
   - Book mentions Arrow integration
-  - Verify implementation exists
-  - Add examples if implemented
+  - Verified that current codebase does not ship a dedicated Arrow module
+  - Chapter 14 now explicitly treats Arrow as an integration pattern (using external Arrow/Parquet libraries) rather than a built-in feature
 
-**Deliverable:** Updated book text to match actual implementation status
+**Deliverable:** Updated book text and installation docs to match actual implementation status
 
 **Estimated Effort:** 8-12 hours (code review + documentation updates)
 
@@ -588,10 +588,10 @@ The OctaIndex3D book demonstrates **exceptional quality** throughout all core ch
 **Improvements:**
 - [x] Add `rust-toolchain.toml` to book examples
 - [x] Specify MSRV (Minimum Supported Rust Version) explicitly
-- [ ] Add compatibility matrix for different Rust versions
-- [ ] Include migration notes for future Rust editions
+- [x] Add compatibility matrix for different Rust versions
+- [x] Include migration notes for future Rust editions
 
-**Progress (2025-11-15):** Created `rust-toolchain.toml` in both root and book directories specifying Rust 1.82.0 with required components (rustfmt, clippy, rust-src) and multi-platform targets (x86_64/aarch64 for Linux, macOS, Windows).
+**Progress (2025-11-15):** Created `rust-toolchain.toml` in both root and book directories specifying Rust 1.82.0 with required components (rustfmt, clippy, rust-src) and multi-platform targets (x86_64/aarch64 for Linux, macOS, Windows). Appendix D now includes a Rust version compatibility matrix (recommended 1.82.0, MSRV 1.77) plus brief guidance on how to update `rust-toolchain.toml` and re-run CI when adopting newer Rust editions.
 
 **Estimated Effort:** 2-3 hours
 

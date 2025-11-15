@@ -13,9 +13,22 @@ Topics include:
 
 ## D.1 System Requirements
 
-- A recent stable Rust toolchain (see the main `README.md` for the recommended version).
+- A recent stable Rust toolchain (see below for tested versions).
 - A 64‑bit CPU; optional optimizations are available for x86‑64 (BMI2, AVX2) and ARM (NEON).
 - Enough memory to hold your working dataset plus index structures.
+
+### D.1.1 Rust Version Compatibility
+
+OctaIndex3D is tested across multiple Rust versions:
+
+| Rust Version | Status      | Notes                                      |
+|-------------|-------------|--------------------------------------------|
+| **1.82.0**  | Recommended | Default via `rust-toolchain.toml` in repo |
+| **1.77+**   | Supported   | Minimum Supported Rust Version (MSRV)      |
+| \< 1.77     | Unsupported | Not covered by CI or book examples         |
+
+- For the book and examples, use the pinned toolchain by running commands inside the repository root or `book/` directory so that `rust-toolchain.toml` takes effect.
+- For your own projects, you can target Rust **1.77+**; CI in this repository checks both the current stable toolchain and the MSRV.
 
 ## D.2 Installation Instructions
 
@@ -55,11 +68,11 @@ OctaIndex3D supports GPU acceleration for encoding, neighbor search, and range q
 
 ### D.5.1 Metal (macOS)
 
-Metal support is enabled through the `metal` feature flag:
+Metal support is enabled through the `gpu-metal` feature flag:
 
 ```toml
 [dependencies]
-octaindex3d = { version = "0.4", features = ["metal"] }
+octaindex3d = { version = "0.4", features = ["gpu-metal"] }
 ```
 
 **Requirements:**
@@ -92,7 +105,7 @@ CUDA support requires the NVIDIA CUDA Toolkit and compatible GPU:
 
 ```toml
 [dependencies]
-octaindex3d = { version = "0.4", features = ["cuda"] }
+octaindex3d = { version = "0.4", features = ["gpu-cuda"] }
 ```bash
 
 **Requirements:**
@@ -140,7 +153,7 @@ Vulkan provides cross-platform GPU acceleration:
 
 ```toml
 [dependencies]
-octaindex3d = { version = "0.4", features = ["vulkan"] }
+octaindex3d = { version = "0.4", features = ["gpu-vulkan"] }
 ```bash
 
 **Requirements:**
@@ -681,6 +694,14 @@ Common issues and remedies:
   sudo apt-get install libssl-dev pkg-config
   ```
 
+- **`link.exe` or `lld` not found**
+  - **Windows:** Ensure the MSVC toolchain is installed and selected (`rustup show active-toolchain` should include `msvc`).
+  - **Linux/macOS:** Install the platform toolchain (`build-essential` on Debian/Ubuntu, `xcode-select --install` on macOS).
+
+- **Rust version mismatches between CI and local**
+  - Run `rustc --version` locally and compare against the pinned `rust-toolchain.toml` and MSRV noted in §D.1.1.
+  - When upgrading Rust, update `rust-toolchain.toml`, run `cargo check` with `1.77` (MSRV) and stable, and only then rely on newer language features.
+
 ### D.9.2 Runtime Issues
 
 - **Examples or benchmarks run slowly on laptop hardware**
@@ -701,6 +722,11 @@ Common issues and remedies:
   # Metal (macOS)
   system_profiler SPDisplaysDataType | grep Metal
 ```bash
+
+- **Platform-specific GPU issues**
+  - **Windows:** Ensure the NVIDIA or vendor driver is installed and matches the CUDA/Vulkan runtime versions; WSL2 users may need to enable GPU passthrough explicitly.
+  - **Linux:** Confirm that kernel modules are loaded (`nvidia-smi` or `lsmod | grep amdgpu`) and that you are not inside a container without GPU access.
+  - **macOS:** Verify that you are on a Metal-capable GPU and that Xcode Command Line Tools are installed; older Intel Macs without full Metal support may fall back to CPU paths.
 
 ### D.9.3 Docker Issues
 
