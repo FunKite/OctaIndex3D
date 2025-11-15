@@ -83,7 +83,7 @@ Complete replacement in single step:
 
 A cubic grid at spacing `h` can be approximated by a BCC lattice at slightly smaller spacing to maintain similar resolution:
 
-```
+```text
 BCC spacing ≈ 0.945 × cubic spacing
 ```
 
@@ -110,7 +110,7 @@ fn cubic_to_bcc_nearest(i: i32, j: i32, k: i32) -> BccCoord {
         BccCoord::new(i, j, k - 1).unwrap()
     }
 }
-```
+```rust
 
 **Option 2: Physical Coordinate Mapping**
 
@@ -199,7 +199,7 @@ fn migrate_occupancy_grid(
 
     bcc_grid
 }
-```
+```rust
 
 ---
 
@@ -305,7 +305,7 @@ fn convert_octree_recursive(
         }
     }
 }
-```
+```rust
 
 ---
 
@@ -405,7 +405,7 @@ mod migration_tests {
                 "Occupied cubic cell must map to occupied BCC cell");
     }
 }
-```
+```rust
 
 **Numerical Tests:**
 
@@ -456,7 +456,7 @@ fn benchmark_neighbor_query_bcc(c: &mut Criterion) {
 
 criterion_group!(benches, benchmark_neighbor_query_cubic, benchmark_neighbor_query_bcc);
 criterion_main!(benches);
-```
+```rust
 
 Expected results:
 - Memory usage: ~29% reduction
@@ -492,7 +492,7 @@ let coord = BccCoord::new(x, y, z)?; // returns error if invalid
 // BCC grid should use lod_bcc ≈ lod_cubic + 0 (since spacing adjustment is ~5%)
 // For most applications, use same LOD value
 let lod_bcc = lod_cubic; // Usually same
-```
+```rust
 
 ### F.7.3 Neighbor Query Assumptions
 
@@ -533,7 +533,7 @@ fn apply_periodic_bcc(coord: BccCoord, size: i32) -> Result<BccCoord, ParityErro
     BccCoord::new(x_wrapped, y_wrapped, z_wrapped) // May return error
     // Better: pre-compute valid periodic mapping
 }
-```
+```rust
 
 ---
 
@@ -645,7 +645,7 @@ impl BccOccupancyGrid {
         }
     }
 }
-```
+```text
 
 ### F.9.3 Results
 

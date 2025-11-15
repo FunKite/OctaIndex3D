@@ -238,7 +238,7 @@ git clone https://github.com/FunKite/OctaIndex3D
 cd OctaIndex3D
 cargo test  # Run test suite
 cargo bench # Run benchmarks
-```
+```rust
 
 ### Documentation
 API documentation:

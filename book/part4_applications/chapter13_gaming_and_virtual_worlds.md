@@ -407,7 +407,7 @@ struct Vertex {
     normal: [f64; 3],
     color: [f64; 3],
 }
-```
+```rust
 
 ## 13.2 Procedural World Generation
 
@@ -908,7 +908,7 @@ impl DeltaCompressor {
         self.baseline.clear();
     }
 }
-```
+```rust
 
 ## 13.6 Game Engine Integration
 
@@ -1074,7 +1074,7 @@ fn init(handle: InitHandle) {
 }
 
 godot_init!(init);
-```
+```rust
 
 ## 13.7 Performance Optimization for Interactive Applications
 
@@ -1233,7 +1233,7 @@ struct Quad {
     size: [f64; 2],
     block_type: BlockType,
 }
-```
+```rust
 
 ## 13.8 Troubleshooting Common Issues
 
@@ -1285,7 +1285,7 @@ struct Quad {
       }
       hasher.finish()
   }
-  ```
+```text
 
 ## 13.9 Further Reading
 

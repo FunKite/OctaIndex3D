@@ -29,13 +29,13 @@ Add OctaIndex3D to your project:
 ```toml
 [dependencies]
 octaindex3d = "0.4"
-```
+```bash
 
 Then fetch dependencies:
 
 ```bash
 cargo build
-```
+```rust
 
 If you see build errors related to optional CPU features (BMI2, AVX2, NEON), disable them for now and come back to Appendix G (Performance Cookbook) later for tuning advice.
 
@@ -48,7 +48,7 @@ Create a new binary project:
 ```bash
 cargo new oi3d-hello
 cd oi3d-hello
-```
+```rust
 
 Replace `src/main.rs` with:
 
@@ -79,7 +79,7 @@ Build and run:
 
 ```bash
 cargo run
-```
+```rust
 
 You should see one identifier for the center cell and 14 neighbor identifiers. The exact numeric values are not important yet—the point is that:
 

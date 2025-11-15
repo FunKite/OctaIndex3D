@@ -78,7 +78,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-```
+```bash
 
 **Run:**
 ```bash
@@ -189,7 +189,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-```
+```bash
 
 **Run:**
 ```bash
@@ -292,7 +292,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-```
+```bash
 
 **Run:**
 ```bash
@@ -395,7 +395,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-```
+```bash
 
 **Run:**
 ```bash
@@ -501,7 +501,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-```
+```bash
 
 **Run:**
 ```bash
@@ -643,7 +643,7 @@ fn ecef_to_wgs84(x: f64, y: f64, z: f64) -> (f64, f64, f64) {
 
     (lat.to_degrees(), lon.to_degrees(), alt)
 }
-```
+```bash
 
 **Run:**
 ```bash
@@ -670,7 +670,7 @@ let container = SequentialContainer::load("/large/dataset.bcc")?;
 
 // ✅ GOOD: Memory-map for lazy loading
 let container = MemoryMappedContainer::open("/large/dataset.bcc")?;
-```
+```rust
 
 ### Pattern 2: Batch Operations
 
@@ -708,7 +708,7 @@ let mut container = SequentialContainer::with_capacity(expected_size);
 for idx in large_dataset {
     container.insert(idx, data)?;
 }
-```
+```rust
 
 ### Pattern 4: Error Handling in Production
 
@@ -739,7 +739,7 @@ let coord = BccCoord::new(0, x, y, z)?;
 ```rust
 // ❌ BAD: Assume all (x, y, z) are valid
 let coord = BccCoord::new(0, 1, 1, 1)?; // Error: parity is odd!
-```
+```rust
 
 **Solution:** Always ensure `(x + y + z) % 2 == 0` or use helper methods.
 
@@ -758,7 +758,7 @@ let coord = BccCoord::new(0, x, y, z)?;
 let idx1 = Index64::from_bcc_coord(frame_a, coord1)?;
 let idx2 = Index64::from_bcc_coord(frame_b, coord2)?;
 let distance = idx1.distance_to(idx2); // Meaningless!
-```
+```rust
 
 **Solution:** Transform to common frame before comparison.
 
@@ -778,7 +778,7 @@ for point in points {
     stream.append(idx, data)?;
     stream.flush()?; // Slow!
 }
-```
+```text
 
 **Solution:** Batch writes and flush periodically or at end.
 
@@ -797,7 +797,7 @@ stream.flush()?; // Flush once at end
 ```rust
 // ❌ BAD: Refine everything to LOD=15
 let lod = 15; // 2^15 = 32768× resolution!
-```
+```rust
 
 **Solution:** Use adaptive refinement based on occupancy or error metrics.
 
@@ -833,7 +833,7 @@ fn spawn_voxels(mut commands: Commands, container: Res<SequentialContainer>) {
         ));
     }
 }
-```
+```rust
 
 **See:** Chapter 13 (Gaming and Virtual Worlds)
 

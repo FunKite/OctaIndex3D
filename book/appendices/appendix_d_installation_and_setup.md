@@ -45,7 +45,7 @@ To build directly from the repository:
 git clone https://github.com/FunKite/OctaIndex3D.git
 cd OctaIndex3D
 cargo build --release
-```
+```toml
 
 You can add CPU‑specific flags via `RUSTFLAGS` or a `.cargo/config.toml` file once you are comfortable with the baseline build.
 
@@ -72,7 +72,7 @@ octaindex3d = { version = "0.4", features = ["metal"] }
 ```bash
 # Check Metal support
 system_profiler SPDisplaysDataType | grep Metal
-```
+```rust
 
 **Usage:**
 
@@ -93,7 +93,7 @@ CUDA support requires the NVIDIA CUDA Toolkit and compatible GPU:
 ```toml
 [dependencies]
 octaindex3d = { version = "0.4", features = ["cuda"] }
-```
+```bash
 
 **Requirements:**
 - NVIDIA GPU with compute capability 5.0+ (Maxwell or later)
@@ -120,7 +120,7 @@ nvidia-smi
 export CUDA_HOME=/usr/local/cuda
 export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
-```
+```rust
 
 **Usage:**
 
@@ -141,7 +141,7 @@ Vulkan provides cross-platform GPU acceleration:
 ```toml
 [dependencies]
 octaindex3d = { version = "0.4", features = ["vulkan"] }
-```
+```bash
 
 **Requirements:**
 - Vulkan 1.2+ compatible GPU
@@ -170,7 +170,7 @@ let backend = VulkanBackend::new()?;
 
 // Query neighbors on GPU
 let neighbors = backend.find_neighbors_batch(&queries, radius)?;
-```
+```bash
 
 ### D.5.4 GPU Feature Comparison
 
@@ -246,7 +246,7 @@ docker buildx build \
   --tag octaindex3d-app:latest \
   --push \
   .
-```
+```text
 
 ### D.6.3 Docker Compose for Development
 
@@ -314,7 +314,7 @@ FROM nvidia/cuda:12.0-runtime-ubuntu22.04
 
 COPY --from=builder /app/target/release/your-app /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/your-app"]
-```
+```text
 
 **Run with GPU:**
 
@@ -460,7 +460,7 @@ jobs:
 
     - name: Cross-compile
       run: cross build --release --target ${{ matrix.target }}
-```
+```bash
 
 ### D.7.2 GitLab CI
 
@@ -577,7 +577,7 @@ pipeline {
         }
     }
 }
-```
+```python
 
 ---
 
@@ -602,7 +602,7 @@ Ensure you're compiling with appropriate target features:
 ```powershell
 $env:RUSTFLAGS="-C target-feature=+bmi2,+avx2"
 cargo build --release
-```
+```bash
 
 ### D.8.2 Linux
 
@@ -627,7 +627,7 @@ sudo ubuntu-drivers autoinstall
 
 # AMD ROCm
 sudo apt-get install rocm-dkms
-```
+```sql
 
 ### D.8.3 macOS
 
@@ -641,7 +641,7 @@ xcode-select --install
 
 ```bash
 brew install pkg-config openssl
-```
+```bash
 
 **Apple Silicon (M1/M2/M3):**
 NEON SIMD is automatically available on ARM64 macOS. To build universal binaries:
@@ -673,7 +673,7 @@ Common issues and remedies:
   Install Visual Studio Build Tools and ensure the MSVC toolchain is selected:
   ```bash
   rustup default stable-msvc
-  ```
+```bash
 
 - **Missing OpenSSL on Linux**
   Install development packages:
@@ -700,7 +700,7 @@ Common issues and remedies:
 
   # Metal (macOS)
   system_profiler SPDisplaysDataType | grep Metal
-  ```
+```bash
 
 ### D.9.3 Docker Issues
 
@@ -719,7 +719,7 @@ Common issues and remedies:
     sudo tee /etc/apt/sources.list.d/nvidia-docker.list
   sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
   sudo systemctl restart docker
-  ```
+```bash
 
 ### D.9.4 CI/CD Issues
 
@@ -733,7 +733,7 @@ Common issues and remedies:
   Verify cache keys include Cargo.lock:
   ```yaml
   key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-  ```
+```bash
 
 - **Cross-compilation fails**
   Use `cross` tool instead of bare `cargo`:

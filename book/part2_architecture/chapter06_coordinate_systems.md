@@ -88,7 +88,7 @@ pub struct Vec3 {
     pub y: f64,
     pub z: f64,
 }
-```
+```rust
 
 ### 6.1.2 Registry Construction
 
@@ -265,7 +265,7 @@ pub mod wgs84 {
     pub const E_SQ: f64 = F * (2.0 - F);         // First eccentricity squared
     pub const EP_SQ: f64 = E_SQ / (1.0 - E_SQ);  // Second eccentricity squared
 }
-```
+```rust
 
 **Forward transformation (WGS84 → ECEF):**
 
@@ -338,7 +338,7 @@ pub fn ecef_to_wgs84(ecef: Vec3) -> (f64, f64, f64) {
 
     (lat, lon, h)
 }
-```
+```text
 
 **Precision considerations:**
 
@@ -455,7 +455,7 @@ impl EnuFrame {
         }
     }
 }
-```
+```rust
 
 Applications can:
 
@@ -510,7 +510,7 @@ The forward transform ENU → ECEF then becomes:
 
 ```text
 P_ecef = P_anchor + e * \hat{e} + n * \hat{n} + u * \hat{u}
-```
+```rust
 
 and the inverse ECEF → ENU subtracts the anchor and projects onto the basis vectors.
 

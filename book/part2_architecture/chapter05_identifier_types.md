@@ -55,7 +55,7 @@ The 128-bit structure is divided into logical fields:
 ├─────────────────────────────────────────────────────────────────┤
 │                    Bits 63-0: Morton/Hilbert Code                │
 └─────────────────────────────────────────────────────────────────┘
-```
+```rust
 
 **Field descriptions:**
 
@@ -177,7 +177,7 @@ impl Galactic128 {
         Ok(Self::from_bytes(bytes))
     }
 }
-```
+```rust
 
 ### 5.2.4 Display and Debugging
 
@@ -238,7 +238,7 @@ let loaded = Galactic128::from_bytes(bytes.try_into().unwrap());
 assert_eq!(gal, loaded);
 assert_eq!(loaded.frame(), FrameId::WGS84);
 assert_eq!(loaded.lod(), 15);
-```
+```text
 
 ---
 
@@ -436,7 +436,7 @@ fn morton_decode(morton: u64) -> (u32, u32, u32) {
     #[cfg(not(target_arch = "x86_64"))]
     morton_decode_fallback(morton)
 }
-```
+```rust
 
 ### 5.3.3 Ord impl for Spatial Locality
 
@@ -485,7 +485,7 @@ assert_eq!(neighbors.len(), 12);
 // Decode back to coordinates
 let (x, y, z, lod) = idx.decode();
 assert_eq!((x, y, z, lod), (100, 100, 0, 10));
-```
+```rust
 
 ### 5.3.5 When to Use `Index64`
 

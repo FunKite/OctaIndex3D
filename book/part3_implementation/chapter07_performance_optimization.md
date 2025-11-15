@@ -94,7 +94,7 @@ pub unsafe fn morton_decode_bmi2(morton: u64) -> (u32, u32, u32) {
 
     (x, y, z)
 }
-```
+```rust
 
 **Performance characteristics:**
 
@@ -195,7 +195,7 @@ fn morton_decode_fallback(morton: u64) -> (u32, u32, u32) {
 
     (x, y, z)
 }
-```
+```rust
 
 This layered approach ensures:
 
@@ -241,7 +241,7 @@ criterion_main!(benches);
 
 **Typical results on Intel i7-10700K:**
 
-```
+```text
 morton_encode_bmi2      time: [2.84 µs 2.87 µs 2.91 µs]
 morton_encode_fallback  time: [18.2 µs 18.4 µs 18.7 µs]
 ```
@@ -271,7 +271,7 @@ Optimizing the wrong part of the system is a common failure mode. To avoid this:
 ```bash
 # Build optimized binary with debug info
 RUSTFLAGS="-C force-frame-pointers=yes" cargo build --release
-```
+```rust
 
 **Step 2: Record a profile**
 
@@ -294,11 +294,11 @@ perf report
 
 # Generate flamegraph (requires flamegraph tools)
 perf script | stackcollapse-perf.pl | flamegraph.pl > flamegraph.svg
-```
+```text
 
 **Example output:**
 
-```
+```text
 # Overhead  Command          Shared Object       Symbol
 # ........  ...............  ..................  .........................
 #
@@ -307,7 +307,7 @@ perf script | stackcollapse-perf.pl | flamegraph.pl > flamegraph.svg
     12.31%  spatial_bench    liboctaindex.so     [.] neighbor_lookup_12
      8.29%  spatial_bench    liboctaindex.so     [.] bcc_parity_check
      5.14%  spatial_bench    libc.so.6           [.] __memcpy_avx_unaligned
-```
+```text
 
 This immediately shows that Morton encoding and range queries are the hot paths.
 
@@ -330,7 +330,7 @@ vtune -collect uarch-exploration -knob sampling-interval=1 \
 
 # View the report
 vtune-gui vtune_uarch
-```
+```text
 
 **Key metrics to examine:**
 
@@ -341,7 +341,7 @@ vtune-gui vtune_uarch
 
 **Example VTune findings:**
 
-```
+```text
 Function: container_range_query
   CPI: 1.8 (high - investigate)
   L1 Cache Hit Rate: 87.3% (low - data layout issue?)
@@ -351,7 +351,7 @@ Recommendation: High CPI due to memory stalls. Consider:
   - Prefetching
   - Data structure reorganization
   - Reducing pointer chasing
-```
+```rust
 
 ### 7.3.3 Microbenchmarking with Criterion
 
@@ -409,11 +409,11 @@ cargo bench --bench neighbor_queries -- --save-baseline before
 
 # After optimization
 cargo bench --bench neighbor_queries -- --baseline before
-```
+```text
 
 **Example output:**
 
-```
+```text
 neighbor_queries/lookup_12_neighbors
                         time:   [142.31 ns 143.17 ns 144.09 ns]
                         change: [-15.234% -14.127% -13.042%] (p = 0.00 < 0.05)
@@ -439,7 +439,7 @@ cg_annotate cachegrind.out.<pid> src/container.rs
 
 **Example cachegrind output:**
 
-```
+```text
 ==12345== I   refs:      1,234,567,890
 ==12345== I1  misses:        1,234,567
 ==12345== LLi misses:          123,456
@@ -511,7 +511,7 @@ jobs:
               repo: context.repo.repo,
               body: '## Benchmark Results\n\n```\n' + results + '\n```'
             });
-```
+```rust
 
 ---
 
@@ -665,7 +665,7 @@ unsafe fn batch_morton_encode_avx2(
 
     Ok(())
 }
-```
+```rust
 
 ### 7.4.3 SIMD Range Queries
 
@@ -744,7 +744,7 @@ pub unsafe fn batch_validate_bcc_neon(
 
     result
 }
-```
+```rust
 
 **NEON vs. AVX2 comparison:**
 
@@ -819,7 +819,7 @@ let indices = processor.encode_coordinates(&coords, 10)?;
 
 // Validate parity
 let valid = processor.validate_coordinates(&coords);
-```
+```rust
 
 ---
 
@@ -858,7 +858,7 @@ Memory layout:
 
 ```text
 [ (id0, occ0, t0), (id1, occ1, t1), (id2, occ2, t2), ... ]
-```
+```rust
 
 **Struct-of-arrays (SoA) layout:**
 
@@ -876,7 +876,7 @@ Memory layout:
 ids:        [id0, id1, id2, id3, ...]
 occupancy:  [occ0, occ1, occ2, occ3, ...]
 timestamps: [t0, t1, t2, t3, ...]
-```
+```rust
 
 ### 7.5.2 Performance Comparison
 
@@ -908,7 +908,7 @@ fn sum_occupancy_soa(container: &ContainerSoA, threshold: f32) -> f32 {
     }
     sum
 }
-```
+```rust
 
 **Benchmark results (1M cells, Intel i7-10700K):**
 
@@ -995,7 +995,7 @@ struct HotCell {
     occupancy: f32,
     _padding: u32,  // Align to 16 bytes
 }
-```
+```rust
 
 This layout:
 - Keeps frequently co-accessed data together
@@ -1063,7 +1063,7 @@ impl MortonOrderedContainer {
         &self.cells[start..end]
     }
 }
-```
+```rust
 
 **Spatial locality benefit:**
 
@@ -1197,7 +1197,7 @@ pub fn detect_cpu_features() -> CpuFeatures {
 pub fn get_cpu_features() -> CpuFeatures {
     *CPU_FEATURES.get_or_init(detect_cpu_features)
 }
-```
+```rust
 
 ### 7.6.2 Modular Implementation Strategy
 
@@ -1280,7 +1280,7 @@ const fn build_spread_table() -> [u16; 256] {
     }
     table
 }
-```
+```rust
 
 **Performance on ARM Cortex-A78:**
 
@@ -1350,7 +1350,7 @@ force-portable = []
 
 [target.'cfg(target_arch = "aarch64")'.dependencies]
 # ARM-specific dependencies
-```
+```bash
 
 **Build examples:**
 
@@ -1392,7 +1392,7 @@ fn bench_morton_encoding(c: &mut Criterion) {
 
 criterion_group!(benches, bench_morton_encoding);
 criterion_main!(benches);
-```
+```toml
 
 **Target performance goals:**
 
@@ -1551,7 +1551,7 @@ impl GpuMortonEncoder {
         Ok(output)
     }
 }
-```
+```text
 
 ### 7.7.3 Performance Analysis
 
@@ -1582,7 +1582,7 @@ Compute time (GPU): `T_compute = N / 6.667e9` seconds
 **Amortization threshold:**
 
 GPU becomes faster than CPU AVX2 when:
-```
+```text
 T_transfer + T_compute < T_cpu_avx2
 20N/12e9 + N/6.667e9 < N/238.1e6
 ```
@@ -1694,7 +1694,7 @@ impl AdaptiveMortonEncoder {
         }
     }
 }
-```
+```rust
 
 ### 7.7.6 GPU Memory Management
 
@@ -1788,7 +1788,7 @@ impl Default for PerformanceGoals {
         }
     }
 }
-```
+```rust
 
 ### 7.8.2 Step 2: Establish Baseline
 
@@ -1856,7 +1856,7 @@ cargo bench --bench baseline -- --save-baseline initial
 
 # Generate report
 cargo bench --bench baseline -- --baseline initial --save-baseline initial
-```
+```bash
 
 ### 7.8.3 Step 3: Profile Hot Paths
 
@@ -1910,7 +1910,7 @@ hotspots = parse_perf_report('profile_cpu.txt')
 print("Hot functions (> 1% CPU time):")
 for pct, func in hotspots[:10]:
     print(f"  {pct:5.2f}% {func}")
-```
+```rust
 
 ### 7.8.4 Step 4: Apply Targeted Optimizations
 
@@ -2009,7 +2009,7 @@ cargo bench --bench baseline -- --baseline initial
 
 # Compare results
 cargo bench --bench baseline -- --baseline initial --save-baseline optimized
-```
+```rust
 
 **Typical improvement trajectory:**
 
@@ -2110,7 +2110,7 @@ jobs:
             target/criterion/baseline/pr/estimates.json \
             target/criterion/baseline/main/estimates.json \
             --threshold 10  # Fail if >10% regression
-```
+```rust
 
 This workflow balances performance gains with maintainability and portability. The key principles are:
 

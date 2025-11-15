@@ -84,7 +84,7 @@ impl OctreeNode {
         }
     }
 }
-```
+```text
 
 ### 3.1.3 Octree Operations
 
@@ -104,7 +104,7 @@ Time complexity: $O(\log n)$ for balanced trees, $O(d)$ where $d$ is depth.
 3. If node is a leaf: return points in query region
 4. Otherwise: recursively query all 8 children
 5. Merge results
-```
+```rust
 Time complexity: $O(\log n + k)$ where $k$ is output size.
 
 **Nearest Neighbor**:
@@ -237,7 +237,7 @@ where
         }
     }
 }
-```
+```rust
 
 **Breadth-First Traversal** (level-by-level):
 ```rust
@@ -280,7 +280,7 @@ let parent_x = x >> 1;
 let parent_y = y >> 1;
 let parent_z = z >> 1;
 let parent_lod = lod - 1;
-```
+```rust
 
 **Parity Verification**: The parent automatically satisfies the parity constraint (proven in Chapter 2).
 
@@ -332,7 +332,7 @@ pub fn ancestor(mut node: BccOctreeNode, k: u8) -> Option<BccOctreeNode> {
     }
     Some(node)
 }
-```
+```rust
 Time: $O(k)$
 
 **All Descendants at Depth d**: Recursively enumerate children:
@@ -382,7 +382,7 @@ pub fn neighbors_same_lod(node: BccOctreeNode) -> Vec<BccOctreeNode> {
         })
         .collect()
 }
-```
+```rust
 
 **Time Complexity**: $O(1)$ (constant 14 neighbors)
 
@@ -541,7 +541,7 @@ pub fn morton_encode_naive(x: u16, y: u16, z: u16) -> u64 {
 
     morton
 }
-```
+```python
 
 **Time Complexity**: $O(b)$ where $b$ is the bit width (16 for u16).
 
@@ -550,7 +550,7 @@ pub fn morton_encode_naive(x: u16, y: u16, z: u16) -> u64 {
 Modern x86_64 CPUs (Intel Haswell 2013+, AMD Zen 2017+) have the **BMI2** instruction set with `PDEP` (parallel deposit) and `PEXT` (parallel extract) instructions.
 
 `PDEP` takes bits from a source and deposits them according to a mask:
-```
+```text
 PDEP(source=0b1010, mask=0b11001100) = 0b10000100
 ```
 
@@ -594,7 +594,7 @@ pub fn morton_decode_naive(morton: u64) -> (u16, u16, u16) {
 
     (x, y, z)
 }
-```
+```rust
 
 **BMI2 Decoding** (using `PEXT`):
 ```rust
@@ -684,7 +684,7 @@ fn hilbert_transform(child: u8, state: u8) -> (u8, u8) {
     // (child, state) -> (transformed_child, next_state)
     HILBERT_LUT[state as usize][child as usize]
 }
-```
+```rust
 
 The lookup table `HILBERT_LUT` contains precomputed state transitions for the Hilbert curve. Full implementation requires a 24×8 lookup table (24 possible states, 8 children per node).
 
