@@ -1,4 +1,4 @@
-# Chapter 14: Distributed and Parallel Processing
+# Chapter 15: Distributed and Parallel Processing
 
 ## Learning Objectives
 
@@ -12,7 +12,7 @@ By the end of this chapter, you will be able to:
 
 ---
 
-## 14.1 Partitioning Strategies
+## 15.1 Partitioning Strategies
 
 Distributed systems must decide **how to divide data** across nodes. For BCC-indexed data, common strategies include:
 
@@ -92,7 +92,7 @@ In both cases, OctaIndex3D’s compact, sortable identifiers provide:
 - Natural shard keys.
 - Simple routing logic (range checks, interval trees, or prefix maps).
 
-## 14.2 Ghost Zones and Overlap Regions
+## 15.2 Ghost Zones and Overlap Regions
 
 Many distributed algorithms require information beyond local partition boundaries:
 
@@ -163,7 +163,7 @@ This allows a simple knob:
 - Increase ghost thickness to trade more memory for fewer exchanges.
 - Decrease it to reduce memory at the cost of more frequent synchronization.
 
-## 14.3 Columnar Data and Apache Arrow
+## 15.3 Columnar Data and Apache Arrow
 
 For analytics workloads, columnar data formats such as **Apache Arrow** offer:
 

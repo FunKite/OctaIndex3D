@@ -93,22 +93,22 @@
 
 ## Part V: Advanced Topics
 
-### Chapter 14
-- Table 14.1: Partitioning strategy comparison
-- Table 14.2: Distributed system frameworks
-- Table 14.3: Scalability benchmark results
-- Table 14.4: Network overhead analysis
-
 ### Chapter 15
-- Table 15.1: GNN architecture comparison
-- Table 15.2: ML framework integration matrix
-- Table 15.3: Point cloud dataset statistics
-- Table 15.4: Training performance metrics
+- Table 15.1: Partitioning strategy comparison
+- Table 15.2: Distributed system frameworks
+- Table 15.3: Scalability benchmark results
+- Table 15.4: Network overhead analysis
 
 ### Chapter 16
-- Table 16.1: Research challenge priorities
-- Table 16.2: Technology roadmap timeline
-- Table 16.3: Community contribution areas
+- Table 16.1: GNN architecture comparison
+- Table 16.2: ML framework integration matrix
+- Table 16.3: Point cloud dataset statistics
+- Table 16.4: Training performance metrics
+
+### Chapter 17
+- Table 17.1: Research challenge priorities
+- Table 17.2: Technology roadmap timeline
+- Table 17.3: Community contribution areas
 
 ## Appendices
 

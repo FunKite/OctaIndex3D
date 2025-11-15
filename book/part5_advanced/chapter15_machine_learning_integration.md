@@ -1,4 +1,4 @@
-# Chapter 15: Machine Learning Integration
+# Chapter 16: Machine Learning Integration
 
 ## Learning Objectives
 
@@ -11,7 +11,7 @@ By the end of this chapter, you will be able to:
 
 ---
 
-## 15.1 Graph Neural Networks on BCC Lattices
+## 16.1 Graph Neural Networks on BCC Lattices
 
 Graph neural networks operate on graphs where:
 

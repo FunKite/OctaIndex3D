@@ -178,41 +178,52 @@ Further Reading
 Exercises
 Further Reading
 
----
-
-## Part V: Advanced Topics
-
-### Chapter 14: Distributed and Parallel Processing
-14.1 Partitioning Strategies
-14.2 Apache Arrow Integration
-14.3 Distributed A* Algorithms
-14.4 Map-Reduce Patterns
-14.5 Fault Tolerance
-14.6 Scalability Analysis
+### Chapter 14: Mars Travel, Exploration, and Settlement
+14.1 Mission Phases and Data Needs
+14.2 Frames for Mars-Orbital and Surface Operations
+14.3 Hazard and Navigation Grids for EDL and Surface Mobility
+14.4 Resource Mapping and Site Selection
+14.5 Settlement Layout, Logistics, and Growth
+14.6 Case Study: Multi-LOD Mars Operations Grid
 14.7 Summary
 Exercises
 Further Reading
 
-### Chapter 15: Machine Learning Integration
-15.1 Graph Neural Networks on BCC Lattices
-15.2 Point Cloud Processing
-15.3 3D Object Detection
-15.4 Trajectory Prediction
-15.5 Feature Engineering
-15.6 Integration with PyTorch/TensorFlow
+---
+
+## Part V: Advanced Topics
+
+### Chapter 15: Distributed and Parallel Processing
+15.1 Partitioning Strategies
+15.2 Apache Arrow Integration
+15.3 Distributed A* Algorithms
+15.4 Map-Reduce Patterns
+15.5 Fault Tolerance
+15.6 Scalability Analysis
 15.7 Summary
 Exercises
 Further Reading
 
-### Chapter 16: Future Directions
-16.1 Research Challenges
-16.2 Optimal Hilbert State Machines
-16.3 Compression-Aware Queries
-16.4 BCC-Native Rendering
-16.5 Quantum Computing Applications
-16.6 Emerging Hardware Architectures
-16.7 Community and Ecosystem
-16.8 Conclusion
+### Chapter 16: Machine Learning Integration
+16.1 Graph Neural Networks on BCC Lattices
+16.2 Point Cloud Processing
+16.3 3D Object Detection
+16.4 Trajectory Prediction
+16.5 Feature Engineering
+16.6 Integration with PyTorch/TensorFlow
+16.7 Summary
+Exercises
+Further Reading
+
+### Chapter 17: Future Directions
+17.1 Research Challenges
+17.2 Optimal Hilbert State Machines
+17.3 Compression-Aware Queries
+17.4 BCC-Native Rendering
+17.5 Quantum Computing Applications
+17.6 Emerging Hardware Architectures
+17.7 Community and Ecosystem
+17.8 Conclusion
 
 ---
 

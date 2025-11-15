@@ -133,16 +133,17 @@ After working through Part I—skimming what you know, slowing down where it is 
 - Chapter 8: Container Formats and Persistence
 - Chapter 9: Testing and Validation
 
-### Part IV: Applications (Chapters 10-13)
+### Part IV: Applications (Chapters 10-14)
 - Chapter 10: Robotics and Autonomous Systems
 - Chapter 11: Geospatial Analysis
 - Chapter 12: Scientific Computing
 - Chapter 13: Gaming and Virtual Worlds
+- Chapter 14: Mars Travel, Exploration, and Settlement
 
-### Part V: Advanced Topics (Chapters 14-16)
-- Chapter 14: Distributed and Parallel Processing
-- Chapter 15: Machine Learning Integration
-- Chapter 16: Future Directions
+### Part V: Advanced Topics (Chapters 15-17)
+ - Chapter 15: Distributed and Parallel Processing
+ - Chapter 16: Machine Learning Integration
+ - Chapter 17: Future Directions
 
 ### Appendices
 - Appendix A: Mathematical Proofs

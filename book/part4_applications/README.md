@@ -48,6 +48,15 @@ Each chapter focuses on:
 - NPC pathfinding and spatial partitioning
 - 3D maze game case study built on OctaIndex3D
 
+### [Chapter 14: Mars Travel, Exploration, and Settlement](chapter14_mars_exploration_and_settlement.md)
+
+**Topics Covered**:
+- End-to-end Mars mission planning (transit, EDL, surface, settlement)
+- Frames for Mars-orbital and surface operations
+- Hazard-aware navigation grids for EDL, rovers, and EVAs
+- Resource mapping and settlement site selection
+- Multi-LOD operations grids for long-term Mars bases
+
 ---
 
 ## Part IV Learning Outcomes
@@ -58,4 +67,3 @@ After completing Part IV, you will be able to:
 ✅ **Choose** appropriate frames, identifiers, and containers for each domain  
 ✅ **Design** query patterns that respect real-world constraints (latency, memory, accuracy)  
 ✅ **Evaluate** trade-offs between simplicity and performance in applied settings  
-

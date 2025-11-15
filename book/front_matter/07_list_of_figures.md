@@ -118,28 +118,32 @@
 - Figure 13.5: LOD transition visualization
 - Figure 13.6: 3D maze game screenshot
 
+### Chapter 14
+- Figure 14.1: Mars mission phases overview
+- Figure 14.2: Multi-LOD Mars operations grid
+
 ## Part V: Advanced Topics
 
-### Chapter 14
-- Figure 14.1: Spatial partitioning strategy
-- Figure 14.2: Apache Arrow memory layout
-- Figure 14.3: Distributed A* communication pattern
-- Figure 14.4: Map-reduce on spatial data
-- Figure 14.5: Scalability benchmarks
-
 ### Chapter 15
-- Figure 15.1: GNN architecture on BCC graph
-- Figure 15.2: Point cloud processing pipeline
-- Figure 15.3: 3D object detection bounding boxes
-- Figure 15.4: Trajectory prediction neural network
-- Figure 15.5: PyTorch integration diagram
+- Figure 15.1: Spatial partitioning strategy
+- Figure 15.2: Apache Arrow memory layout
+- Figure 15.3: Distributed A* communication pattern
+- Figure 15.4: Map-reduce on spatial data
+- Figure 15.5: Scalability benchmarks
 
 ### Chapter 16
-- Figure 16.1: Research roadmap timeline
-- Figure 16.2: Hilbert state machine optimization
-- Figure 16.3: Compression-aware query plan
-- Figure 16.4: BCC-native ray marching
-- Figure 16.5: Future hardware trends
+- Figure 16.1: GNN architecture on BCC graph
+- Figure 16.2: Point cloud processing pipeline
+- Figure 16.3: 3D object detection bounding boxes
+- Figure 16.4: Trajectory prediction neural network
+- Figure 16.5: PyTorch integration diagram
+
+### Chapter 17
+- Figure 17.1: Research roadmap timeline
+- Figure 17.2: Hilbert state machine optimization
+- Figure 17.3: Compression-aware query plan
+- Figure 17.4: BCC-native ray marching
+- Figure 17.5: Future hardware trends
 
 ## Appendices
 

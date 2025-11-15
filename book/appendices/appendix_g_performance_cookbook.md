@@ -718,7 +718,7 @@ Use this checklist for systematic performance optimization:
 - Chapter 7.4-7.6 - SIMD, BMI2, cache optimization details
 
 **Distributed Systems:**
-- Chapter 14 (Distributed and Parallel) - Sharding strategies
+- Chapter 15 (Distributed and Parallel) - Sharding strategies
 - Kleppmann, M. (2017). *Designing Data-Intensive Applications* - Distributed systems patterns
 
 ---

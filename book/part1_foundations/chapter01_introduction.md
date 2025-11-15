@@ -489,7 +489,7 @@ This book is organized into five parts, progressing from foundations to advanced
 
 **Chapter 9: Testing and Validation**: Unit testing, property-based testing, benchmark design, correctness validation, and continuous integration.
 
-### Part IV: Applications (Chapters 10-13)
+### Part IV: Applications (Chapters 10-14)
 
 **Chapter 10: Robotics and Autonomous Systems**: Occupancy grids, sensor fusion, A* pathfinding, and real-time constraints. UAV case study.
 
@@ -499,13 +499,15 @@ This book is organized into five parts, progressing from foundations to advanced
 
 **Chapter 13: Gaming and Virtual Worlds**: Voxel engines, procedural generation, NPC pathfinding, and LOD management. 3D maze game case study.
 
-### Part V: Advanced Topics (Chapters 14-16)
+**Chapter 14: Mars Travel, Exploration, and Settlement**: End-to-end Mars mission planning, hazard-aware navigation grids, resource mapping, and long-term settlement design.
 
-**Chapter 14: Distributed and Parallel Processing**: Partitioning strategies, Apache Arrow integration, distributed A*, and scalability analysis.
+### Part V: Advanced Topics (Chapters 15-17)
 
-**Chapter 15: Machine Learning Integration**: Graph neural networks on BCC lattices, point cloud processing, 3D object detection, and PyTorch/TensorFlow integration.
+**Chapter 15: Distributed and Parallel Processing**: Partitioning strategies, Apache Arrow integration, distributed A*, and scalability analysis.
 
-**Chapter 16: Future Directions**: Research challenges, optimal Hilbert curves, compression-aware queries, BCC-native rendering, and quantum computing applications.
+**Chapter 16: Machine Learning Integration**: Graph neural networks on BCC lattices, point cloud processing, 3D object detection, and PyTorch/TensorFlow integration.
+
+**Chapter 17: Future Directions**: Research challenges, optimal Hilbert curves, compression-aware queries, BCC-native rendering, and quantum computing applications.
 
 ### Appendices
 
