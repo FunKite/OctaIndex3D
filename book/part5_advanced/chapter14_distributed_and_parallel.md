@@ -358,17 +358,535 @@ Typical workflows:
    - Read Arrow/Parquet-exported data directly from object storage.
    - Share schemas and identifiers with online systems.
 
-Because OctaIndex3D’s abstractions are **purely logical** (frames, identifiers, containers), they map cleanly onto different cloud stacks without changing the core library.
+Because OctaIndex3D's abstractions are **purely logical** (frames, identifiers, containers), they map cleanly onto different cloud stacks without changing the core library.
+
+### 14.6.1 AWS Deployment Architecture
+
+```rust
+use aws_sdk_s3::{Client as S3Client, primitives::ByteStream};
+use aws_sdk_dynamodb::Client as DynamoClient;
+use octaindex3d::{Index64, Container};
+
+/// AWS-based distributed storage backend
+struct AWSBackend {
+    s3_client: S3Client,
+    dynamo_client: DynamoClient,
+    bucket_name: String,
+    table_name: String,
+}
+
+impl AWSBackend {
+    async fn new(bucket_name: String, table_name: String) -> Self {
+        let config = aws_config::load_from_env().await;
+        let s3_client = S3Client::new(&config);
+        let dynamo_client = DynamoClient::new(&config);
+
+        Self {
+            s3_client,
+            dynamo_client,
+            bucket_name,
+            table_name,
+        }
+    }
+
+    /// Store container partition to S3
+    async fn store_partition(
+        &self,
+        partition_id: &str,
+        data: &[u8],
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let key = format!("partitions/{}.bcc", partition_id);
+
+        self.s3_client
+            .put_object()
+            .bucket(&self.bucket_name)
+            .key(&key)
+            .body(ByteStream::from(data.to_vec()))
+            .send()
+            .await?;
+
+        Ok(())
+    }
+
+    /// Load container partition from S3
+    async fn load_partition(
+        &self,
+        partition_id: &str,
+    ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        let key = format!("partitions/{}.bcc", partition_id);
+
+        let response = self.s3_client
+            .get_object()
+            .bucket(&self.bucket_name)
+            .key(&key)
+            .send()
+            .await?;
+
+        let data = response.body.collect().await?;
+        Ok(data.into_bytes().to_vec())
+    }
+
+    /// Update partition metadata in DynamoDB
+    async fn update_metadata(
+        &self,
+        partition_id: &str,
+        start_idx: Index64,
+        end_idx: Index64,
+        size_bytes: usize,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        use aws_sdk_dynamodb::types::AttributeValue;
+
+        self.dynamo_client
+            .put_item()
+            .table_name(&self.table_name)
+            .item("partition_id", AttributeValue::S(partition_id.to_string()))
+            .item("start_idx", AttributeValue::N(start_idx.to_morton().to_string()))
+            .item("end_idx", AttributeValue::N(end_idx.to_morton().to_string()))
+            .item("size_bytes", AttributeValue::N(size_bytes.to_string()))
+            .item("last_updated", AttributeValue::N(chrono::Utc::now().timestamp().to_string()))
+            .send()
+            .await?;
+
+        Ok(())
+    }
+
+    /// Query partitions overlapping a range
+    async fn query_partitions_in_range(
+        &self,
+        start_idx: Index64,
+        end_idx: Index64,
+    ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+        // Simplified - in practice would use DynamoDB query with appropriate indexes
+        // This is a placeholder showing the concept
+        Ok(vec![])
+    }
+}
+
+/// Kubernetes-based shard server
+#[derive(Clone)]
+struct ShardServer {
+    shard_id: usize,
+    backend: std::sync::Arc<AWSBackend>,
+    cache: std::sync::Arc<tokio::sync::RwLock<HashMap<String, Container<Index64, Vec<u8>>>>>,
+}
+
+impl ShardServer {
+    async fn new(shard_id: usize, backend: AWSBackend) -> Self {
+        Self {
+            shard_id,
+            backend: std::sync::Arc::new(backend),
+            cache: std::sync::Arc::new(tokio::sync::RwLock::new(HashMap::new())),
+        }
+    }
+
+    /// Handle range query request
+    async fn handle_range_query(
+        &self,
+        start_idx: Index64,
+        end_idx: Index64,
+    ) -> Result<Vec<(Index64, Vec<u8>)>, Box<dyn std::error::Error>> {
+        // Determine which partitions overlap this range
+        let partition_ids = self.backend.query_partitions_in_range(start_idx, end_idx).await?;
+
+        let mut results = Vec::new();
+
+        for partition_id in partition_ids {
+            // Check cache first
+            let cache = self.cache.read().await;
+            if let Some(container) = cache.get(&partition_id) {
+                // Query from cached container
+                for (&idx, value) in container.iter() {
+                    if idx >= start_idx && idx <= end_idx {
+                        results.push((idx, value.clone()));
+                    }
+                }
+                continue;
+            }
+            drop(cache);
+
+            // Load from S3 if not cached
+            let data = self.backend.load_partition(&partition_id).await?;
+            let container = Container::<Index64, Vec<u8>>::deserialize(&data)?;
+
+            // Update cache
+            let mut cache = self.cache.write().await;
+            cache.insert(partition_id.clone(), container.clone());
+            drop(cache);
+
+            // Query from newly loaded container
+            for (&idx, value) in container.iter() {
+                if idx >= start_idx && idx <= end_idx {
+                    results.push((idx, value.clone()));
+                }
+            }
+        }
+
+        Ok(results)
+    }
+}
+```
+
+### 14.6.2 Google Cloud Platform Integration
+
+```rust
+use google_cloud_storage::client::Client as GCSClient;
+use google_cloud_pubsub::client::Client as PubSubClient;
+
+/// GCP-based event-driven architecture
+struct GCPEventProcessor {
+    gcs_client: GCSClient,
+    pubsub_client: PubSubClient,
+    bucket_name: String,
+    topic_name: String,
+}
+
+impl GCPEventProcessor {
+    async fn new(bucket_name: String, topic_name: String) -> Self {
+        // Initialize GCP clients
+        let gcs_client = GCSClient::default();
+        let pubsub_client = PubSubClient::default();
+
+        Self {
+            gcs_client,
+            pubsub_client,
+            bucket_name,
+            topic_name,
+        }
+    }
+
+    /// Publish partition update event
+    async fn publish_update_event(
+        &self,
+        partition_id: &str,
+        update_type: UpdateType,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        use serde_json::json;
+
+        let message = json!({
+            "partition_id": partition_id,
+            "update_type": update_type,
+            "timestamp": chrono::Utc::now().to_rfc3339(),
+        });
+
+        // Publish to Pub/Sub topic
+        // (Implementation depends on GCP SDK version)
+
+        Ok(())
+    }
+
+    /// Process incoming update events
+    async fn process_events(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // Subscribe to Pub/Sub topic and process events
+        // This would typically run in a loop in a separate task
+        Ok(())
+    }
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+enum UpdateType {
+    PartitionCreated,
+    PartitionUpdated,
+    PartitionDeleted,
+    PartitionSplit,
+    PartitionMerged,
+}
+```
+
+### 14.6.3 Azure Deployment with Cosmos DB
+
+```rust
+use azure_storage_blobs::prelude::*;
+use azure_data_cosmos::prelude::*;
+
+/// Azure-based deployment with Cosmos DB for metadata
+struct AzureBackend {
+    blob_client: ContainerClient,
+    cosmos_client: CosmosClient,
+    database_name: String,
+    collection_name: String,
+}
+
+impl AzureBackend {
+    async fn new(
+        storage_account: String,
+        container_name: String,
+        cosmos_endpoint: String,
+        database_name: String,
+        collection_name: String,
+    ) -> Self {
+        // Initialize Azure clients
+        // (Simplified for demonstration)
+        todo!()
+    }
+
+    /// Store partition with metadata
+    async fn store_with_metadata(
+        &self,
+        partition_id: &str,
+        data: &[u8],
+        metadata: PartitionMetadata,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        // Store blob data
+        // Store metadata in Cosmos DB
+        Ok(())
+    }
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+struct PartitionMetadata {
+    partition_id: String,
+    start_idx: u64,
+    end_idx: u64,
+    size_bytes: usize,
+    created_at: chrono::DateTime<chrono::Utc>,
+    last_modified: chrono::DateTime<chrono::Utc>,
+    access_count: u64,
+}
+```
+
+## 14.7 Monitoring and Observability
+
+Distributed systems require comprehensive monitoring to detect and diagnose issues.
+
+### 14.7.1 Metrics Collection
+
+```rust
+use prometheus::{IntCounter, IntGauge, Histogram, Registry};
+use std::sync::Arc;
+
+/// Metrics for distributed OctaIndex3D system
+struct DistributedMetrics {
+    // Query metrics
+    query_count: IntCounter,
+    query_duration: Histogram,
+    query_errors: IntCounter,
+
+    // Partition metrics
+    active_partitions: IntGauge,
+    partition_size_bytes: Histogram,
+
+    // Cache metrics
+    cache_hits: IntCounter,
+    cache_misses: IntCounter,
+    cache_size_bytes: IntGauge,
+
+    // Network metrics
+    network_bytes_sent: IntCounter,
+    network_bytes_received: IntCounter,
+}
+
+impl DistributedMetrics {
+    fn new(registry: &Registry) -> Result<Self, Box<dyn std::error::Error>> {
+        use prometheus::{opts, histogram_opts};
+
+        Ok(Self {
+            query_count: IntCounter::new("octaindex_queries_total", "Total queries")?,
+            query_duration: Histogram::with_opts(histogram_opts!(
+                "octaindex_query_duration_seconds",
+                "Query duration in seconds"
+            ))?,
+            query_errors: IntCounter::new("octaindex_query_errors_total", "Query errors")?,
+
+            active_partitions: IntGauge::new("octaindex_active_partitions", "Active partitions")?,
+            partition_size_bytes: Histogram::with_opts(histogram_opts!(
+                "octaindex_partition_size_bytes",
+                "Partition size in bytes"
+            ))?,
+
+            cache_hits: IntCounter::new("octaindex_cache_hits_total", "Cache hits")?,
+            cache_misses: IntCounter::new("octaindex_cache_misses_total", "Cache misses")?,
+            cache_size_bytes: IntGauge::new("octaindex_cache_size_bytes", "Cache size in bytes")?,
+
+            network_bytes_sent: IntCounter::new("octaindex_network_sent_bytes_total", "Network bytes sent")?,
+            network_bytes_received: IntCounter::new("octaindex_network_received_bytes_total", "Network bytes received")?,
+        })
+    }
+
+    /// Record a successful query
+    fn record_query(&self, duration: std::time::Duration) {
+        self.query_count.inc();
+        self.query_duration.observe(duration.as_secs_f64());
+    }
+
+    /// Record cache access
+    fn record_cache_access(&self, hit: bool) {
+        if hit {
+            self.cache_hits.inc();
+        } else {
+            self.cache_misses.inc();
+        }
+    }
+}
+```
+
+### 14.7.2 Distributed Tracing
+
+```rust
+use opentelemetry::{global, sdk::trace as sdktrace};
+use tracing::{span, Level};
+use tracing_subscriber::layer::SubscriberExt;
+
+/// Initialize distributed tracing
+fn init_tracing() {
+    let tracer = opentelemetry_jaeger::new_pipeline()
+        .with_service_name("octaindex3d-shard")
+        .install_simple()
+        .expect("Failed to install tracer");
+
+    let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
+
+    let subscriber = tracing_subscriber::Registry::default()
+        .with(telemetry)
+        .with(tracing_subscriber::fmt::layer());
+
+    tracing::subscriber::set_global_default(subscriber)
+        .expect("Failed to set subscriber");
+}
+
+/// Traced query execution
+async fn traced_range_query(
+    shard: &ShardServer,
+    start: Index64,
+    end: Index64,
+) -> Result<Vec<(Index64, Vec<u8>)>, Box<dyn std::error::Error>> {
+    let span = span!(Level::INFO, "range_query",
+        shard_id = shard.shard_id,
+        start = start.to_morton(),
+        end = end.to_morton()
+    );
+
+    let _enter = span.enter();
+
+    // Perform query with automatic trace propagation
+    shard.handle_range_query(start, end).await
+}
+```
+
+### 14.7.3 Health Checks and Readiness Probes
+
+```rust
+use axum::{Router, routing::get, http::StatusCode};
+use std::sync::Arc;
+
+/// Health check endpoints for Kubernetes
+async fn health_check() -> StatusCode {
+    StatusCode::OK
+}
+
+async fn readiness_check(
+    state: Arc<ShardServer>,
+) -> StatusCode {
+    // Check if shard is ready to serve requests
+    let cache = state.cache.read().await;
+
+    if cache.len() > 0 {
+        StatusCode::OK
+    } else {
+        StatusCode::SERVICE_UNAVAILABLE
+    }
+}
+
+/// Create health check router
+fn create_health_router(shard: Arc<ShardServer>) -> Router {
+    Router::new()
+        .route("/health", get(health_check))
+        .route("/ready", get(|| readiness_check(shard.clone())))
+}
+```
+
+## 14.8 Troubleshooting Distributed Systems
+
+### 14.8.1 Partition Skew
+
+**Problem**: Some partitions receive disproportionate load.
+
+**Solutions**:
+- Monitor partition access patterns via metrics
+- Implement dynamic partition splitting:
+  ```rust
+  async fn split_hot_partition(
+      partition_id: &str,
+      threshold_qps: f64,
+  ) -> Result<(String, String), Box<dyn std::error::Error>> {
+      // Load partition
+      // Split at median key
+      // Create two new partitions
+      // Update routing tables
+      Ok(("partition_a".to_string(), "partition_b".to_string()))
+  }
+  ```
+- Use consistent hashing with virtual nodes
+
+### 14.8.2 Ghost Zone Synchronization Delays
+
+**Problem**: Ghost zones lag behind owned data, causing stale reads.
+
+**Solutions**:
+- Implement versioning for ghost data
+- Add timestamps to detect staleness
+- Use asynchronous prefetching:
+  ```rust
+  async fn prefetch_ghost_zones(
+      owned_indices: &[Index64],
+      neighbors: &[Index64],
+  ) -> HashMap<Index64, Vec<u8>> {
+      // Fetch neighbor data in advance of computation
+      HashMap::new()
+  }
+  ```
+
+### 14.8.3 Network Partition Tolerance
+
+**Problem**: Network splits cause inconsistency.
+
+**Solutions**:
+- Implement quorum-based writes
+- Use vector clocks or hybrid logical clocks
+- Provide conflict resolution strategies
+- Consider using Raft or Paxos for critical metadata
+
+## 14.9 Further Reading
+
+### Books
+
+1. **"Designing Data-Intensive Applications"** by Martin Kleppmann (2017)
+   - Chapter 5: Replication
+   - Chapter 6: Partitioning
+   - Chapter 7: Transactions
+
+2. **"Database Internals"** by Alex Petrov (2019)
+   - Chapter 11: Distributed Transactions
+   - Chapter 12: Distributed Consensus
+
+3. **"High Performance Computing"** by Eijkhout, Chow & van de Geijn (2015)
+   - Chapter on domain decomposition
+   - Parallel algorithms
+
+### Papers
+
+1. Lamport (1998). "The Part-Time Parliament" - Paxos consensus
+2. Ongaro & Ousterhout (2014). "In Search of an Understandable Consensus Algorithm" - Raft
+3. Corbett et al. (2013). "Spanner: Google's Globally Distributed Database"
+
+### Online Resources
+
+- **Apache Arrow Documentation**: https://arrow.apache.org/docs/
+- **MPI Tutorial**: https://mpitutorial.com/
+- **Kubernetes Patterns**: https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/
+
 ---
 
-## 14.7 Summary
+## 14.10 Summary
 
 In this chapter, we discussed distributed and parallel processing:
 
-- **Partitioning strategies** (spatial and key-range) for BCC-indexed data.
+- **Partitioning strategies** (spatial and key-range) for BCC-indexed data with detailed implementation examples.
 - **Ghost zones** to support stencil and boundary-crossing computations.
-- Integration with **columnar formats** like Apache Arrow.
+- Integration with **columnar formats** like Apache Arrow for analytics pipelines.
 - **Distributed A*** and graph search on BCC-based graphs.
-- High-level strategies for **fault tolerance, scalability, and cloud deployment**.
+- **Cloud deployment** patterns for AWS, GCP, and Azure with code examples.
+- **Monitoring and observability** using Prometheus and OpenTelemetry.
+- **Troubleshooting guide** for common distributed systems issues.
+- High-level strategies for **fault tolerance and scalability**.
 
 The next chapter explores how these ideas interact with modern machine learning workflows.
