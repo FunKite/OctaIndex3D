@@ -83,6 +83,111 @@ Rather than forcing time into the index itself, a common pattern is:
 
 This keeps the BCC index strictly 3D while still supporting 4D reasoning through time-stamped containers and time-aware frames.
 
+### 14.2.1 Bit Budgets, Scale, and Mars
+
+Under the hood, OctaIndex3D uses several identifier types whose **bit layouts** control how far you can see and how finely you can resolve detail:
+
+- `Galactic128`:
+  - 32-bit signed coordinates `x, y, z` (bits 95–0).
+  - 6 bits of **LOD**, 2 bits of **scale tier**, and 8 bits of **scale mantissa**.
+  - Additional bits for **frame ID** and attributes.
+- `Index64`:
+  - 48-bit Morton code (effectively ~16 bits per axis) for compact database keys.
+  - 4 bits of **LOD**, 2 bits of **scale tier**, and 8 bits of **frame ID`.
+- `Route64`:
+  - 20-bit signed coordinates per axis (about ±524k steps) for **local routing**.
+  - 2 bits of **scale tier**.
+
+You are free to choose how these discrete steps map to meters; the key is that the **same BCC lattice** can represent:
+
+- Fine-grained detail around a landing site.
+- Global context across the entire planet.
+- Interplanetary distances during cruise.
+
+Two practical design patterns for Mars missions are:
+
+1. **Global and interplanetary context with `Galactic128`**
+2. **Near-surface mapping with `Index64` and `Route64`**
+
+#### Global and Interplanetary Context with `Galactic128`
+
+Because `Galactic128` stores full 32-bit coordinates, it can cover very large distances:
+
+- A 32-bit signed axis ranges from roughly `-2.1×10⁹` to `+2.1×10⁹` steps.
+- If one step is **1 km**, you can represent positions across about **4.3 billion km** along each axis—comfortably spanning multiple astronomical units.
+
+This is more than enough to:
+
+- Track a spacecraft from **Earth–Mars transfer** through capture and operations.
+- Maintain a single **Mars-centered inertial frame** that includes:
+  - Mars itself (~3,400 km radius).
+  - The local orbital environment (tens of thousands of km).
+  - The interplanetary corridor out to several hundred million km.
+
+In this regime:
+
+- `scale_tier` and `scale_mant` encode **how big one lattice step is** (for example, 1 km vs 10 km).
+- `lod` can represent additional hierarchical detail (for example, sub-kilometer refinement near Mars while keeping coarser resolution farther away).
+
+You might, for example:
+
+- Use `scale_tier = 3`, `scale_mant` ≈ 1 to mean **1 km per lattice step**.
+- Place the origin at Mars’ center of mass.
+- Express spacecraft trajectory waypoints, relay satellites, and other celestial bodies in the same coordinate system.
+
+Even at this coarse scale, BCC connectivity still pays off for:
+
+- Radiation and dust-environment fields along the transfer corridor.
+- Line-of-sight and occlusion calculations between spacecraft, Mars, and the Sun.
+
+#### Mars Surface and Near-Surface Mapping with `Index64` and `Route64`
+
+Closer to the surface, you typically want **much higher resolution** but within a **limited spatial extent**. This is where `Index64` and `Route64` shine:
+
+- `Index64` exposes:
+  - 48 bits of Morton code → about `2¹⁶ = 65,536` discrete positions per axis at a given LOD.
+  - 4 bits of LOD → 16 hierarchical levels of refinement.
+- `Route64` exposes:
+  - 20-bit signed coordinates → a local cube about **1,000,000 cells per axis** centered on a rover or settlement.
+
+Suppose you dedicate an `Index64` frame to a Mars-fixed body frame and choose:
+
+- A bounding cube of ~**6,800 km** across (slightly larger than Mars’ diameter).
+- 16 bits per axis for the Morton code.
+
+Then, at a given LOD:
+
+- One lattice step corresponds to roughly `6,800,000 m / 65,536 ≈ 104 m`.
+- Coarser LODs aggregate these cells (hundreds of meters to kilometers).
+
+You can push to **finer effective resolution** in two ways:
+
+- Use a **smaller spatial extent** for a given frame (for example, a 200 km region around a landing site), yielding cell sizes of a few meters.
+- Use **higher LODs** to subdivide coarse cells in regions of interest (for example, landing ellipses, rover workspaces, or base footprints).
+
+For truly local operations—like routing an EVA around a habitat or maneuvering a rover in a cluttered yard—you may switch to `Route64`:
+
+- With 20-bit signed coordinates and a scale of **0.1 m per step**, a single `Route64` frame can cover:
+  - About `1,000,000 steps × 0.1 m ≈ 100 km` per axis.
+  - More than enough for any near-base or within-settlement activity.
+
+The important point is that **all three ID types interoperate**:
+
+- `Galactic128` gives you **global and interplanetary** positions for Mars and spacecraft.
+- `Index64` gives you **planet-wide tiling** suitable for DEMs, atmospheric models, and hazard grids.
+- `Route64` gives you **high-fidelity local coordinates** for navigation and manipulation near the surface.
+
+For Mars missions, you might adopt a workflow like:
+
+1. Use `Galactic128` to represent the spacecraft trajectory and key waypoints in a Mars-centric inertial frame.
+2. Project those positions into a Mars-fixed surface frame and sample into `Index64` containers for global maps (terrain, atmosphere, resources).
+3. Around landing sites and bases, down-convert into `Route64` coordinates for local planners and controllers.
+
+Because each layer preserves **parity and BCC structure**, moving between scales is mostly a matter of:
+
+- Changing scale fields (tier, mantissa) and LOD.
+- Reusing the same underlying neighbor and container machinery.
+
 Transformations between frames let you:
 
 - Convert orbital products (e.g., ephemerides, occultation geometry) into surface-relative contexts.
