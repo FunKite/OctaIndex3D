@@ -3,7 +3,7 @@
 **Review Date:** 2025-11-15 (Updated: 2025-11-15 evening - latest session)
 **Current Version:** v0.1.0
 **Reviewer:** Claude (AI Assistant)
-**Style Guide:** O'Reilly-style practical technical guide (not academic textbook)
+**Style Guide:** practical technical guide (not academic textbook)
 **Overall Assessment:** PUBLICATION-READY for all core chapters (Parts I-V) and ALL appendices (A-H); only visual assets and index remaining
 
 ---
