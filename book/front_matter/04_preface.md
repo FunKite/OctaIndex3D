@@ -125,7 +125,7 @@ All resources are freely available and will be maintained long-term.
 
 While the code and text are my own, this work builds on decades of research by brilliant minds in crystallography, signal processing, and computer science. Specific acknowledgments appear in the formal Acknowledgments section, but I want to emphasize: this book synthesizes existing knowledge into a new application domain. The novelty is in the engineering, not the mathematics.
 
-The collaboration with Claude (Anthropic's AI assistant) and GPT-5.1 (OpenAI's AI assistant) deserves special mention. Claude contributed to code optimization, benchmark design, and iterative refinement of explanations. GPT-5.1 helped reshape the material into a practical, story-driven guide, focusing on real-world workflows and integration patterns. Together, these systems made it possible to iterate faster and explore more alternatives than would have been feasible otherwise. This represents one of the first technical books co-created with AI, and I believe it demonstrates how human expertise and AI capabilities can combine synergistically.
+The collaboration with Claude (Anthropic's AI assistant) and GPT-5.1 (OpenAI's AI assistant) deserves special mention. This represents one of the first technical books co-created with AI, and I believe it demonstrates how human expertise and AI capabilities can combine synergistically.
 
 ## A Final Word
 
