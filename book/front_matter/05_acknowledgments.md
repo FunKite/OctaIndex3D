@@ -24,7 +24,7 @@ This book represents the synthesis of knowledge from multiple disciplines spanni
 
 ## Implementation and Testing
 
-**Claude (Anthropic) and PT-5.1 (OpenAI)
+**Claude (Anthropic) and GPT-5.1 (OpenAI)
 
 This collaboration represents a new paradigm in technical authorship—human expertise directing AI capabilities toward productive ends.  Together, these systems allowed for a much faster and broader exploration of design options than would have been possible with human effort alone.
 
