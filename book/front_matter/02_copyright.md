@@ -4,10 +4,6 @@
 
 ---
 
-**This book was typeset in LaTeX.**
-
-**Figures prepared using TikZ, Matplotlib, and Blender.**
-
 **Code examples verified with Rust 1.82.0.**
 
 ---
