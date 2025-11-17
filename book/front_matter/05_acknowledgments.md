@@ -24,44 +24,13 @@ This book represents the synthesis of knowledge from multiple disciplines spanni
 
 ## Implementation and Testing
 
-**Claude (Anthropic)**, my AI collaboration partner, who contributed to:
-- Performance optimization strategies and SIMD exploration
-- Benchmark design and statistical analysis
-- Documentation clarity and pedagogical structure
-- Iterative refinement of code examples
-- Identification of edge cases and potential bugs
+**Claude (Anthropic) and PT-5.1 (OpenAI)
 
-This collaboration represents a new paradigm in technical authorship—human expertise directing AI capabilities toward productive ends.
-
-**GPT-5.1 (OpenAI)**, my second AI collaboration partner, who:
-- Helped reshape textbook-style sections into a practical, guide-like narrative
-- Proposed realistic, end-to-end scenarios drawn from robotics, geospatial work, scientific computing, and gaming
-- Emphasized integration patterns and “how this feels in a real codebase”
-- Assisted with maintaining consistency of tone and structure across chapters and parts
-
-Together, these systems allowed for a much faster and broader exploration of design options than would have been possible with human effort alone.
-
-**Early reviewers and testers** who provided invaluable feedback on pre-release versions:
-- The Rust gamedev working group, who tested pathfinding performance
-- Geospatial researchers who validated the GIS integration features
-- Robotics engineers who stress-tested the real-time capabilities
-- Scientific computing users who pushed the system to extreme scales
+This collaboration represents a new paradigm in technical authorship—human expertise directing AI capabilities toward productive ends.  Together, these systems allowed for a much faster and broader exploration of design options than would have been possible with human effort alone.
 
 ## Institutional Support
 
-**The open-source community**, whose philosophy of transparent, collaborative development ensures that knowledge advances collectively rather than in proprietary silos.
-
 **GitHub**, for providing the infrastructure that makes modern open-source collaboration possible.
-
-**The MIT Press**, for taking a chance on a technical book that bridges academic research and practical engineering in unconventional ways.
-
-## Personal Acknowledgments
-
-**My colleagues in the autonomous systems group**, who tolerated months of me evangelizing about crystallography to anyone who would listen. Your patience and constructive skepticism improved this work immeasurably.
-
-**My family**, who supported this project through countless evenings and weekends of writing, coding, and benchmarking. Your encouragement made this possible.
-
-**The maintainers of coffee shops and tea houses** where much of this book was written. Special thanks to those establishments that didn't mind a customer occupying a table for hours with just one beverage and a laptop covered in geometry sketches.
 
 ## Standing on the Shoulders of Giants
 
