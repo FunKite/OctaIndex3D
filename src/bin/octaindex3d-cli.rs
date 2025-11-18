@@ -198,6 +198,7 @@ impl CompetitiveStats {
         self.total_games += 1;
         let efficiency = (optimal_moves as f64 / player_moves as f64) * 100.0;
 
+        #[allow(clippy::comparison_chain)]
         if player_moves < optimal_moves {
             self.wins += 1;
         } else if player_moves == optimal_moves {
@@ -854,6 +855,7 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
 
                                         // Exploration efficiency comparison
                                         print!("\r\n🔍 Exploration Comparison:\r\n");
+                                        #[allow(clippy::comparison_chain)]
                                         if player_visited < astar_nodes_visited {
                                             let pct_fewer = ((astar_nodes_visited as f64
                                                 / player_visited as f64)
@@ -880,6 +882,7 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
                                         // Competitive result (based on nodes explored)
                                         print!("\r\n🎮 COMPETITIVE RESULT (Fewest Nodes Explored Wins):\r\n");
                                         print!("───────────────────────────────────────\r\n");
+                                        #[allow(clippy::comparison_chain)]
                                         if player_visited < astar_nodes_visited {
                                             let nodes_saved = astar_nodes_visited - player_visited;
                                             print!("🏆 YOU WIN! You explored {} fewer nodes than A*!\r\n", nodes_saved);
