@@ -8,15 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Updated Rust toolchain from 1.82.0 to 1.91.1
+- Updated `lz4_flex` from 0.11.5 to 0.12.0
+- Updated `cudarc` from 0.17.8 to 0.18.1
+- Updated `clap` from 4.5.51 to 4.5.52
 - Updated `metal` from 0.29.0 to 0.32.0
 - Updated `glam` from 0.29.3 to 0.30.9
 - Updated `pollster` from 0.3.0 to 0.4.0
 - Updated `crossterm` from 0.28.1 to 0.29.0
-- Updated `clap` from 4.5.50 to 4.5.51
 - Updated `zerocopy` from 0.7.35 to 0.8.27
-- Updated `cudarc` from 0.12.1 to 0.17.7 (CUDA backend API changes)
 
 ### Fixed
+- Fixed clippy lint issues for Rust 1.91.1 (removed invalid `manual_is_multiple_of` lint, added `comparison_chain` allows)
 - Added advisory ignore for unmaintained `paste` crate (RUSTSEC-2024-0436) used by metal/wgpu dependencies
 - Fixed CUDA backend for cudarc 0.17.7 API changes (CudaDevice → CudaContext)
 
