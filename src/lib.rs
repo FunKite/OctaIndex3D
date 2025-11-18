@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert_eq!(VERSION, "0.4.3");
+        assert_eq!(VERSION, "0.4.4");
     }
 
     #[test]

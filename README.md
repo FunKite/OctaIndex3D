@@ -37,13 +37,13 @@
 
 ## What's New
 
-### Version 0.4.3 (Latest)
+### Version 0.4.4 (Latest)
 
-- **Interactive 3D Octahedral Maze Game**: Play procedurally-generated mazes with BCC lattice pathfinding
-- **BCC-14 Prim's Algorithm Demo**: Spanning tree generation on 549K nodes with A* pathfinding
-- **GitHub Community Standards**: Full CONTRIBUTING.md, issue templates, security policies
-- **Enhanced Security**: CodeQL analysis and automated security scanning
-- **CLI Utilities**: Encode/decode coordinates, calculate distances, explore neighbors
+- **Dependency Updates**: Updated to Rust 1.91.1 and latest ecosystem dependencies
+- **Enhanced Compatibility**: Updated 8 major dependencies (lz4_flex, cudarc, clap, metal, glam, pollster, crossterm, zerocopy)
+- **Improved Code Quality**: Fixed clippy lints for Rust 1.91.1
+- **CUDA Support**: Fixed CUDA backend for cudarc API changes
+- **Maintenance**: Resolved advisory for unmaintained `paste` crate dependency
 
 See the full [Changelog](CHANGELOG.md) for detailed release history.
 
