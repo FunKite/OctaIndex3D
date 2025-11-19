@@ -223,11 +223,12 @@ impl TemporalOccupancyLayer {
     /// Get statistics
     pub fn stats(&self) -> TemporalStats {
         let now = Instant::now();
-        let mut stats = TemporalStats::default();
+        let mut stats = TemporalStats {
+            total_voxels: self.voxels.len(),
+            ..Default::default()
+        };
 
-        stats.total_voxels = self.voxels.len();
-
-        for (_, voxel) in &self.voxels {
+        for voxel in self.voxels.values() {
             let age = now.duration_since(voxel.last_update).as_secs_f32();
             let decay = (-self.config.decay_rate * age).exp();
             let current_log_odds = voxel.log_odds * decay;
