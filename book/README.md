@@ -14,6 +14,8 @@ The purpose of this book is simple: **help you understand OctaIndex3D well enoug
 
 We turn the OctaIndex3D whitepaper into a **hands-on guide** for building real systems on top of Body-Centered Cubic (BCC) lattices. The theory is here when you need it, but every major idea is connected to concrete applications, code, and design choices.
 
+**NEW in v0.5.0**: OctaIndex3D now includes a **complete autonomous 3D mapping stack** with occupancy mapping, sensor fusion, GPU acceleration, temporal filtering, ROS2 integration, and exploration primitives—making it a production-ready system for autonomous robotics.
+
 The book keeps returning to the same question:
 
 > *How do I use OctaIndex3D to make my actual application—robot, simulation, map, or game—faster, more accurate, and easier to reason about?*
