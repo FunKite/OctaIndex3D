@@ -39,9 +39,7 @@
 
 ### Version 0.5.0 - Complete Autonomous Mapping Stack (Latest)
 
-**🚀 OctaIndex3D is now "The BLAS of 3D Robotics"**
-
-This release transforms OctaIndex3D from a spatial indexing library into a complete autonomous 3D mapping system with production-ready occupancy mapping, sensor fusion, and exploration primitives.
+This release transforms OctaIndex3D from a spatial indexing library into a complete autonomous 3D mapping system with occupancy mapping, sensor fusion, and exploration primitives.
 
 **Major Features:**
 
@@ -504,7 +502,7 @@ For detailed performance analysis and benchmarks, see:
 
 ## The Complete Autonomous Mapping Stack
 
-OctaIndex3D now provides a **production-ready autonomous 3D mapping system** with all the layers needed for real-world robotics applications:
+OctaIndex3D now provides a **autonomous 3D mapping system** with all the layers needed for real-world robotics applications:
 
 | Layer | Purpose | Lines | Features |
 |-------|---------|-------|----------|
