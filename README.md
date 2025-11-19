@@ -39,41 +39,19 @@
 
 ### Version 0.5.0 - Complete Autonomous Mapping Stack (Latest)
 
-**🚀 Major Features: From Occupancy to Autonomous Exploration**
+**🚀 OctaIndex3D is now "The BLAS of 3D Robotics"**
 
-OctaIndex3D is now a complete autonomous 3D mapping system! This release adds production-ready occupancy mapping, sensor fusion, and exploration primitives.
+This release transforms OctaIndex3D from a spatial indexing library into a complete autonomous 3D mapping system with production-ready occupancy mapping, sensor fusion, and exploration primitives.
 
-- **3D Occupancy Framework** (4,220 lines)
-  - Bayesian log-odds probabilistic mapping
-  - Multi-sensor fusion (LiDAR, RGB-D, depth cameras)
-  - Ray integration for depth sensors
-  - Unknown/Free/Occupied state classification
+**Major Features:**
 
-- **Advanced Occupancy Features** (1,794 lines)
-  - GPU-accelerated ray casting (Metal + CUDA)
-  - Temporal filtering for dynamic environments
-  - 89x compression ratio with RLE
-  - ROS2 integration bridge
+- **3D Occupancy Framework** - Bayesian log-odds probabilistic mapping with multi-sensor fusion (LiDAR, RGB-D, depth cameras)
+- **Advanced Occupancy Features** - GPU-accelerated ray casting (Metal + CUDA), temporal filtering for dynamic environments, 89x compression with RLE, ROS2 integration
+- **Exploration Primitives** - Frontier detection, information gain calculation, viewpoint generation for next-best-view planning
 
-- **Exploration Primitives** (753 lines)
-  - Frontier detection with clustering
-  - Information gain calculation
-  - Viewpoint candidate generation
-  - Building blocks for Next-Best-View planning
+**Total: 6,767 lines of autonomous mapping infrastructure across 9 production layers**
 
-**Total: 6,767 lines of production-ready autonomous mapping infrastructure!**
-
-### Previous Releases
-
-#### Version 0.4.4
-
-- **Dependency Updates**: Updated to Rust 1.91.1 and latest ecosystem dependencies
-- **Enhanced Compatibility**: Updated 8 major dependencies (lz4_flex, cudarc, clap, metal, glam, pollster, crossterm, zerocopy)
-- **Improved Code Quality**: Fixed clippy lints for Rust 1.91.1
-- **CUDA Support**: Fixed CUDA backend for cudarc API changes
-- **Maintenance**: Resolved advisory for unmaintained `paste` crate dependency
-
-See the full [Changelog](CHANGELOG.md) for detailed release history.
+See the full [Changelog](CHANGELOG.md) for release history.
 
 ## Overview
 
@@ -90,16 +68,10 @@ octaindex3d play --difficulty medium
 cargo add octaindex3d
 ```
 
-```rust
-use octaindex3d::{Route64, neighbors::neighbors_route64};
-
-// Create a BCC lattice point
-let point = Route64::new(0, 10, 20, 30)?;
-
-// Get all 14 neighbors
-let neighbors = neighbors_route64(point);
-assert_eq!(neighbors.len(), 14);
-```
+**For code examples and tutorials**, see the [OctaIndex3D Book](book/README.md):
+- [Quick Start Guide](book/front_matter/10_quick_start.md) - Basic usage and autonomous mapping examples
+- [Chapter 10: Robotics & Autonomous Systems](book/part4_applications/chapter10_robotics_and_autonomy.md) - Complete autonomous mapping tutorial
+- [API Documentation](https://docs.rs/octaindex3d) - Full API reference
 
 ### Key Features
 
@@ -298,177 +270,41 @@ cargo bench
 cargo run --release --features cli --bin octaindex3d -- play
 ```
 
-## Quick Start
+## Core Capabilities
 
-### Basic Usage
+OctaIndex3D provides three main capability areas:
 
-```rust
-use octaindex3d::{Galactic128, Index64, Route64, Result};
+### 1. Spatial Indexing & Data Structures
 
-fn main() -> Result<()> {
-    // Create a global ID (128-bit)
-    let galactic = Galactic128::new(0, 5, 1, 10, 0, 2, 4, 6)?;
-    println!("Galactic ID: {}", galactic.to_bech32m()?);
+- **Multiple ID types** for different use cases (Galactic128, Index64, Route64, Hilbert64)
+- **14-neighbor connectivity** on BCC lattice for isotropic operations
+- **Hierarchical refinement** with 8:1 parent-child relationships
+- **Space-filling curves** (Morton and Hilbert) for spatial locality
+- **Frame registry** for coordinate system management
+- **Streaming containers** for append-friendly storage (v2 format)
+- **GeoJSON export** for GIS integration
 
-    // Create a Morton-encoded index (64-bit)
-    let index = Index64::new(0, 0, 5, 100, 200, 300)?;
-    println!("Morton coordinates: {:?}", index.decode_coords());
+### 2. Autonomous 3D Mapping (NEW in v0.5.0)
 
-    // Create a local routing coordinate (64-bit)
-    let route = Route64::new(0, 100, 200, 300)?;
-    println!("Route: ({}, {}, {})", route.x(), route.y(), route.z());
+- **Probabilistic occupancy mapping** with Bayesian log-odds updates
+- **Multi-sensor fusion** for LiDAR, RGB-D, depth cameras, and radar
+- **Exploration primitives**: frontier detection, information gain, next-best-view planning
+- **GPU acceleration** (Metal + CUDA) for real-time ray casting
+- **Temporal filtering** for dynamic environments with time decay
+- **89x compression** with RLE for efficient storage
+- **ROS2 integration** for robotics middleware
 
-    // Get 14 neighbors
-    let neighbors = octaindex3d::neighbors::neighbors_route64(route);
-    assert_eq!(neighbors.len(), 14);
+### 3. High-Performance Computing
 
-    Ok(())
-}
-```
+- **Cross-platform SIMD** (BMI2, AVX2, NEON) for encoding operations
+- **GPU backends** for massive batch operations (millions of points)
+- **Parallel processing** with Rayon for multi-threaded workloads
+- **Memory-efficient** representations with optional compression
 
-### Working with Hilbert Curves
-
-```rust
-use octaindex3d::{Hilbert64, Index64};
-
-// Create Hilbert-encoded ID (better spatial locality than Morton)
-let hilbert = Hilbert64::new(0, 0, 5, 100, 200, 300)?;
-
-// Hierarchical operations
-let parent = hilbert.parent().unwrap();
-let children = hilbert.children();
-
-// Convert between Morton and Hilbert
-let index: Index64 = hilbert.into();
-let hilbert2: Hilbert64 = index.try_into()?;
-
-// Batch encoding
-let coords = vec![(0, 0, 0), (1, 1, 1), (2, 2, 2)];
-let hilbert_ids = Hilbert64::encode_batch(&coords, 0, 0, 5)?;
-```
-
-### Streaming Container Storage
-
-```rust
-use octaindex3d::container_v2::{ContainerWriterV2, StreamConfig};
-use std::fs::File;
-
-// Create streaming container with append support
-let file = File::create("data.octa3d")?;
-let config = StreamConfig {
-    checkpoint_frames: 1000,
-    checkpoint_bytes: 64 * 1024 * 1024,
-    enable_sha256: false,
-};
-
-let mut writer = ContainerWriterV2::new(file, config)?;
-
-// Write spatial data frames
-for data in spatial_data {
-    writer.write_frame(&data)?;
-}
-
-writer.finish()?; // Writes final TOC and footer
-```
-
-### 3D Occupancy Mapping
-
-```rust
-use octaindex3d::occupancy::{OccupancyLayer, OccupancyConfig};
-
-// Create occupancy layer
-let config = OccupancyConfig {
-    resolution: 0.1,  // 10cm voxels
-    prob_hit: 0.7,
-    prob_miss: 0.4,
-    clamp_min: 0.12,
-    clamp_max: 0.97,
-};
-
-let mut layer = OccupancyLayer::new(config)?;
-
-// Integrate depth camera measurement
-let origin = (0.0, 0.0, 0.0);
-let point = (5.0, 2.0, 1.0);
-layer.integrate_ray(origin, point)?;
-
-// Query occupancy
-if layer.is_occupied((5.0, 2.0, 1.0))? {
-    println!("Space is occupied!");
-}
-```
-
-### Exploration Primitives
-
-```rust
-use octaindex3d::exploration::{FrontierDetectionConfig, InformationGainConfig};
-
-// Detect frontiers (boundaries between known free and unknown space)
-let frontier_config = FrontierDetectionConfig {
-    min_cluster_size: 10,
-    max_distance: 10.0,
-    cluster_distance: 0.3,
-};
-
-let frontiers = layer.detect_frontiers(&frontier_config)?;
-
-// Calculate information gain for a viewpoint
-let ig_config = InformationGainConfig {
-    sensor_range: 5.0,
-    sensor_fov: std::f32::consts::PI / 3.0,  // 60 degrees
-    ray_resolution: 5.0,
-    unknown_weight: 1.0,
-};
-
-let viewpoint = (1.0, 2.0, 3.0);
-let direction = (0.0, 1.0, 0.0);
-let info_gain = layer.information_gain_from(viewpoint, direction, &ig_config);
-
-// Generate ranked viewpoint candidates
-let candidates = layer.generate_viewpoint_candidates(&frontiers, &ig_config);
-// Returns viewpoints sorted by information gain
-```
-
-### GPU-Accelerated Ray Casting
-
-```rust
-use octaindex3d::gpu::{GpuBackend, RayCastBatch};
-
-// Create GPU backend (Metal on macOS, CUDA on Linux)
-let gpu = GpuBackend::new()?;
-
-// Batch ray casting for performance
-let origins: Vec<(f32, f32, f32)> = vec![/* ... */];
-let directions: Vec<(f32, f32, f32)> = vec![/* ... */];
-
-let batch = RayCastBatch { origins, directions, max_range: 10.0 };
-let hits = gpu.ray_cast_batch(&layer, &batch)?;
-// Process thousands of rays in parallel
-```
-
-### GeoJSON Export
-
-```rust
-use octaindex3d::geojson::{to_geojson_points, write_geojson_linestring, GeoJsonOptions};
-use std::path::Path;
-
-// Export points to GeoJSON
-let ids = vec![
-    Galactic128::new(0, 0, 0, 0, 0, 0, 0, 0)?,
-    Galactic128::new(0, 0, 0, 0, 0, 1000, 1000, 0)?,
-];
-
-let opts = GeoJsonOptions {
-    include_properties: true,
-    precision: 7, // ~1cm precision
-};
-
-let geojson = to_geojson_points(&ids, &opts);
-println!("{}", serde_json::to_string_pretty(&geojson)?);
-
-// Export path as LineString
-write_geojson_linestring(Path::new("path.geojson"), &path_ids, &opts)?;
-```
+**For detailed code examples and tutorials**, see the [OctaIndex3D Book](book/README.md):
+- [Quick Start Guide](book/front_matter/10_quick_start.md) - Basic usage and autonomous mapping examples
+- [Chapter 10: Robotics & Autonomous Systems](book/part4_applications/chapter10_robotics_and_autonomy.md) - Complete autonomous mapping tutorial with working code
+- [API Documentation](https://docs.rs/octaindex3d) - Full API reference
 
 ## ID System Architecture (v0.3.0+)
 
@@ -700,39 +536,15 @@ We provide **building blocks** rather than a complete exploration planner:
 
 This gives you **flexibility**, **composability**, and **control** over your exploration strategy.
 
-### Example: Greedy Exploration
+### Example Use Case: Autonomous Exploration
 
-```rust
-fn greedy_exploration(
-    layer: &OccupancyLayer,
-    robot_pos: (f32, f32, f32),
-) -> Option<Viewpoint> {
-    // 1. Detect frontiers
-    let frontiers = layer.detect_frontiers(&FrontierDetectionConfig::default())?;
-    if frontiers.is_empty() {
-        return None; // Exploration complete!
-    }
+Using these primitives, you can build various exploration strategies:
+1. **Detect frontiers** - find boundaries between known and unknown space
+2. **Generate viewpoint candidates** - sample observation poses around frontiers
+3. **Calculate information gain** - evaluate how much each viewpoint would reveal
+4. **Select next-best-view** - balance information gain against distance/cost
 
-    // 2. Generate candidates
-    let candidates = layer.generate_viewpoint_candidates(
-        &frontiers,
-        &InformationGainConfig::default()
-    );
-
-    // 3. Score: IG - λ × distance
-    let lambda = 0.1;
-    let best = candidates
-        .into_iter()
-        .map(|mut c| {
-            let dist = distance(robot_pos, c.position);
-            c.information_gain -= lambda * dist;
-            c
-        })
-        .max_by(|a, b| a.information_gain.partial_cmp(&b.information_gain).unwrap());
-
-    best
-}
-```
+**For complete working examples**, see [Chapter 10: Robotics & Autonomous Systems](book/part4_applications/chapter10_robotics_and_autonomy.md).
 
 ## Use Cases
 

@@ -264,7 +264,212 @@ This separation allows you to:
 - Re-run planning with alternative fusion strategies without recomputing base data.
 - Archive and replay decision-making under different assumptions for mission review and training.
 
-From the mission designers’ point of view, this means they can replay the first landing as many times as they like with “what‑if” settings: more conservative dust thresholds, different comm loss penalties, or updated rock distributions from later imagery. Every replay is simply a different read of the same BCC cells, not a new simulation stack.
+From the mission designers' point of view, this means they can replay the first landing as many times as they like with "what‑if" settings: more conservative dust thresholds, different comm loss penalties, or updated rock distributions from later imagery. Every replay is simply a different read of the same BCC cells, not a new simulation stack.
+
+---
+
+## 14.3.1 Autonomous Rover Exploration (NEW in v0.5.0)
+
+Mars presents the ultimate challenge for autonomous exploration: communication delays of 4-24 minutes make real-time human control impossible. Rovers must explore, map, and make decisions independently.
+
+**NEW in OctaIndex3D v0.5.0**: The complete autonomous mapping stack enables truly independent Mars rovers.
+
+### The Communication Challenge
+
+Traditional Mars rovers like Curiosity and Perseverance operate in a **plan-execute-report cycle**:
+1. Earth uploads a day's worth of commands
+2. Rover executes during the Mars sol
+3. Rover reports results back to Earth
+4. Earth plans the next sol (repeat)
+
+This works but is **painfully slow**: a rover might travel only 100-200 meters per sol, spending most of its time waiting for instructions.
+
+**Autonomous exploration changes the paradigm**: instead of waiting for Earth-based planning, the rover continuously explores using local decision-making:
+
+```rust
+// Autonomous exploration loop on Mars rover
+loop {
+    // 1. Update occupancy map from sensor data
+    occupancy_layer.integrate_scan(lidar_scan, current_pose)?;
+
+    // 2. Detect frontiers (unexplored boundaries)
+    let frontiers = occupancy_layer.detect_frontiers(&frontier_config)?;
+
+    if frontiers.is_empty() {
+        // Exploration complete, report to Earth
+        send_to_earth("Region fully mapped, awaiting new directives");
+        break;
+    }
+
+    // 3. Calculate information gain for viewpoint candidates
+    let candidates = occupancy_layer.generate_viewpoint_candidates(
+        &frontiers,
+        &info_gain_config
+    );
+
+    // 4. Select next-best-view considering:
+    //    - Information gain (how much will we learn?)
+    //    - Distance (energy cost)
+    //    - Hazard level (safety)
+    //    - Communication visibility (can we report?)
+    let next_viewpoint = select_best_with_constraints(
+        candidates,
+        current_pose,
+        &hazard_grid,
+        &comm_visibility_grid
+    );
+
+    // 5. Plan path and execute
+    let path = plan_safe_path(current_pose, next_viewpoint, &hazard_grid)?;
+    execute_path(path)?;
+}
+```
+
+### Mars-Specific Constraints
+
+Autonomous exploration on Mars must respect unique constraints:
+
+**Power Budget**: Solar-powered rovers must balance:
+- Driving distance (motors)
+- Sensor operation (cameras, LiDAR, radar)
+- Computation (occupancy updates, path planning)
+- Communication (transmitting results to Earth or orbiters)
+
+```rust
+fn select_viewpoint_with_power_budget(
+    candidates: Vec<Viewpoint>,
+    available_power_wh: f32,
+    current_pose: Pose3,
+) -> Option<Viewpoint> {
+    candidates.into_iter()
+        .filter(|vp| {
+            let drive_cost = estimate_drive_power(current_pose, vp.position);
+            let sensor_cost = estimate_sensor_power(&ig_config);
+            let compute_cost = estimate_compute_power();
+
+            drive_cost + sensor_cost + compute_cost < available_power_wh
+        })
+        .max_by(|a, b| a.information_gain.partial_cmp(&b.information_gain).unwrap())
+}
+```
+
+**Communication Windows**: Earth communication requires line-of-sight to:
+- Direct-to-Earth (DTE) during specific times
+- Mars orbiters that pass overhead
+
+Autonomous rovers must:
+- Prioritize exploration areas with good communication visibility
+- Cache mapping data for bulk transmission during comm windows
+- Occasionally return to "safe locations" with guaranteed comm
+
+**Temporal Decay for Dynamic Hazards**: Mars dust storms, dust devils, and shifting dunes require temporal filtering:
+
+```rust
+// Observations decay over time on Mars
+temporal_layer.set_decay_rate(0.98); // 2% decay per sol
+
+// Old hazard observations gradually revert to "unknown"
+temporal_layer.update_temporal(current_sol);
+
+// Recent observations count more than orbital data
+```
+
+**Compression for Limited Bandwidth**: Mars-to-Earth bandwidth is precious (~500 Kbps to 4 Mbps depending on distance):
+
+```rust
+// Compress occupancy maps before transmission
+let compressed = CompressedOccupancyLayer::from_layer(&occupancy_layer)?;
+
+// 89x compression means we can send full 3D maps
+transmit_to_earth(compressed.serialize()?);
+```
+
+### Multi-Rover Coordination
+
+Future Mars settlements may deploy **multiple rovers** exploring different regions:
+
+```rust
+// Divide frontiers among rover team
+fn assign_frontiers_to_rovers(
+    frontiers: Vec<Frontier>,
+    rovers: &[Rover],
+) -> HashMap<RoverId, Vec<Frontier>> {
+    // Assign frontiers to nearest available rover
+    // Consider: distance, power budget, specialization
+    let mut assignments = HashMap::new();
+
+    for frontier in frontiers {
+        let best_rover = rovers.iter()
+            .filter(|r| r.has_power_for_frontier(&frontier))
+            .min_by_key(|r| distance(r.position, frontier.centroid))
+            .unwrap();
+
+        assignments.entry(best_rover.id)
+            .or_insert_with(Vec::new)
+            .push(frontier);
+    }
+
+    assignments
+}
+```
+
+### Case Study: Autonomous Lava Tube Exploration
+
+Imagine a Mars rover tasked with exploring a lava tube—a potential site for radiation-shielded habitats:
+
+**Challenges**:
+- No GPS (must rely on visual-inertial odometry)
+- No sunlight (battery-limited exploration time)
+- No direct communication with Earth/orbiters (must map then exit to report)
+
+**Solution with OctaIndex3D**:
+
+1. **Enter tube and start mapping**:
+   ```rust
+   let mut tube_map = OccupancyLayer::new(config)?;
+   let entrance_pos = current_pose.position;
+   ```
+
+2. **Explore using frontiers** (no external guidance):
+   ```rust
+   while time_remaining > safe_return_time() {
+       frontiers = tube_map.detect_frontiers(&config)?;
+       candidates = tube_map.generate_viewpoint_candidates(&frontiers, &ig_config);
+
+       // Prioritize nearby frontiers to minimize return distance
+       next_vp = select_nearest_high_gain(candidates, current_pose);
+
+       navigate_to(next_vp)?;
+       update_map_from_sensors(&mut tube_map)?;
+   }
+   ```
+
+3. **Return to entrance** using the occupancy map:
+   ```rust
+   let return_path = plan_path(current_pose, entrance_pos, &tube_map)?;
+   execute_path(return_path)?;
+   ```
+
+4. **Transmit results** to Earth:
+   ```rust
+   let compressed_map = CompressedOccupancyLayer::from_layer(&tube_map)?;
+   transmit_to_earth(compressed_map)?;
+   ```
+
+**Result**: A complete 3D map of the lava tube interior, obtained **autonomously** without any human intervention during the ~2 hour exploration window.
+
+### The Vision: Truly Autonomous Mars Exploration
+
+With OctaIndex3D's autonomous mapping stack, Mars rovers become **truly independent explorers**:
+
+- **Opportunistic science**: Detect and investigate interesting features without waiting for Earth approval
+- **Rapid exploration**: Cover 10-100x more ground than command-driven rovers
+- **Risk management**: Continuously assess and avoid hazards in real-time
+- **Efficient communication**: Only send high-value data during limited comm windows
+
+As one Ares mission planner puts it: *"We don't micromanage the rovers anymore. We give them a region, tell them what we're looking for, and they figure out how to map it. It's like having a hundred trained geologists on Mars, working around the clock."*
+
+For the complete autonomous mapping tutorial including code examples, see Chapter 10: Robotics and Autonomous Systems.
 
 ---
 

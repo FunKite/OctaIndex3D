@@ -4,6 +4,8 @@
 
 Part IV demonstrates how OctaIndex3D can be applied in real-world domains. Rather than introducing new theory, it shows how the concepts and implementations from earlier parts enable concrete solutions in robotics, geospatial analysis, scientific computing, and gaming.
 
+**NEW in v0.5.0**: Part IV now showcases the **complete autonomous 3D mapping stack**, with production-ready occupancy mapping, sensor fusion, exploration primitives, GPU acceleration, temporal filtering, and ROS2 integration throughout Chapters 10 and 14.
+
 Each chapter focuses on:
 
 - A specific domain and its constraints.
@@ -18,11 +20,19 @@ Each chapter focuses on:
 ### [Chapter 10: Robotics and Autonomous Systems](chapter10_robotics_and_autonomy.md)
 
 **Topics Covered**:
-- 3D occupancy grids and environment mapping
-- Sensor fusion pipelines (LiDAR, RGB-D, radar)
+- **Complete autonomous 3D mapping stack** (NEW in v0.5.0)
+- 3D occupancy grids with Bayesian log-odds updates
+- Multi-sensor fusion pipelines (LiDAR, RGB-D, depth cameras, radar)
+- **Exploration primitives**: frontier detection, information gain, next-best-view planning
+- **GPU-accelerated ray casting** (Metal + CUDA)
+- **Temporal filtering** for dynamic environments
+- **89x compression** with RLE
+- **ROS2 integration** bridge
 - Path planning with A* and related algorithms
 - Real-time constraints and incremental updates
-- UAV navigation case study
+- UAV navigation case study with autonomous exploration
+
+**Why Read This**: Learn how OctaIndex3D transforms from a spatial indexing library into "The BLAS of 3D Robotics"—providing the fundamental building blocks for autonomous systems.
 
 ### [Chapter 11: Geospatial Analysis](chapter11_geospatial_analysis.md)
 
@@ -53,9 +63,12 @@ Each chapter focuses on:
 **Topics Covered**:
 - End-to-end Mars mission planning (transit, EDL, surface, settlement)
 - Frames for Mars-orbital and surface operations
+- **Autonomous rover exploration** with frontier detection and information gain (NEW in v0.5.0)
 - Hazard-aware navigation grids for EDL, rovers, and EVAs
 - Resource mapping and settlement site selection
 - Multi-LOD operations grids for long-term Mars bases
+
+**Why Read This**: See how autonomous mapping enables truly independent Mars rovers that can explore unknown terrain without waiting for Earth-based commands.
 
 ---
 
@@ -63,7 +76,8 @@ Each chapter focuses on:
 
 After completing Part IV, you will be able to:
 
-✅ **Model** domain-specific problems using BCC-based indexing  
-✅ **Choose** appropriate frames, identifiers, and containers for each domain  
-✅ **Design** query patterns that respect real-world constraints (latency, memory, accuracy)  
-✅ **Evaluate** trade-offs between simplicity and performance in applied settings  
+✅ **Model** domain-specific problems using BCC-based indexing
+✅ **Choose** appropriate frames, identifiers, and containers for each domain
+✅ **Design** query patterns that respect real-world constraints (latency, memory, accuracy)
+✅ **Evaluate** trade-offs between simplicity and performance in applied settings
+✅ **Build** autonomous systems that can explore, map, and plan in unknown environments (NEW in v0.5.0)  
