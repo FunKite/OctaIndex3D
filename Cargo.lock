@@ -1191,7 +1191,7 @@ dependencies = [
 
 [[package]]
 name = "octaindex3d"
-version = "0.4.4"
+version = "0.5.0"
 dependencies = [
  "ahash",
  "aligned-vec",
