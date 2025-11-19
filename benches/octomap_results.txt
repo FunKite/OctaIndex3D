@@ -1,0 +1,60 @@
+====================================
+OctoMap Competitive Benchmark
+====================================
+
+Configuration:
+  Resolution: 0.05m (5cm)
+  Seed: 12345
+
+Single Insertions (1000):
+  Total time: 1.00666 ms
+  Per insert: 1006.65 ns
+  Throughput: 0.99 M ops/sec
+
+Single Insertions (10000):
+  Total time: 8.85 ms
+  Per insert: 885.44 ns
+  Throughput: 1.13 M ops/sec
+
+Batch Insertion (100 points):
+  Total time: 21.51 ms
+  Per point: 215052.11 ns
+  Throughput: 0.00 M points/sec
+
+Batch Insertion (1000 points):
+  Total time: 244.61 ms
+  Per point: 244609.38 ns
+  Throughput: 0.00 M points/sec
+
+Batch Insertion (10000 points):
+  Total time: 2509.96 ms
+  Per point: 250996.44 ns
+  Throughput: 0.00 M points/sec
+
+Ray Insertion (100 rays):
+  Total time: 8.38 ms
+  Per ray: 83798.70 ns
+  Throughput: 0.01 M rays/sec
+
+Ray Insertion (1000 rays):
+  Total time: 69.51 ms
+  Per ray: 69514.71 ns
+  Throughput: 0.01 M rays/sec
+
+Point Queries (1000):
+  Total time: 0.30 ms
+  Per query: 298.51 ns
+  Throughput: 3.35 M queries/sec
+  Occupied: 0 / 1000
+
+Point Queries (10000):
+  Total time: 2.75 ms
+  Per query: 274.60 ns
+  Throughput: 3.64 M queries/sec
+  Occupied: 5 / 10000
+
+Memory Usage:
+  Nodes: 4283170
+  Total memory: 160.62 MB
+  Bytes per node: 39.32
+

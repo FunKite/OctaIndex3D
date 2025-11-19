@@ -3,6 +3,7 @@
 //! Tests BMI2, cache optimizations, prefetching, and specialized kernels
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use octaindex3d::morton;
 use octaindex3d::Route64;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
@@ -24,10 +25,23 @@ fn generate_routes(count: usize, seed: u64) -> Vec<Route64> {
     let mut rng = StdRng::seed_from_u64(seed);
     (0..count)
         .map(|_| {
-            let x = (rng.gen::<i32>() % 10000) * 2;
-            let y = (rng.gen::<i32>() % 10000) * 2;
-            let z = (rng.gen::<i32>() % 10000) * 2;
+            let x = (rng.random::<i32>() % 10000) * 2;
+            let y = (rng.random::<i32>() % 10000) * 2;
+            let z = (rng.random::<i32>() % 10000) * 2;
             Route64::new(0, x, y, z).unwrap()
+        })
+        .collect()
+}
+
+/// Generate test coordinates for Morton encoding benchmarks
+fn generate_coords(count: usize, seed: u64) -> Vec<(u16, u16, u16)> {
+    let mut rng = StdRng::seed_from_u64(seed);
+    (0..count)
+        .map(|_| {
+            let x = ((rng.random::<u16>() % 10000) * 2) as u16;
+            let y = ((rng.random::<u16>() % 10000) * 2) as u16;
+            let z = ((rng.random::<u16>() % 10000) * 2) as u16;
+            (x, y, z)
         })
         .collect()
 }

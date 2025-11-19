@@ -1,0 +1,798 @@
+    Blocking waiting for file lock on build directory
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:21:26
+   |
+21 |         coords.push((rng.gen::<u16>(), rng.gen::<u16>(), rng.gen::<u16>()));
+   |                          ^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:21:44
+   |
+21 |         coords.push((rng.gen::<u16>(), rng.gen::<u16>(), rng.gen::<u16>()));
+   |                                            ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:21:62
+   |
+21 |         coords.push((rng.gen::<u16>(), rng.gen::<u16>(), rng.gen::<u16>()));
+   |                                                              ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:50:17
+   |
+50 |             rng.gen::<u16>(),
+   |                 ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:51:17
+   |
+51 |             rng.gen::<u16>(),
+   |                 ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:52:17
+   |
+52 |             rng.gen::<u16>(),
+   |                 ^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> benches/core_operations.rs:70:27
+   |
+70 |             let lod = rng.gen_range(0..16u8);
+   |                           ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:71:25
+   |
+71 |             let x = rng.gen::<u16>();
+   |                         ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:72:25
+   |
+72 |             let y = rng.gen::<u16>();
+   |                         ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:73:25
+   |
+73 |             let z = rng.gen::<u16>();
+   |                         ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:88:17
+   |
+88 |     let x = rng.gen::<u16>();
+   |                 ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:89:17
+   |
+89 |     let y = rng.gen::<u16>();
+   |                 ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/core_operations.rs:90:17
+   |
+90 |     let z = rng.gen::<u16>();
+   |                 ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:108:26
+    |
+108 |             let x = (rng.gen::<i32>() % 10000) * 2;
+    |                          ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:109:26
+    |
+109 |             let y = (rng.gen::<i32>() % 10000) * 2;
+    |                          ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:110:26
+    |
+110 |             let z = (rng.gen::<i32>() % 10000) * 2;
+    |                          ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:126:22
+    |
+126 |         let x = (rng.gen::<i32>() % 10000) * 2;
+    |                      ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:127:22
+    |
+127 |         let y = (rng.gen::<i32>() % 10000) * 2;
+    |                      ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:128:22
+    |
+128 |         let z = (rng.gen::<i32>() % 10000) * 2;
+    |                      ^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:154:26
+    |
+154 |             let x = (rng.gen_range(-5000..5000)) * 2;
+    |                          ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:155:26
+    |
+155 |             let y = (rng.gen_range(-5000..5000)) * 2;
+    |                          ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:156:26
+    |
+156 |             let z = (rng.gen_range(-5000..5000)) * 2;
+    |                          ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:166:14
+    |
+166 |         (rng.gen_range(-2500..2500)) * 2,
+    |              ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:167:14
+    |
+167 |         (rng.gen_range(-2500..2500)) * 2,
+    |              ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:168:14
+    |
+168 |         (rng.gen_range(-2500..2500)) * 2,
+    |              ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:172:14
+    |
+172 |         (rng.gen_range(-2500..2500)) * 2,
+    |              ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:173:14
+    |
+173 |         (rng.gen_range(-2500..2500)) * 2,
+    |              ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:174:14
+    |
+174 |         (rng.gen_range(-2500..2500)) * 2,
+    |              ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:191:27
+    |
+191 |             .map(|_| (rng.gen(), rng.gen(), rng.gen()))
+    |                           ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:191:38
+    |
+191 |             .map(|_| (rng.gen(), rng.gen(), rng.gen()))
+    |                                      ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:191:49
+    |
+191 |             .map(|_| (rng.gen(), rng.gen(), rng.gen()))
+    |                                                 ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:221:30
+    |
+221 |                 let x = (rng.gen::<i32>() % 10000) * 2;
+    |                              ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:222:30
+    |
+222 |                 let y = (rng.gen::<i32>() % 10000) * 2;
+    |                              ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:223:30
+    |
+223 |                 let z = (rng.gen::<i32>() % 10000) * 2;
+    |                              ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:253:29
+    |
+253 |             let frame = rng.gen::<u8>();
+    |                             ^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:254:34
+    |
+254 |             let scale_mant = rng.gen_range(0..16u8);
+    |                                  ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:255:34
+    |
+255 |             let scale_tier = rng.gen_range(0..4u8);
+    |                                  ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+   --> benches/core_operations.rs:256:27
+    |
+256 |             let lod = rng.gen_range(0..16u8);
+    |                           ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:257:32
+    |
+257 |             let attr_usr = rng.gen::<u8>();
+    |                                ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:259:26
+    |
+259 |             let x = (rng.gen::<i32>() % 100000) * 2;
+    |                          ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:260:26
+    |
+260 |             let y = (rng.gen::<i32>() % 100000) * 2;
+    |                          ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+   --> benches/core_operations.rs:261:26
+    |
+261 |             let z = (rng.gen::<i32>() % 100000) * 2;
+    |                          ^^^
+
+warning: `octaindex3d` (bench "core_operations") generated 42 warnings
+    Finished `bench` profile [optimized] target(s) in 5.32s
+     Running benches/core_operations.rs (target/release/deps/core_operations-720a3f6b7d2ba34e)
+Gnuplot not found, using plotters backend
+Benchmarking morton_encode/encode/0_0_0
+Benchmarking morton_encode/encode/0_0_0: Warming up for 3.0000 s
+Benchmarking morton_encode/encode/0_0_0: Collecting 100 samples in estimated 5.0000 s (3.9B iterations)
+Benchmarking morton_encode/encode/0_0_0: Analyzing
+morton_encode/encode/0_0_0
+                        time:   [1.2962 ns 1.3007 ns 1.3094 ns]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high severe
+Benchmarking morton_encode/encode/65535_65535_65535
+Benchmarking morton_encode/encode/65535_65535_65535: Warming up for 3.0000 s
+Benchmarking morton_encode/encode/65535_65535_65535: Collecting 100 samples in estimated 5.0000 s (3.9B iterations)
+Benchmarking morton_encode/encode/65535_65535_65535: Analyzing
+morton_encode/encode/65535_65535_65535
+                        time:   [1.2920 ns 1.3438 ns 1.4405 ns]
+Found 16 outliers among 100 measurements (16.00%)
+  1 (1.00%) low severe
+  6 (6.00%) high mild
+  9 (9.00%) high severe
+Benchmarking morton_encode/encode/9378_30563_20861
+Benchmarking morton_encode/encode/9378_30563_20861: Warming up for 3.0000 s
+Benchmarking morton_encode/encode/9378_30563_20861: Collecting 100 samples in estimated 5.0000 s (3.9B iterations)
+Benchmarking morton_encode/encode/9378_30563_20861: Analyzing
+morton_encode/encode/9378_30563_20861
+                        time:   [1.3094 ns 1.3980 ns 1.5057 ns]
+Found 8 outliers among 100 measurements (8.00%)
+  2 (2.00%) high mild
+  6 (6.00%) high severe
+Benchmarking morton_encode/encode/2579_13521_24689
+Benchmarking morton_encode/encode/2579_13521_24689: Warming up for 3.0000 s
+Benchmarking morton_encode/encode/2579_13521_24689: Collecting 100 samples in estimated 5.0000 s (3.8B iterations)
+Benchmarking morton_encode/encode/2579_13521_24689: Analyzing
+morton_encode/encode/2579_13521_24689
+                        time:   [1.4045 ns 1.4821 ns 1.5746 ns]
+                        change: [+7.9623% +12.621% +18.123%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 20 outliers among 100 measurements Benchmarking morton_encode/encode/12466_11640_40938: Collecting 100 samples in estimated 5.0000 s (3.2B iterations)
+Benchmarking morton_encode/encode/12466_11640_40938: Analyzing
+morton_encode/encode/12466_11640_40938
+                        time:   [1.2966 ns 1.2973 ns 1.2983 nsBenchmarking morton_encode/encode/12466_11640_40938: Analyzing
+morton_encode/encode/12466_11640_40938
+                        time:   [1.3604 ns 1.4026 ns 1.4595 ns]
+                        change: [+19.255% +27.632% +36.083%Benchmarking morton_encode/encode/45279_33192_40099: Collecting 100 samples in estimated 5.0000 s (3.2B iterations)
+Benchmarking morton_encode/encode/45279_33192_40099: Analyzing
+morton_encode/encode/45279_33192_40099
+                        time:   [1.2967 ns 1.2971 ns 1.2975 ns]
+Found 3 outlBenchmarking morton_encode/encode/45279_33192_40099: Collecting 100 samples in Benchmarking morton_encode/encode/309Benchmarking morton_encode/encode/45279_33192_40099: Analyzing
+morton_encode/encode/45279_33Benchmarking morton_encode/encode/30971_55528_46903: Collecting 100 samples in estimated 5.0000 s (3.4B iterations)
+Benchmarking morton_encode/encode/30971_55528_46903: Analyzing
+morton_encode/encode/30971_55528_46903
+                        time:   [1.3137 ns 1.3333 ns 1.3606 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking morton_encode/encode/36251_33630_32327
+BenBenchmarking morton_encode/encode/30971_55528_46903: Collecting 100 sampleBenchmarking morton_encode/encode/36251_33630_32327: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_encode/encode/36251_33630_32327: Analyzing
+morton_encode/encode/36251_33630_32327
+                        time:   [1.3597 ns 1.3972 ns 1.4481 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking morton_encode/encode/14878_8479_44599
+Benchmarking morton_encode/encode/14878_8479_44599: Warming up for 3.0000 s
+Benchmarking morton_encode/encode/14878_8479_44599: Collecting 100 samples in estimated 5.0000 s (3.8B iterations)
+Benchmarking morton_encode/encode/14878_8479_44599: Analyzing
+morton_encode/encode/14878_8479_44599
+                        time:   [1.3961 ns 1.4559 ns 1.5347 ns]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking morton_encode/encode/4153_44041_302
+Benchmarking morton_encode/encode/4153_44041_302: Warming up for 3.0000 s
+Benchmarking morton_encode/encode/4153_44041_302: Collecting 100 samples in estimated 5.0000 s (3.8B iterations)
+Benchmarking morton_encode/encode/4153_44041_302: Analyzing
+morton_encode/encode/4153_44041_302
+                        time:   [1.3961 ns 1.4568 ns 1.5372 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking morton_encode/encode/63058_38723_16346
+Benchmarking morton_encode/encode/63058_38723_16346: Warming up for 3.0000 s
+Benchmarking morton_encode/encode/63058_38723_16346: Collecting 100 samples in estimated 5.0000 s (3.8B iterations)
+Benchmarking morton_encode/encode/63058_38723_16346: Analyzing
+morton_encode/encode/63058_38723_16346
+                        time:   [1.3976 ns 1.4481 ns 1.5153 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking morton_encode/encode/46615_44540_58496
+Benchmarking morton_encode/encode/46615_44540_58496: Warming up for 3.0000 s
+Benchmarking morton_encode/encode/46615_44540_58496: Collecting 100 samples in estimated 5.0000 s (3.8B iterations)
+Benchmarking morton_encode/encode/46615_44540_58496: Analyzing
+morton_encode/encode/46615_44540_58496
+                        time:   [1.4050 ns 1.4702 ns 1.5562 ns]
+Found 10 outliers among 100 measurements (10.00%)
+  9 (9.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking morton_decode/decode/0
+Benchmarking morton_decode/decode/0: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/0: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/0: Analyzing
+morton_decode/decode/0  time:   [1.5872 ns 1.6677 ns 1.7477 ns]
+Found 16 outliers among 100 measurements (16.00%)
+  7 (7.00%) high mild
+  9 (9.00%) high severe
+Benchmarking morton_decode/decode/281474976710655
+Benchmarking morton_decode/decode/281474976710655: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/281474976710655: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/281474976710655: Analyzing
+morton_decode/decode/281474976710655
+                        time:   [1.5988 ns 1.7009 ns 1.8031 ns]
+Found 24 outliers among 100 measurements (24.00%)
+  24 (24.00%) high severe
+Benchmarking morton_decode/decode/12983995789534
+Benchmarking morton_decode/decode/12983995789534: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/12983995789534: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/12983995789534: Analyzing
+morton_decode/decode/12983995789534
+                        time:   [1.5830 ns 1.6742 ns 1.7683 ns]
+Found 15 outliers among 100 measurements (15.00%)
+  8 (8.00%) high mild
+  7 (7.00%) high severe
+Benchmarking morton_decode/decode/114000441130577
+Benchmarking morton_decode/decode/114000441130577: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/114000441130577: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/114000441130577: Analyzing
+morton_decode/decode/114000441130577
+                        time:   [1.5845 ns 1.6824 ns 1.7900 ns]
+Found 22 outliers among 100 measurements (22.00%)
+  8 (8.00%) high mild
+  14 (14.00%) high severe
+Benchmarking morton_decode/decode/81885533392066
+Benchmarking morton_decode/decode/81885533392066: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/81885533392066: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/81885533392066: Analyzing
+morton_decode/decode/81885533392066
+                        time:   [1.5667 ns 1.6482 ns 1.7362 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking morton_decode/decode/76324568224839
+Benchmarking morton_decode/decode/76324568224839: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/76324568224839: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/76324568224839: Analyzing
+morton_decode/decode/76324568224839
+                        time:   [1.5921 ns 1.6905 ns 1.7968 ns]
+Found 24 outliers among 100 measurements (24.00%)
+  24 (24.00%) high severe
+Benchmarking morton_decode/decode/29484965613940
+Benchmarking morton_decode/decode/29484965613940: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/29484965613940: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/29484965613940: Analyzing
+morton_decode/decode/29484965613940
+                        time:   [1.5831 ns 1.6713 ns 1.7649 ns]
+Found 17 outliers among 100 measurements (17.00%)
+  8 (8.00%) high mild
+  9 (9.00%) high severe
+Benchmarking morton_decode/decode/246033299158698
+Benchmarking morton_decode/decode/246033299158698: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/246033299158698: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/246033299158698: Analyzing
+morton_decode/decode/246033299158698
+                        time:   [1.5835 ns 1.6775 ns 1.7785 ns]
+Found 25 outliers among 100 measurements (25.00%)
+  5 (5.00%) high mild
+  20 (20.00%) high severe
+Benchmarking morton_decode/decode/180584883734854
+Benchmarking morton_decode/decode/180584883734854: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/180584883734854: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/180584883734854: Analyzing
+morton_decode/decode/180584883734854
+                        time:   [1.5941 ns 1.6894 ns 1.7908 ns]
+Found 25 outliers among 100 measurements (25.00%)
+  1 (1.00%) high mild
+  24 (24.00%) high severe
+Benchmarking morton_decode/decode/163067908980324
+Benchmarking morton_decode/decode/163067908980324: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/163067908980324: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/163067908980324: Analyzing
+morton_decode/decode/163067908980324
+                        time:   [1.5562 ns 1.6313 ns 1.7167 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) high mild
+  3 (3.00%) high severe
+Benchmarking morton_decode/decode/74154323734702
+Benchmarking morton_decode/decode/74154323734702: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/74154323734702: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/74154323734702: Analyzing
+morton_decode/decode/74154323734702
+                        time:   [1.5818 ns 1.6808 ns 1.7899 ns]
+Found 13 outliers among 100 measurements (13.00%)
+  5 (5.00%) high mild
+  8 (8.00%) high severe
+Benchmarking morton_decode/decode/225284308571571
+Benchmarking morton_decode/decode/225284308571571: Warming up for 3.0000 s
+Benchmarking morton_decode/decode/225284308571571: Collecting 100 samples in estimated 5.0000 s (3.6B iterations)
+Benchmarking morton_decode/decode/225284308571571: Analyzing
+morton_decode/decode/225284308571571
+                        time:   [1.5436 ns 1.6241 ns 1.7205 ns]
+Found 7 outliers among 100 measurements (7.00%)
+  5 (5.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking index64_new
+Benchmarking index64_new: Warming up for 3.0000 s
+Benchmarking index64_new: Collecting 100 samples in estimated 5.0001 s (299M iterations)
+Benchmarking index64_new: Analyzing
+index64_new             time:   [17.688 ns 18.267 ns 19.005 ns]
+Found 12 outliers among 100 measurements (12.00%)
+  7 (7.00%) high mild
+  5 (5.00%) high severe
+
+Benchmarking index64_extract_coords
+Benchmarking index64_extract_coords: Warming up for 3.0000 s
+Benchmarking index64_extract_coords: Collecting 100 samples in estimated 5.0000 s (2.9B iterations)
+Benchmarking index64_extract_coords: Analyzing
+index64_extract_coords  time:   [1.9470 ns 2.0728 ns 2.2168 ns]
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking route64_new
+Benchmarking route64_new: Warming up for 3.0000 s
+Benchmarking route64_new: Collecting 100 samples in estimated 5.0000 s (307M iterations)
+Benchmarking route64_new: Analyzing
+route64_new             time:   [17.271 ns 17.766 ns 18.385 ns]
+Found 9 outliers among 100 measurements (9.00%)
+  5 (5.00%) high mild
+  4 (4.00%) high severe
+
+Benchmarking neighbors/route64/0_0_0
+Benchmarking neighbors/route64/0_0_0: Warming up for 3.0000 s
+Benchmarking neighbors/route64/0_0_0: Collecting 100 samples in estimated 5.0006 s (35M iterations)
+Benchmarking neighbors/route64/0_0_0: Analyzing
+neighbors/route64/0_0_0 time:   [162.19 ns 174.10 ns 189.05 ns]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking neighbors/route64/-17028_9076_2472
+Benchmarking neighbors/route64/-17028_9076_2472: Warming up for 3.0000 s
+Benchmarking neighbors/route64/-17028_9076_2472: Collecting 100 samples in estimated 5.0003 s (35M iterations)
+Benchmarking neighbors/route64/-17028_9076_2472: Analyzing
+neighbors/route64/-17028_9076_2472
+                        time:   [163.83 ns 176.38 ns 191.80 ns]
+Found 25 outliers among 100 measurements (25.00%)
+  17 (17.00%) high mild
+  8 (8.00%) high severe
+Benchmarking neighbors/route64/17500_-2636_10898
+Benchmarking neighbors/route64/17500_-2636_10898: Warming up for 3.0000 s
+Benchmarking neighbors/route64/17500_-2636_10898: Collecting 100 samples in estimated 5.0007 s (33M iterations)
+Benchmarking neighbors/route64/17500_-2636_10898: Analyzing
+neighbors/route64/17500_-2636_10898
+                        time:   [170.26 ns 179.96 ns 192.34 ns]
+Benchmarking neighbors/route64/19828_-14468_11916
+Benchmarking neighbors/route64/19828_-14468_11916: Warming up for 3.0000 s
+Benchmarking neighbors/route64/19828_-14468_11916: Collecting 100 samples in estimated 5.0004 s (35M iterations)
+Benchmarking neighbors/route64/19828_-14468_11916: Analyzing
+neighbors/route64/19828_-14468_11916
+                        time:   [156.16 ns 164.19 ns 174.71 ns]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking neighbors/route64/626_-2644_-1692
+Benchmarking neighbors/route64/626_-2644_-1692: Warming up for 3.0000 s
+Benchmarking neighbors/route64/626_-2644_-1692: Collecting 100 samples in estimated 5.0001 s (35M iterations)
+Benchmarking neighbors/route64/626_-2644_-1692: Analyzing
+neighbors/route64/626_-2644_-1692
+                        time:   [151.62 ns 158.39 ns 167.49 ns]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking neighbors/route64/10766_238_7060
+Benchmarking neighbors/route64/10766_238_7060: Warming up for 3.0000 s
+Benchmarking neighbors/route64/10766_238_7060: Collecting 100 samples in estimated 5.0008 s (29M iterations)
+Benchmarking neighbors/route64/10766_238_7060: Analyzing
+neighbors/route64/10766_238_7060
+                        time:   [157.56 ns 161.85 ns 167.72 ns]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking neighbors/route64/-11002_-17806_5996
+Benchmarking neighbors/route64/-11002_-17806_5996: Warming up for 3.0000 s
+Benchmarking neighbors/route64/-11002_-17806_5996: Collecting 100 samples in estimated 5.0003 s (29M iterations)
+Benchmarking neighbors/route64/-11002_-17806_5996: Analyzing
+neighbors/route64/-11002_-17806_5996
+                        time:   [159.62 ns 164.44 ns 171.04 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking neighbors/route64/-13860_18882_-14124
+Benchmarking neighbors/route64/-13860_18882_-14124: Warming up for 3.0000 s
+Benchmarking neighbors/route64/-13860_18882_-14124: Collecting 100 samples in estimated 5.0000 s (28M iterations)
+Benchmarking neighbors/route64/-13860_18882_-14124: Analyzing
+neighbors/route64/-13860_18882_-14124
+                        time:   [158.32 ns 162.02 ns 167.23 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+Benchmarking neighbors/route64/6704_-16092_-1400
+Benchmarking neighbors/route64/6704_-16092_-1400: Warming up for 3.0000 s
+Benchmarking neighbors/route64/6704_-16092_-1400: Collecting 100 samples in estimated 5.0002 s (32M iterations)
+Benchmarking neighbors/route64/6704_-16092_-1400: Analyzing
+neighbors/route64/6704_-16092_-1400
+                        time:   [147.21 ns 152.73 ns 160.36 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking neighbors/route64/-8304_4942_-5500
+Benchmarking neighbors/route64/-8304_4942_-5500: Warming up for 3.0000 s
+Benchmarking neighbors/route64/-8304_4942_-5500: Collecting 100 samples in estimated 5.0001 s (26M iterations)
+Benchmarking neighbors/route64/-8304_4942_-5500: Analyzing
+neighbors/route64/-8304_4942_-5500
+                        time:   [163.25 ns 164.29 ns 165.73 ns]
+Benchmarking neighbors/route64/-18202_-1170_-15886
+Benchmarking neighbors/route64/-18202_-1170_-15886: Warming up for 3.0000 s
+Benchmarking neighbors/route64/-18202_-1170_-15886: Collecting 100 samples in estimated 5.0003 s (26M iterations)
+Benchmarking neighbors/route64/-18202_-1170_-15886: Analyzing
+neighbors/route64/-18202_-1170_-15886
+                        time:   [163.50 ns 165.47 ns 168.34 ns]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking lattice_coord_new
+Benchmarking lattice_coord_new: Warming up for 3.0000 s
+Benchmarking lattice_coord_new: Collecting 100 samples in estimated 5.0000 s (657M iterations)
+Benchmarking lattice_coord_new: Analyzing
+lattice_coord_new       time:   [8.4217 ns 8.9084 ns 9.5313 ns]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Benchmarking lattice_distance
+Benchmarking lattice_distance: Warming up for 3.0000 s
+Benchmarking lattice_distance: Collecting 100 samples in estimated 5.0000 s (1.5B iterations)
+Benchmarking lattice_distance: Analyzing
+lattice_distance        time:   [2.5291 ns 2.5299 ns 2.5309 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking batch_operations/index64_batch/100
+Benchmarking batch_operations/index64_batch/100: Warming up for 3.0000 s
+Benchmarking batch_operations/index64_batch/100: Collecting 100 samples in estimated 5.0006 s (30M iterations)
+Benchmarking batch_operations/index64_batch/100: Analyzing
+batch_operations/index64_batch/100
+                        time:   [167.46 ns 173.81 ns 182.75 ns]
+                        thrpt:  [547.19 Melem/s 575.33 Melem/s 597.17 Melem/s]
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+Benchmarking batch_operations/index64_batch/1000
+Benchmarking batch_operations/index64_batch/1000: Warming up for 3.0000 s
+Benchmarking batch_operations/index64_batch/1000: Collecting 100 samples in estimated 5.0047 s (3.4M iterations)
+Benchmarking batch_operations/index64_batch/1000: Analyzing
+batch_operations/index64_batch/1000
+                        time:   [1.7008 µs 1.8666 µs 2.0539 µs]
+                        thrpt:  [486.87 Melem/s 535.74 Melem/s 587.95 Melem/s]
+Found 20 outliers among 100 measurements (20.00%)
+  20 (20.00%) high severe
+Benchmarking batch_operations/index64_batch/10000
+Benchmarking batch_operations/index64_batch/10000: Warming up for 3.0000 s
+Benchmarking batch_operations/index64_batch/10000: Collecting 100 samples in estimated 5.0695 s (359k iterations)
+Benchmarking batch_operations/index64_batch/10000: Analyzing
+batch_operations/index64_batch/10000
+                        time:   [15.920 µs 17.003 µs 18.386 µs]
+                        thrpt:  [543.90 Melem/s 588.13 Melem/s 628.13 Melem/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking batch_neighbors/neighbors_batch/100
+Benchmarking batch_neighbors/neighbors_batch/100: Warming up for 3.0000 s
+Benchmarking batch_neighbors/neighbors_batch/100: Collecting 100 samples in estimated 5.0182 s (343k iterations)
+Benchmarking batch_neighbors/neighbors_batch/100: Analyzing
+batch_neighbors/neighbors_batch/100
+                        time:   [16.115 µs 17.064 µs 18.313 µs]
+                        thrpt:  [5.4605 Melem/s 5.8601 Melem/s 6.2053 Melem/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking batch_neighbors/neighbors_batch/1000
+Benchmarking batch_neighbors/neighbors_batch/1000: Warming up for 3.0000 s
+Benchmarking batch_neighbors/neighbors_batch/1000: Collecting 100 samples in estimated 5.7073 s (35k iterations)
+Benchmarking batch_neighbors/neighbors_batch/1000: Analyzing
+batch_neighbors/neighbors_batch/1000
+                        time:   [148.81 µs 152.32 µs 157.26 µs]
+                        thrpt:  [6.3588 Melem/s 6.5651 Melem/s 6.7201 Melem/s]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking batch_neighbors/neighbors_batch/10000
+Benchmarking batch_neighbors/neighbors_batch/10000: Warming up for 3.0000 s
+
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 9.1s, enable flat sampling, or reduce sample count to 50.
+Benchmarking batch_neighbors/neighbors_batch/10000: Collecting 100 samples in estimated 9.0818 s (5050 iterations)
+Benchmarking batch_neighbors/neighbors_batch/10000: Analyzing
+batch_neighbors/neighbors_batch/10000
+                        time:   [1.4558 ms 1.4560 ms 1.4562 ms]
+                        thrpt:  [6.8672 Melem/s 6.8682 Melem/s 6.8692 Melem/s]
+Found 7 outliers among 100 measurements (7.00%)
+  2 (2.00%) low mild
+  2 (2.00%) high mild
+  3 (3.00%) high severe
+
+Benchmarking galactic128_new
+Benchmarking galactic128_new: Warming up for 3.0000 s
+Benchmarking galactic128_new: Collecting 100 samples in estimated 5.0001 s (215M iterations)
+Benchmarking galactic128_new: Analyzing
+galactic128_new         time:   [18.671 ns 18.693 ns 18.717 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+
+bors/route64/-8304_4942_-5500
+                        time:   [148.50 ns 148.54 ns 148.59 ns]
+                        change: [−27.267% −23.238% −18.929%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking neighbors/route64/-18202_-1170_-15886
+Benchmarking neighbors/route64/-18202_-1170_-15886: Warming up for 3.0000 s
+Benchmarking neighbors/route64/-18202_-1170_-15886: Collecting 100 samples in estimated 5.0003 s (28M iterations)
+Benchmarking neighbors/route64/-18202_-1170_-15886: Analyzing
+neighbors/route64/-18202_-1170_-15886
+                        time:   [148.68 ns 148.76 ns 148.83 ns]
+                        change: [−30.756% −26.007% −21.027%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 5 outliers among 100 measurements (5.00%)
+  4 (4.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking lattice_coord_new
+Benchmarking lattice_coord_new: Warming up for 3.0000 s
+Benchmarking lattice_coord_new: Collecting 100 samples in estimated 5.0000 s (554M iterations)
+Benchmarking lattice_coord_new: Analyzing
+lattice_coord_new       time:   [7.5997 ns 7.6022 ns 7.6050 ns]
+                        change: [−23.731% −15.306% −5.7145%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 11 outliers among 100 measurements (11.00%)
+  4 (4.00%) low mild
+  2 (2.00%) high mild
+  5 (5.00%) high severe
+
+Benchmarking lattice_distance
+Benchmarking lattice_distance: Warming up for 3.0000 s
+Benchmarking lattice_distance: Collecting 100 samples in estimated 5.0000 s (1.6B iterations)
+Benchmarking lattice_distance: Analyzing
+lattice_distance        time:   [2.5286 ns 2.5291 ns 2.5299 ns]
+                        change: [−0.1452% −0.0969% −0.0553%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 7 outliers among 100 measurements (7.00%)
+  1 (1.00%) low severe
+  4 (4.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking batch_operations/index64_batch/100
+Benchmarking batch_operations/index64_batch/100: Warming up for 3.0000 s
+Benchmarking batch_operations/index64_batch/100: Collecting 100 samples in estimated 5.0007 s (27M iterations)
+Benchmarking batch_operations/index64_batch/100: Analyzing
+batch_operations/index64_batch/100
+                        time:   [156.56 ns 156.58 ns 156.60 ns]
+                        thrpt:  [638.58 Melem/s 638.65 Melem/s 638.71 Melem/s]
+                 change:
+                        time:   [−36.035% −30.796% −25.104%] (p = 0.00 < 0.05)
+                        thrpt:  [+33.518% +44.501% +56.335%]
+                        Performance has improved.
+Found 8 outliers among 100 measurements (8.00%)
+  1 (1.00%) low severe
+  2 (2.00%) low mild
+  4 (4.00%) high mild
+  1 (1.00%) high severe
+Benchmarking batch_operations/index64_batch/1000
+Benchmarking batch_operations/index64_batch/1000: Warming up for 3.0000 s
+Benchmarking batch_operations/index64_batch/1000: Collecting 100 samples in estimated 5.0041 s (2.7M iterations)
+Benchmarking batch_operations/index64_batch/1000: Analyzing
+batch_operations/index64_batch/1000
+                        time:   [1.4465 µs 1.4467 µs 1.4469 µs]
+                        thrpt:  [691.15 Melem/s 691.24 Melem/s 691.32 Melem/s]
+                 change:
+                        time:   [−20.894% −15.495% −9.9140%] (p = 0.00 < 0.05)
+                        thrpt:  [+11.005% +18.336% +26.412%]
+                        Performance has improved.
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low severe
+  2 (2.00%) low mild
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking batch_operations/index64_batch/10000
+Benchmarking batch_operations/index64_batch/10000: Warming up for 3.0000 s
+Benchmarking batch_operations/index64_batch/10000: Collecting 100 samples in estimated 5.0327 s (308k iterations)
+Benchmarking batch_operations/index64_batch/10000: Analyzing
+batch_operations/index64_batch/10000
+                        time:   [14.222 µs 14.333 µs 14.486 µs]
+                        thrpt:  [690.33 Melem/s 697.70 Melem/s 703.12 Melem/s]
+                 change:
+                        time:   [−15.660% −7.3780% +2.0468%] (p = 0.12 > 0.05)
+                        thrpt:  [−2.0058% +7.9657% +18.568%]
+                        No change in performance detected.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking batch_neighbors/neighbors_batch/100
+Benchmarking batch_neighbors/neighbors_batch/100: Warming up for 3.0000 s
+Benchmarking batch_neighbors/neighbors_batch/100: Collecting 100 samples in estimated 5.0427 s (313k iterations)
+Benchmarking batch_neighbors/neighbors_batch/100: Analyzing
+batch_neighbors/neighbors_batch/100
+                        time:   [14.971 µs 15.217 µs 15.558 µs]
+                        thrpt:  [6.4274 Melem/s 6.5717 Melem/s 6.6796 Melem/s]
+                 change:
+                        time:   [−11.267% −0.7574% +11.225%] (p = 0.90 > 0.05)
+                        thrpt:  [−10.092% +0.7632% +12.698%]
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+Benchmarking batch_neighbors/neighbors_batch/1000
+Benchmarking batch_neighbors/neighbors_batch/1000: Warming up for 3.0000 s
+Benchmarking batch_neighbors/neighbors_batch/1000: Collecting 100 samples in estimated 5.1158 s (30k iterations)
+Benchmarking batch_neighbors/neighbors_batch/1000: Analyzing
+batch_neighbors/neighbors_batch/1000
+                        time:   [151.67 µs 152.78 µs 154.32 µs]
+                        thrpt:  [6.4800 Melem/s 6.5452 Melem/s 6.5931 Melem/s]
+                 change:
+                        time:   [−15.580% −7.5652% +1.2291%] (p = 0.10 > 0.05)
+                        thrpt:  [−1.2142% +8.1844% +18.456%]
+                        No change in performance detected.
+Benchmarking batch_neighbors/neighbors_batch/10000
+Benchmarking batch_neighbors/neighbors_batch/10000: Warming up for 3.0000 s
+
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 7.7s, enable flat sampling, or reduce sample count to 50.
+Benchmarking batch_neighbors/neighbors_batch/10000: Collecting 100 samples in estimated 7.6515 s (5050 iterations)
+Benchmarking batch_neighbors/neighbors_batch/10000: Analyzing
+batch_neighbors/neighbors_batch/10000
+                        time:   [1.5986 ms 1.7412 ms 1.9050 ms]
+                        thrpt:  [5.2494 Melem/s 5.7431 Melem/s 6.2553 Melem/s]
+                 change:
+                        time:   [+6.6727% +11.770% +19.003%] (p = 0.00 < 0.05)
+                        thrpt:  [−15.968% −10.530% −6.2553%]
+                        Performance has regressed.
+Found 10 outliers among 100 measurements (10.00%)
+  1 (1.00%) low mild
+  1 (1.00%) high mild
+  8 (8.00%) high severe
+
+Benchmarking galactic128_new
+Benchmarking galactic128_new: Warming up for 3.0000 s
+Benchmarking galactic128_new: Collecting 100 samples in estimated 5.0001 s (267M iterations)
+Benchmarking galactic128_new: Analyzing
+galactic128_new         time:   [19.943 ns 20.723 ns 21.738 ns]
+                        change: [+12.479% +17.687% +23.947%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+

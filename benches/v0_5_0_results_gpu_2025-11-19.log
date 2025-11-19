@@ -1,0 +1,406 @@
+    Finished `bench` profile [optimized] target(s) in 0.06s
+     Running benches/v0_5_0_features.rs (target/release/deps/v0_5_0_features-04dd990740267880)
+Gnuplot not found, using plotters backend
+Benchmarking occupancy_single_update/confidence/0.50
+Benchmarking occupancy_single_update/confidence/0.50: Warming up for 3.0000 s
+Benchmarking occupancy_single_update/confidence/0.50: Collecting 100 samples in estimated 5.0000 s (414M iterations)
+Benchmarking occupancy_single_update/confidence/0.50: Analyzing
+occupancy_single_update/confidence/0.50
+                        time:   [15.127 ns 16.612 ns 18.265 ns]
+                        change: [+16.531% +24.508% +33.955%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 23 outliers among 100 measurements (23.00%)
+  23 (23.00%) high severe
+Benchmarking occupancy_single_update/confidence/0.70
+Benchmarking occupancy_single_update/confidence/0.70: Warming up for 3.0000 s
+Benchmarking occupancy_single_update/confidence/0.70: Collecting 100 samples in estimated 5.0000 s (338M iterations)
+Benchmarking occupancy_single_update/confidence/0.70: Analyzing
+occupancy_single_update/confidence/0.70
+                        time:   [16.544 ns 17.464 ns 18.668 ns]
+                        change: [+30.247% +39.429% +50.197%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking occupancy_single_update/confidence/0.90
+Benchmarking occupancy_single_update/confidence/0.90: Warming up for 3.0000 s
+Benchmarking occupancy_single_update/confidence/0.90: Collecting 100 samples in estimated 5.0000 s (314M iterations)
+Benchmarking occupancy_single_update/confidence/0.90: Analyzing
+occupancy_single_update/confidence/0.90
+                        time:   [15.774 ns 16.392 ns 17.237 ns]
+                        change: [+31.258% +40.595% +50.725%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking occupancy_single_update/confidence/0.95
+Benchmarking occupancy_single_update/confidence/0.95: Warming up for 3.0000 s
+Benchmarking occupancy_single_update/confidence/0.95: Collecting 100 samples in estimated 5.0000 s (306M iterations)
+Benchmarking occupancy_single_update/confidence/0.95: Analyzing
+occupancy_single_update/confidence/0.95
+                        time:   [15.567 ns 16.132 ns 16.898 ns]
+                        change: [−12.578% −2.2504% +9.6035%] (p = 0.69 > 0.05)
+                        No change in performance detected.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking occupancy_single_update/confidence/0.99
+Benchmarking occupancy_single_update/confidence/0.99: Warming up for 3.0000 s
+Benchmarking occupancy_single_update/confidence/0.99: Collecting 100 samples in estimated 5.0000 s (278M iterations)
+Benchmarking occupancy_single_update/confidence/0.99: Analyzing
+occupancy_single_update/confidence/0.99
+                        time:   [16.585 ns 17.134 ns 17.868 ns]
+                        change: [−6.3355% +1.7805% +10.466%] (p = 0.68 > 0.05)
+                        No change in performance detected.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking occupancy_batch_updates/updates/100
+Benchmarking occupancy_batch_updates/updates/100: Warming up for 3.0000 s
+Benchmarking occupancy_batch_updates/updates/100: Collecting 100 samples in estimated 5.0040 s (3.2M iterations)
+Benchmarking occupancy_batch_updates/updates/100: Analyzing
+occupancy_batch_updates/updates/100
+                        time:   [1.7540 µs 1.8604 µs 1.9963 µs]
+                        thrpt:  [50.093 Melem/s 53.753 Melem/s 57.014 Melem/s]
+                 change:
+                        time:   [+2.1962% +14.520% +27.145%] (p = 0.01 < 0.05)
+                        thrpt:  [−21.350% −12.679% −2.1490%]
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking occupancy_batch_updates/updates/1000
+Benchmarking occupancy_batch_updates/updates/1000: Warming up for 3.0000 s
+Benchmarking occupancy_batch_updates/updates/1000: Collecting 100 samples in estimated 5.0431 s (313k iterations)
+Benchmarking occupancy_batch_updates/updates/1000: Analyzing
+occupancy_batch_updates/updates/1000
+                        time:   [18.659 µs 19.884 µs 21.432 µs]
+                        thrpt:  [46.660 Melem/s 50.292 Melem/s 53.594 Melem/s]
+                 change:
+                        time:   [−8.8958% −0.5109% +8.7733%] (p = 0.91 > 0.05)
+                        thrpt:  [−8.0657% +0.5135% +9.7644%]
+                        No change in performance detected.
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking occupancy_batch_updates/updates/10000
+Benchmarking occupancy_batch_updates/updates/10000: Warming up for 3.0000 s
+Benchmarking occupancy_batch_updates/updates/10000: Collecting 100 samples in estimated 5.3671 s (25k iterations)
+Benchmarking occupancy_batch_updates/updates/10000: Analyzing
+occupancy_batch_updates/updates/10000
+                        time:   [172.22 µs 175.56 µs 178.72 µs]
+                        thrpt:  [55.955 Melem/s 56.962 Melem/s 58.065 Melem/s]
+                 change:
+                        time:   [+0.8426% +3.3814% +5.8566%] (p = 0.01 < 0.05)
+                        thrpt:  [−5.5326% −3.2708% −0.8356%]
+                        Change within noise threshold.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking occupancy_ray_integration/ray_meters/1.0
+Benchmarking occupancy_ray_integration/ray_meters/1.0: Warming up for 3.0000 s
+Benchmarking occupancy_ray_integration/ray_meters/1.0: Collecting 100 samples in estimated 5.0008 s (32M iterations)
+Benchmarking occupancy_ray_integration/ray_meters/1.0: Analyzing
+occupancy_ray_integration/ray_meters/1.0
+                        time:   [125.62 ns 125.97 ns 126.46 ns]
+                        change: [−21.805% −14.904% −7.9200%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 23 outliers among 100 measurements (23.00%)
+  1 (1.00%) high mild
+  22 (22.00%) high severe
+Benchmarking occupancy_ray_integration/ray_meters/5.0
+Benchmarking occupancy_ray_integration/ray_meters/5.0: Warming up for 3.0000 s
+Benchmarking occupancy_ray_integration/ray_meters/5.0: Collecting 100 samples in estimated 5.0001 s (140M iterations)
+Benchmarking occupancy_ray_integration/ray_meters/5.0: Analyzing
+occupancy_ray_integration/ray_meters/5.0
+                        time:   [32.389 ns 33.134 ns 34.196 ns]
+                        change: [−13.200% −4.7770% +4.6730%] (p = 0.31 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking occupancy_ray_integration/ray_meters/10.0
+Benchmarking occupancy_ray_integration/ray_meters/10.0: Warming up for 3.0000 s
+Benchmarking occupancy_ray_integration/ray_meters/10.0: Collecting 100 samples in estimated 5.0001 s (145M iterations)
+Benchmarking occupancy_ray_integration/ray_meters/10.0: Analyzing
+occupancy_ray_integration/ray_meters/10.0
+                        time:   [32.871 ns 33.663 ns 34.728 ns]
+                        change: [−11.483% −3.5788% +5.4822%] (p = 0.43 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking occupancy_queries/get_state_batch
+Benchmarking occupancy_queries/get_state_batch: Warming up for 3.0000 s
+Benchmarking occupancy_queries/get_state_batch: Collecting 100 samples in estimated 5.0092 s (535k iterations)
+Benchmarking occupancy_queries/get_state_batch: Analyzing
+occupancy_queries/get_state_batch
+                        time:   [8.7670 µs 8.9922 µs 9.2971 µs]
+                        thrpt:  [107.56 Melem/s 111.21 Melem/s 114.06 Melem/s]
+                 change:
+                        time:   [−6.4340% +3.8445% +14.956%] (p = 0.47 > 0.05)
+                        thrpt:  [−13.010% −3.7022% +6.8764%]
+                        No change in performance detected.
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking occupancy_queries/get_probability_batch
+Benchmarking occupancy_queries/get_probability_batch: Warming up for 3.0000 s
+Benchmarking occupancy_queries/get_probability_batch: Collecting 100 samples in estimated 5.0185 s (470k iterations)
+Benchmarking occupancy_queries/get_probability_batch: Analyzing
+occupancy_queries/get_probability_batch
+                        time:   [8.6905 µs 8.7431 µs 8.8199 µs]
+                        thrpt:  [113.38 Melem/s 114.38 Melem/s 115.07 Melem/s]
+                 change:
+                        time:   [−14.818% −4.0904% +6.8824%] (p = 0.50 > 0.05)
+                        thrpt:  [−6.4392% +4.2649% +17.396%]
+                        No change in performance detected.
+Found 23 outliers among 100 measurements (23.00%)
+  3 (3.00%) high mild
+  20 (20.00%) high severe
+
+Benchmarking tsdf_single_update/distance_m/0.01
+Benchmarking tsdf_single_update/distance_m/0.01: Warming up for 3.0000 s
+Benchmarking tsdf_single_update/distance_m/0.01: Collecting 100 samples in estimated 5.0000 s (354M iterations)
+Benchmarking tsdf_single_update/distance_m/0.01: Analyzing
+tsdf_single_update/distance_m/0.01
+                        time:   [13.846 ns 14.281 ns 14.866 ns]
+                        change: [−3.1767% +7.5588% +20.247%] (p = 0.19 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+Benchmarking tsdf_single_update/distance_m/0.05
+Benchmarking tsdf_single_update/distance_m/0.05: Warming up for 3.0000 s
+Benchmarking tsdf_single_update/distance_m/0.05: Collecting 100 samples in estimated 5.0000 s (381M iterations)
+Benchmarking tsdf_single_update/distance_m/0.05: Analyzing
+tsdf_single_update/distance_m/0.05
+                        time:   [14.273 ns 14.966 ns 15.877 ns]
+                        change: [−4.6545% +5.7623% +16.997%] (p = 0.29 > 0.05)
+                        No change in performance detected.
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking tsdf_single_update/distance_m/0.10
+Benchmarking tsdf_single_update/distance_m/0.10: Warming up for 3.0000 s
+Benchmarking tsdf_single_update/distance_m/0.10: Collecting 100 samples in estimated 5.0001 s (359M iterations)
+Benchmarking tsdf_single_update/distance_m/0.10: Analyzing
+tsdf_single_update/distance_m/0.10
+                        time:   [13.924 ns 14.434 ns 15.120 ns]
+                        change: [−7.7692% +2.3949% +14.131%] (p = 0.68 > 0.05)
+                        No change in performance detected.
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking tsdf_single_update/distance_m/0.20
+Benchmarking tsdf_single_update/distance_m/0.20: Warming up for 3.0000 s
+Benchmarking tsdf_single_update/distance_m/0.20: Collecting 100 samples in estimated 5.0000 s (1.6B iterations)
+Benchmarking tsdf_single_update/distance_m/0.20: Analyzing
+tsdf_single_update/distance_m/0.20
+                        time:   [3.4200 ns 3.6022 ns 3.8326 ns]
+                        change: [−10.869% −2.6897% +5.8184%] (p = 0.53 > 0.05)
+                        No change in performance detected.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking tsdf_depth_frame/points/1000
+Benchmarking tsdf_depth_frame/points/1000: Warming up for 3.0000 s
+Benchmarking tsdf_depth_frame/points/1000: Collecting 100 samples in estimated 5.0019 s (1.1M iterations)
+Benchmarking tsdf_depth_frame/points/1000: Analyzing
+tsdf_depth_frame/points/1000
+                        time:   [4.9621 µs 5.2747 µs 5.6598 µs]
+                        thrpt:  [176.68 Melem/s 189.58 Melem/s 201.53 Melem/s]
+                 change:
+                        time:   [−9.1433% −1.8263% +6.1734%] (p = 0.64 > 0.05)
+                        thrpt:  [−5.8145% +1.8602% +10.063%]
+                        No change in performance detected.
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+Benchmarking tsdf_depth_frame/points/10000
+Benchmarking tsdf_depth_frame/points/10000: Warming up for 3.0000 s
+Benchmarking tsdf_depth_frame/points/10000: Collecting 100 samples in estimated 5.1893 s (101k iterations)
+Benchmarking tsdf_depth_frame/points/10000: Analyzing
+tsdf_depth_frame/points/10000
+                        time:   [44.875 µs 45.072 µs 45.353 µs]
+                        thrpt:  [220.49 Melem/s 221.87 Melem/s 222.84 Melem/s]
+                 change:
+                        time:   [+9.6014% +16.807% +26.036%] (p = 0.00 < 0.05)
+                        thrpt:  [−20.658% −14.389% −8.7603%]
+                        Performance has regressed.
+Found 22 outliers among 100 measurements (22.00%)
+  22 (22.00%) high severe
+Benchmarking tsdf_depth_frame/points/50000
+Benchmarking tsdf_depth_frame/points/50000: Warming up for 3.0000 s
+Benchmarking tsdf_depth_frame/points/50000: Collecting 100 samples in estimated 5.9247 s (25k iterations)
+Benchmarking tsdf_depth_frame/points/50000: Analyzing
+tsdf_depth_frame/points/50000
+                        time:   [239.27 µs 246.20 µs 255.58 µs]
+                        thrpt:  [195.63 Melem/s 203.09 Melem/s 208.97 Melem/s]
+                 change:
+                        time:   [+9.1221% +15.676% +22.159%] (p = 0.00 < 0.05)
+                        thrpt:  [−18.139% −13.552% −8.3595%]
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking tsdf_queries/get_distance_batch
+Benchmarking tsdf_queries/get_distance_batch: Warming up for 3.0000 s
+Benchmarking tsdf_queries/get_distance_batch: Collecting 100 samples in estimated 5.0518 s (480k iterations)
+Benchmarking tsdf_queries/get_distance_batch: Analyzing
+tsdf_queries/get_distance_batch
+                        time:   [8.8450 µs 8.9715 µs 9.1468 µs]
+                        thrpt:  [109.33 Melem/s 111.46 Melem/s 113.06 Melem/s]
+                 change:
+                        time:   [−19.621% −11.982% −3.4077%] (p = 0.01 < 0.05)
+                        thrpt:  [+3.5279% +13.613% +24.411%]
+                        Performance has improved.
+
+Benchmarking esdf_from_tsdf/voxels/1000
+Benchmarking esdf_from_tsdf/voxels/1000: Warming up for 3.0000 s
+Benchmarking esdf_from_tsdf/voxels/1000: Collecting 100 samples in estimated 5.0014 s (4.4M iterations)
+Benchmarking esdf_from_tsdf/voxels/1000: Analyzing
+esdf_from_tsdf/voxels/1000
+                        time:   [1.0274 µs 1.0583 µs 1.1004 µs]
+                        thrpt:  [908.79 Melem/s 944.88 Melem/s 973.29 Melem/s]
+                 change:
+                        time:   [−13.538% −2.5224% +10.207%] (p = 0.68 > 0.05)
+                        thrpt:  [−9.2620% +2.5877% +15.658%]
+                        No change in performance detected.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking esdf_from_tsdf/voxels/5000
+Benchmarking esdf_from_tsdf/voxels/5000: Warming up for 3.0000 s
+Benchmarking esdf_from_tsdf/voxels/5000: Collecting 100 samples in estimated 5.0335 s (747k iterations)
+Benchmarking esdf_from_tsdf/voxels/5000: Analyzing
+esdf_from_tsdf/voxels/5000
+                        time:   [7.2993 µs 7.6256 µs 8.0578 µs]
+                        thrpt:  [620.51 Melem/s 655.68 Melem/s 684.99 Melem/s]
+                 change:
+                        time:   [−12.933% −4.3924% +5.5736%] (p = 0.37 > 0.05)
+                        thrpt:  [−5.2794% +4.5942% +14.854%]
+                        No change in performance detected.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking esdf_from_tsdf/voxels/10000
+Benchmarking esdf_from_tsdf/voxels/10000: Warming up for 3.0000 s
+Benchmarking esdf_from_tsdf/voxels/10000: Collecting 100 samples in estimated 5.0577 s (343k iterations)
+Benchmarking esdf_from_tsdf/voxels/10000: Analyzing
+esdf_from_tsdf/voxels/10000
+                        time:   [16.021 µs 16.797 µs 17.826 µs]
+                        thrpt:  [560.98 Melem/s 595.35 Melem/s 624.17 Melem/s]
+                 change:
+                        time:   [−9.8366% −0.6552% +10.438%] (p = 0.91 > 0.05)
+                        thrpt:  [−9.4511% +0.6595% +10.910%]
+                        No change in performance detected.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking esdf_queries/get_distance_batch
+Benchmarking esdf_queries/get_distance_batch: Warming up for 3.0000 s
+Benchmarking esdf_queries/get_distance_batch: Collecting 100 samples in estimated 5.0016 s (3.4M iterations)
+Benchmarking esdf_queries/get_distance_batch: Analyzing
+esdf_queries/get_distance_batch
+                        time:   [1.1625 µs 1.1628 µs 1.1632 µs]
+                        thrpt:  [859.68 Melem/s 859.98 Melem/s 860.24 Melem/s]
+                 change:
+                        time:   [−0.1343% −0.0710% −0.0191%] (p = 0.02 < 0.05)
+                        thrpt:  [+0.0191% +0.0710% +0.1345%]
+                        Change within noise threshold.
+
+Benchmarking frontier_detection/map_size/50
+Benchmarking frontier_detection/map_size/50: Warming up for 3.0000 s
+Benchmarking frontier_detection/map_size/50: Collecting 100 samples in estimated 5.0000 s (1.2B iterations)
+Benchmarking frontier_detection/map_size/50: Analyzing
+frontier_detection/map_size/50
+                        time:   [3.3851 ns 3.4028 ns 3.4313 ns]
+                        change: [−13.510% −8.2860% −2.0583%] (p = 0.01 < 0.05)
+                        Performance has improved.
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) high mild
+  3 (3.00%) high severe
+Benchmarking frontier_detection/map_size/100
+Benchmarking frontier_detection/map_size/100: Warming up for 3.0000 s
+Benchmarking frontier_detection/map_size/100: Collecting 100 samples in estimated 5.0000 s (1.4B iterations)
+Benchmarking frontier_detection/map_size/100: Analyzing
+frontier_detection/map_size/100
+                        time:   [3.5008 ns 3.5937 ns 3.7193 ns]
+                        change: [+2.2517% +8.5071% +15.620%] (p = 0.01 < 0.05)
+                        Performance has regressed.
+Found 9 outliers among 100 measurements (9.00%)
+  8 (8.00%) high mild
+  1 (1.00%) high severe
+Benchmarking frontier_detection/map_size/200
+Benchmarking frontier_detection/map_size/200: Warming up for 3.0000 s
+Benchmarking frontier_detection/map_size/200: Collecting 100 samples in estimated 5.0000 s (1.4B iterations)
+Benchmarking frontier_detection/map_size/200: Analyzing
+frontier_detection/map_size/200
+                        time:   [3.5331 ns 3.6442 ns 3.7958 ns]
+                        change: [−7.8762% −0.3178% +7.4305%] (p = 0.94 > 0.05)
+                        No change in performance detected.
+Found 11 outliers among 100 measurements (11.00%)
+  8 (8.00%) high mild
+  3 (3.00%) high severe
+
+Benchmarking information_gain/single_viewpoint
+Benchmarking information_gain/single_viewpoint: Warming up for 3.0000 s
+Benchmarking information_gain/single_viewpoint: Collecting 100 samples in estimated 5.0030 s (5.9M iterations)
+Benchmarking information_gain/single_viewpoint: Analyzing
+information_gain/single_viewpoint
+                        time:   [877.57 ns 907.01 ns 946.38 ns]
+                        change: [−6.5838% +1.7184% +11.292%] (p = 0.71 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking temporal_occupancy/single_update
+Benchmarking temporal_occupancy/single_update: Warming up for 3.0000 s
+Benchmarking temporal_occupancy/single_update: Collecting 100 samples in estimated 5.0001 s (93M iterations)
+Benchmarking temporal_occupancy/single_update: Analyzing
+temporal_occupancy/single_update
+                        time:   [56.355 ns 57.821 ns 59.740 ns]
+                        change: [−12.383% −5.8297% +1.0039%] (p = 0.11 > 0.05)
+                        No change in performance detected.
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking temporal_batch/voxels/1000
+Benchmarking temporal_batch/voxels/1000: Warming up for 3.0000 s
+Benchmarking temporal_batch/voxels/1000: Collecting 100 samples in estimated 5.0018 s (86k iterations)
+Benchmarking temporal_batch/voxels/1000: Analyzing
+temporal_batch/voxels/1000
+                        time:   [64.405 µs 67.991 µs 72.217 µs]
+                        thrpt:  [13.847 Melem/s 14.708 Melem/s 15.527 Melem/s]
+                 change:
+                        time:   [−15.769% −9.1591% −2.0440%] (p = 0.02 < 0.05)
+                        thrpt:  [+2.0866% +10.083% +18.721%]
+                        Performance has improved.
+Found 8 outliers among 100 measurements (8.00%)
+  5 (5.00%) high mild
+  3 (3.00%) high severe
+Benchmarking temporal_batch/voxels/5000
+Benchmarking temporal_batch/voxels/5000: Warming up for 3.0000 s
+Benchmarking temporal_batch/voxels/5000: Collecting 100 samples in estimated 6.3539 s (20k iterations)
+Benchmarking temporal_batch/voxels/5000: Analyzing
+temporal_batch/voxels/5000
+                        time:   [336.09 µs 347.50 µs 361.56 µs]
+                        thrpt:  [13.829 Melem/s 14.389 Melem/s 14.877 Melem/s]
+                 change:
+                        time:   [+7.8285% +11.844% +16.993%] (p = 0.00 < 0.05)
+                        thrpt:  [−14.525% −10.590% −7.2601%]
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+Benchmarking temporal_batch/voxels/10000
+Benchmarking temporal_batch/voxels/10000: Warming up for 3.0000 s
+Benchmarking temporal_batch/voxels/10000: Collecting 100 samples in estimated 7.1977 s (10k iterations)
+Benchmarking temporal_batch/voxels/10000: Analyzing
+temporal_batch/voxels/10000
+                        time:   [687.01 µs 687.89 µs 689.18 µs]
+                        thrpt:  [14.510 Melem/s 14.537 Melem/s 14.556 Melem/s]
+                 change:
+                        time:   [−19.386% −14.153% −8.9389%] (p = 0.00 < 0.05)
+                        thrpt:  [+9.8163% +16.486% +24.048%]
+                        Performance has improved.
+Found 9 outliers among 100 measurements (9.00%)
+  3 (3.00%) high mild
+  6 (6.00%) high severe
+

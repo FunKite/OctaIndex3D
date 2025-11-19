@@ -1,0 +1,449 @@
+    Blocking waiting for file lock on build directory
+    Finished `bench` profile [optimized] target(s) in 14.04s
+     Running benches/simd_batch_optimizations.rs (target/release/deps/simd_batch_optimizations-5c4dcbec80134631)
+Gnuplot not found, using plotters backend
+Benchmarking batch_index64_encode/10
+Benchmarking batch_index64_encode/10: Warming up for 3.0000 s
+Benchmarking batch_index64_encode/10: Collecting 100 samples in estimated 5.0003 s (72M iterations)
+Benchmarking batch_index64_encode/10: Analyzing
+batch_index64_encode/10 time:   [69.665 ns 70.046 ns 70.858 ns]
+                        thrpt:  [141.13 Melem/s 142.76 Melem/s 143.54 Melem/s]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) high mild
+  3 (3.00%) high severe
+Benchmarking batch_index64_encode/100
+Benchmarking batch_index64_encode/100: Warming up for 3.0000 s
+Benchmarking batch_index64_encode/100: Collecting 100 samples in estimated 5.0007 s (10M iterations)
+Benchmarking batch_index64_encode/100: Analyzing
+batch_index64_encode/100
+                        time:   [479.47 ns 487.66 ns 505.47 ns]
+                        thrpt:  [197.84 Melem/s 205.06 Melem/s 208.56 Melem/s]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  2 (2.0Benchmarking batBenchmarking batch_index64_encode/1000
+Benchmarking batch_index64_encode/1000: Warming Benchmarking batBenchmarking batch_index64_encode/1000: Collecting 100 samples in estimated 5.0113 s (1Benchmarking batBenchmarking batch_index64_encode/batch_index64_enbatch_index64_encode/1000
+                        time:   [4.5795 µs 4.6665 µs 4.8554 µs]
+                        thrpt:  [205.96 Melem/s 214.29 Melem/s 218.36 Melem/s]
+Found 10 outliers among 100 measurements (10.00%)
+  1 (1.00%) low severe
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  5 (5Benchmarking batchBenchmarking batch_index64_encode/10000
+Benchmarking batch_index64_encode/10000: WarminBenchmarking batchBenchmarking batch_index64_encode/10000: Collecting 100 samples in estimated 5.0123 s Benchmarking batchBenchmarking batch_index64_encode/10000: Analyzing
+batch_index64_encode/10000
+                        time:   [49.823 µs 53.632 µs 57.953 µs]
+                        thrpt:  [172.55 Melem/s 186.45 Melem/s 200.71 Melem/s]
+                 change:
+                        time:   [+5.2557% +11.791% +17.86Benchmarking batch_index64_decode/10: Collecting 100 samples in estimated 5.0001 s (92M iterations)
+Benchmarking batch_index64_decode/10: Analyzing
+batch_index64_decode/10 time:   [42.740 ns 43.553 ns 44.668 ns]
+                        thrpt:  [223.88 Melem/s 229.61 Melem/s 233.97 Melem/s]
+Found 3 outliers among 10Benchmarking batch_index64_decode/10: Collecting 100 samples in estimated 5.0001 s (104M iterations)
+Benchmarking batch_index64_decode/10: Analyzing
+batch_index64_decode/10 time:   [41.681 ns 41.706 ns 41.733 ns]
+                        thrpt:  [2Benchmarking batch_index64_decode/100: Analyzing
+batch_index64_decode/100
+                        time:   [272.05 ns 296.17 ns 322.40 ns]
+                        thrpt:  [310.17 Melem/s 337.64 Melem/s 367.58 Melem/s]
+Found 22 outliers among 100 measurements (22.00%)
+  1 (1.00%) high mild
+  21 (21.00%) high severe
+Benchmarking batch_index64_decode/1000
+Benchmarking batch_index64_decode/1000: Warming up for 3.0000 s
+Benchmarking batch_index64_decode/1000: Collecting 100 samples in estimated 5.0034 s (2.3M iterations)
+Benchmarking batch_index64_decode/1000: Analyzing
+batch_index64_decode/1000
+                        time:   [2.4527 µs 2.6275 µs 2.8419 µs]
+                        thrpt:  [351.87 Melem/s 380.59 Melem/s 407.72 Melem/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking batch_index64_decode/10000
+Benchmarking batch_index64_decode/10000: Warming up for 3.0000 s
+Benchmarking batch_index64_decode/10000: Collecting 100 samples in estimated 5.0139 s (227k iterations)
+Benchmarking batch_index64_decode/10000: Analyzing
+batch_index64_decode/10000
+                        time:   [21.949 µs 22.805 µs 23.962 µs]
+                        thrpt:  [417.33 Melem/s 438.50 Melem/s 455.61 Melem/s]
+
+Benchmarking batch_validate_routes/10
+Benchmarking batch_validate_routes/10: Warming up for 3.0000 s
+Benchmarking batch_validate_routes/10: Collecting 100 samples in estimated 5.0000 s (211M iterations)
+Benchmarking batch_validate_routes/10: Analyzing
+batch_validate_routes/10
+                        time:   [22.869 ns 23.511 ns 24.390 ns]
+                        thrpt:  [410.01 Melem/s 425.33 Melem/s 437.28 Melem/s]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking batch_validate_routes/100
+Benchmarking batch_validate_routes/100: Warming up for 3.0000 s
+Benchmarking batch_validate_routes/100: Collecting 100 samples in estimated 5.0005 s (34M iterations)
+Benchmarking batch_validate_routes/100: Analyzing
+batch_validate_routes/100
+                        time:   [163.83 ns 172.96 ns 184.03 ns]
+                        thrpt:  [543.40 Melem/s 578.18 Melem/s 610.37 Melem/s]
+Found 6 outliers among 100 measurements (6.00%)
+  6 (6.00%) high mild
+Benchmarking batch_validate_routes/1000
+Benchmarking batch_validate_routes/1000: Warming up for 3.0000 s
+Benchmarking batch_validate_routes/1000: Collecting 100 samples in estimated 5.0056 s (3.9M iterations)
+Benchmarking batch_validate_routes/1000: Analyzing
+batch_validate_routes/1000
+                        time:   [1.3796 µs 1.4400 µs 1.5199 µs]
+                        thrpt:  [657.93 Melem/s 694.44 Melem/s 724.84 Melem/s]
+Found 6 outliers among 100 measurements (6.00%)
+  3 (3.00%) high mild
+  3 (3.00%) high severe
+Benchmarking batch_validate_routes/10000
+Benchmarking batch_validate_routes/10000: Warming up for 3.0000 s
+Benchmarking batch_validate_routes/10000: Collecting 100 samples in estimated 5.0202 s (404k iterations)
+Benchmarking batch_validate_routes/10000: Analyzing
+batch_validate_routes/10000
+                        time:   [14.264 µs 15.138 µs 16.051 µs]
+                        thrpt:  [623.00 Melem/s 660.58 Melem/s 701.08 Melem/s]
+Found 24 outliers among 100 measurements (24.00%)
+  24 (24.00%) high severe
+
+Benchmarking batch_manhattan_distance/10
+Benchmarking batch_manhattan_distance/10: Warming up for 3.0000 s
+Benchmarking batch_manhattan_distance/10: Collecting 100 samples in estimated 5.0001 s (155M iterations)
+Benchmarking batch_manhattan_distance/10: Analyzing
+batch_manhattan_distance/10
+                        time:   [37.418 ns 40.699 ns 44.585 ns]
+                        thrpt:  [224.29 Melem/s 245.71 Melem/s 267.25 Melem/s]
+Found 23 outliers among 100 measurements (23.00%)
+  23 (23.00%) high severe
+Benchmarking batch_manhattan_distance/100
+Benchmarking batch_manhattan_distance/100: Warming up for 3.0000 s
+Benchmarking batch_manhattan_distance/100: Collecting 100 samples in estimated 5.0002 s (56M iterations)
+Benchmarking batch_manhattan_distance/100: Analyzing
+batch_manhattan_distance/100
+                        time:   [107.99 ns 118.77 ns 130.17 ns]
+                        thrpt:  [768.21 Melem/s 841.96 Melem/s 926.01 Melem/s]
+Found 20 outliers among 100 measurements (20.00%)
+  20 (20.00%) high severe
+Benchmarking batch_manhattan_distance/1000
+Benchmarking batch_manhattan_distance/1000: Warming up for 3.0000 s
+Benchmarking batch_manhattan_distance/1000: Collecting 100 samples in estimated 5.0019 s (6.3M iterations)
+Benchmarking batch_manhattan_distance/1000: Analyzing
+batch_manhattan_distance/1000
+                        time:   [687.46 ns 695.60 ns 706.88 ns]
+                        thrpt:  [1.4147 Gelem/s 1.4376 Gelem/s 1.4546 Gelem/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking batch_manhattan_distance/10000
+Benchmarking batch_manhattan_distance/10000: Warming up for 3.0000 s
+Benchmarking batch_manhattan_distance/10000: Collecting 100 samples in estimated 5.0241 s (843k iterations)
+Benchmarking batch_manhattan_distance/10000: Analyzing
+batch_manhattan_distance/10000
+                        time:   [7.0526 µs 7.7027 µs 8.4093 µs]
+                        thrpt:  [1.1892 Gelem/s 1.2982 Gelem/s 1.4179 Gelem/s]
+Found 21 outliers among 100 measurements (21.00%)
+  21 (21.00%) high severe
+
+Benchmarking batch_euclidean_distance_squared/10
+Benchmarking batch_euclidean_distance_squared/10: Warming up for 3.0000 s
+Benchmarking batch_euclidean_distance_squared/10: Collecting 100 samples in estimated 5.0002 s (86M iterations)
+Benchmarking batch_euclidean_distance_squared/10: Analyzing
+batch_euclidean_distance_squared/10
+                        time:   [65.439 ns 69.715 ns 74.990 ns]
+                        thrpt:  [133.35 Melem/s 143.44 Melem/s 152.81 Melem/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking batch_euclidean_distance_squared/100
+Benchmarking batch_euclidean_distance_squared/100: Warming up for 3.0000 s
+Benchmarking batch_euclidean_distance_squared/100: Collecting 100 samples in estimated 5.0016 s (14M iterations)
+Benchmarking batch_euclidean_distance_squared/100: Analyzing
+batch_euclidean_distance_squared/100
+                        time:   [417.77 ns 449.39 ns 487.39 ns]
+                        thrpt:  [205.18 Melem/s 222.52 Melem/s 239.37 Melem/s]
+Found 25 outliers among 100 measurements (25.00%)
+  1 (1.00%) high mild
+  24 (24.00%) high severe
+Benchmarking batch_euclidean_distance_squared/1000
+Benchmarking batch_euclidean_distance_squared/1000: Warming up for 3.0000 s
+Benchmarking batch_euclidean_distance_squared/1000: Collecting 100 samples in estimated 5.0018 s (1.5M iterations)
+Benchmarking batch_euclidean_distance_squared/1000: Analyzing
+batch_euclidean_distance_squared/1000
+                        time:   [3.7752 µs 3.9714 µs 4.2270 µs]
+                        thrpt:  [236.57 Melem/s 251.80 Melem/s 264.89 Melem/s]
+Benchmarking batch_euclidean_distance_squared/10000
+Benchmarking batch_euclidean_distance_squared/10000: Warming up for 3.0000 s
+Benchmarking batch_euclidean_distance_squared/10000: Collecting 100 samples in estimated 5.0243 s (136k iterations)
+Benchmarking batch_euclidean_distance_squared/10000: Analyzing
+batch_euclidean_distance_squared/10000
+                        time:   [35.970 µs 37.278 µs 39.085 µs]
+                        thrpt:  [255.85 Melem/s 268.26 Melem/s 278.01 Melem/s]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+
+Benchmarking batch_bounding_box_query/100
+Benchmarking batch_bounding_box_query/100: Warming up for 3.0000 s
+Benchmarking batch_bounding_box_query/100: Collecting 100 samples in estimated 5.0002 s (11M iterations)
+Benchmarking batch_bounding_box_query/100: Analyzing
+batch_bounding_box_query/100
+                        time:   [349.58 ns 349.83 ns 350.15 ns]
+                        thrpt:  [285.59 Melem/s 285.86 Melem/s 286.06 Melem/s]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking batch_bounding_box_query/1000
+Benchmarking batch_bounding_box_query/1000: Warming up for 3.0000 s
+Benchmarking batch_bounding_box_query/1000: Collecting 100 samples in estimated 5.0059 s (3.4M iterations)
+Benchmarking batch_bounding_box_query/1000: Analyzing
+batch_bounding_box_query/1000
+                        time:   [1.6867 µs 1.8338 µs 2.0077 µs]
+                        thrpt:  [498.07 Melem/s 545.31 Melem/s 592.88 Melem/s]
+Found 23 outliers among 100 measurements (23.00%)
+  1 (1.00%) high mild
+  22 (22.00%) high severe
+Benchmarking batch_bounding_box_query/10000
+Benchmarking batch_bounding_box_query/10000: Warming up for 3.0000 s
+Benchmarking batch_bounding_box_query/10000: Collecting 100 samples in estimated 5.0355 s (662k iterations)
+Benchmarking batch_bounding_box_query/10000: Analyzing
+batch_bounding_box_query/10000
+                        time:   [8.1024 µs 8.4839 µs 8.9962 µs]
+                        thrpt:  [1.1116 Gelem/s 1.1787 Gelem/s 1.2342 Gelem/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Benchmarking batch_morton_encode/10
+Benchmarking batch_morton_encode/10: Warming up for 3.0000 s
+Benchmarking batch_morton_encode/10: Collecting 100 samples in estimated 5.0000 s (139M iterations)
+Benchmarking batch_morton_encode/10: Analyzing
+batch_morton_encode/10  time:   [35.116 ns 36.209 ns 37.696 ns]
+                        thrpt:  [265.28 Melem/s 276.17 Melem/s 284.77 Melem/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking batch_morton_encode/100
+Benchmarking batch_morton_encode/100: Warming up for 3.0000 s
+Benchmarking batch_morton_encode/100: Collecting 100 samples in estimated 5.0004 s (32M iterations)
+Benchmarking batch_morton_encode/100: Analyzing
+batch_morton_encode/100 time:   [144.98 ns 149.26 ns 155.17 ns]
+                        thrpt:  [644.47 Melem/s 669.97 Melem/s 689.76 Melem/s]
+Found 6 outliers among 100 measurements (6.00%)
+  6 (6.00%) high mild
+Benchmarking batch_morton_encode/1000
+Benchmarking batch_morton_encode/1000: Warming up for 3.0000 s
+Benchmarking batch_morton_encode/1000: Collecting 100 samples in estimated 5.0033 s (3.6M iterations)
+Benchmarking batch_morton_encode/1000: Analyzing
+batch_morton_encode/1000
+                        time:   [1.2432 µs 1.2738 µs 1.3161 µs]
+                        thrpt:  [759.85 Melem/s 785.03 Melem/s 804.40 Melem/s]
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+Benchmarking batch_morton_encode/10000
+Benchmarking batch_morton_encode/10000: Warming up for 3.0000 s
+Benchmarking batch_morton_encode/10000: Collecting 100 samples in estimated 5.0320 s (439k iterations)
+Benchmarking batch_morton_encode/10000: Analyzing
+batch_morton_encode/10000
+                        time:   [13.339 µs 14.524 µs 15.888 µs]
+                        thrpt:  [629.43 Melem/s 688.50 Melem/s 749.68 Melem/s]
+Found 22 outliers among 100 measurements (22.00%)
+  1 (1.00%) high mild
+  21 (21.00%) high severe
+
+Benchmarking batch_morton_decode/10
+Benchmarking batch_morton_decode/10: Warming up for 3.0000 s
+Benchmarking batch_morton_decode/10: Collecting 100 samples in estimated 5.0000 s (121M iterations)
+Benchmarking batch_morton_decode/10: Analyzing
+batch_morton_decode/10  time:   [37.137 ns 38.013 ns 39.240 ns]
+                        thrpt:  [254.84 Melem/s 263.07 Melem/s 269.28 Melem/s]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking batch_morton_decode/100
+Benchmarking batch_morton_decode/100: Warming up for 3.0000 s
+Benchmarking batch_morton_decode/100: Collecting 100 samples in estimated 5.0001 s (26M iterations)
+Benchmarking batch_morton_decode/100: Analyzing
+batch_morton_decode/100 time:   [221.43 ns 235.44 ns 251.96 ns]
+                        thrpt:  [396.89 Melem/s 424.74 Melem/s 451.62 Melem/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking batch_morton_decode/1000
+Benchmarking batch_morton_decode/1000: Warming up for 3.0000 s
+Benchmarking batch_morton_decode/1000: Collecting 100 samples in estimated 5.0004 s (2.8M iterations)
+Benchmarking batch_morton_decode/1000: Analyzing
+batch_morton_decode/1000
+                        time:   [1.9634 µs 2.0654 µs 2.1940 µs]
+                        thrpt:  [455.80 Melem/s 484.17 Melem/s 509.31 Melem/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking batch_morton_decode/10000
+Benchmarking batch_morton_decode/10000: Warming up for 3.0000 s
+Benchmarking batch_morton_decode/10000: Collecting 100 samples in estimated 5.0514 s (283k iterations)
+Benchmarking batch_morton_decode/10000: Analyzing
+batch_morton_decode/10000
+                        time:   [18.089 µs 18.739 µs 19.610 µs]
+                        thrpt:  [509.95 Melem/s 533.64 Melem/s 552.82 Melem/s]
+Found 6 outliers among 100 measurements (6.00%)
+  6 (6.00%) high mild
+
+Benchmarking morton_scalar_vs_batch/scalar
+Benchmarking morton_scalar_vs_batch/scalar: Warming up for 3.0000 s
+Benchmarking morton_scalar_vs_batch/scalar: Collecting 100 samples in estimated 5.0001 s (3.9M iterations)
+Benchmarking morton_scalar_vs_batch/scalar: Analyzing
+morton_scalar_vs_batch/scalar
+                        time:   [1.2243 µs 1.2650 µs 1.3203 µs]
+                        thrpt:  [757.42 Melem/s 790.51 Melem/s 816.78 Melem/s]
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+Benchmarking morton_scalar_vs_batch/batch
+Benchmarking morton_scalar_vs_batch/batch: Warming up for 3.0000 s
+Benchmarking morton_scalar_vs_batch/batch: Collecting 100 samples in estimated 5.0039 s (3.8M iterations)
+Benchmarking morton_scalar_vs_batch/batch: Analyzing
+morton_scalar_vs_batch/batch
+                        time:   [1.2678 µs 1.3083 µs 1.3630 µs]
+                        thrpt:  [733.67 Melem/s 764.36 Melem/s 788.79 Melem/s]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+
+6%]
+                        No change in performance detected.
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking batch_morton_encode/10
+Benchmarking batch_morton_encode/10: Warming up for 3.0000 s
+Benchmarking batch_morton_encode/10: Collecting 100 samples in estimated 5.0002 s (135M iterations)
+Benchmarking batch_morton_encode/10: Analyzing
+batch_morton_encode/10  time:   [32.237 ns 32.365 ns 32.541 ns]
+                        thrpt:  [307.31 Melem/s 308.98 Melem/s 310.20 Melem/s]
+                 change:
+                        time:   [−21.612% −13.793% −4.2482%] (p = 0.00 < 0.05)
+                        thrpt:  [+4.4367% +16.000% +27.571%]
+                        Performance has improved.
+Found 22 outliers among 100 measurements (22.00%)
+  22 (22.00%) high severe
+Benchmarking batch_morton_encode/100
+Benchmarking batch_morton_encode/100: Warming up for 3.0000 s
+Benchmarking batch_morton_encode/100: Collecting 100 samples in estimated 5.0000 s (30M iterations)
+Benchmarking batch_morton_encode/100: Analyzing
+batch_morton_encode/100 time:   [138.89 ns 138.94 ns 139.02 ns]
+                        thrpt:  [719.34 Melem/s 719.71 Melem/s 720.01 Melem/s]
+                 change:
+                        time:   [−36.320% −30.625% −24.313%] (p = 0.00 < 0.05)
+                        thrpt:  [+32.124% +44.144% +57.036%]
+                        Performance has improved.
+Found 6 outliers among 100 measurements (6.00%)
+  4 (4.00%) high mild
+  2 (2.00%) high severe
+Benchmarking batch_morton_encode/1000
+Benchmarking batch_morton_encode/1000: Warming up for 3.0000 s
+Benchmarking batch_morton_encode/1000: Collecting 100 samples in estimated 5.0021 s (3.5M iterations)
+Benchmarking batch_morton_encode/1000: Analyzing
+batch_morton_encode/1000
+                        time:   [1.2222 µs 1.2227 µs 1.2233 µs]
+                        thrpt:  [817.43 Melem/s 817.86 Melem/s 818.21 Melem/s]
+                 change:
+                        time:   [−34.623% −28.176% −21.057%] (p = 0.00 < 0.05)
+                        thrpt:  [+26.674% +39.229% +52.959%]
+                        Performance has improved.
+Found 10 outliers among 100 measurements (10.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+  5 (5.00%) high severe
+Benchmarking batch_morton_encode/10000
+Benchmarking batch_morton_encode/10000: Warming up for 3.0000 s
+Benchmarking batch_morton_encode/10000: Collecting 100 samples in estimated 5.0298 s (333k iterations)
+Benchmarking batch_morton_encode/10000: Analyzing
+batch_morton_encode/10000
+                        time:   [11.339 µs 11.344 µs 11.350 µs]
+                        thrpt:  [881.06 Melem/s 881.55 Melem/s 881.92 Melem/s]
+                 change:
+                        time:   [−22.301% −16.814% −11.199%] (p = 0.00 < 0.05)
+                        thrpt:  [+12.611% +20.212% +28.701%]
+                        Performance has improved.
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) high mild
+  4 (4.00%) high severe
+
+Benchmarking batch_morton_decode/10
+Benchmarking batch_morton_decode/10: Warming up for 3.0000 s
+Benchmarking batch_morton_decode/10: Collecting 100 samples in estimated 5.0001 s (119M iterations)
+Benchmarking batch_morton_decode/10: Analyzing
+batch_morton_decode/10  time:   [35.919 ns 35.933 ns 35.948 ns]
+                        thrpt:  [278.18 Melem/s 278.30 Melem/s 278.40 Melem/s]
+                 change:
+                        time:   [−33.493% −27.865% −21.704%] (p = 0.00 < 0.05)
+                        thrpt:  [+27.721% +38.630% +50.361%]
+                        Performance has improved.
+Found 8 outliers among 100 measurements (8.00%)
+  2 (2.00%) low severe
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking batch_morton_decode/100
+Benchmarking batch_morton_decode/100: Warming up for 3.0000 s
+Benchmarking batch_morton_decode/100: Collecting 100 samples in estimated 5.0003 s (21M iterations)
+Benchmarking batch_morton_decode/100: Analyzing
+batch_morton_decode/100 time:   [193.91 ns 193.99 ns 194.09 ns]
+                        thrpt:  [515.23 Melem/s 515.48 Melem/s 515.69 Melem/s]
+                 change:
+                        time:   [−19.654% −15.391% −11.037%] (p = 0.00 < 0.05)
+                        thrpt:  [+12.407% +18.190% +24.462%]
+                        Performance has improved.
+Found 10 outliers among 100 measurements (10.00%)
+  2 (2.00%) low severe
+  2 (2.00%) low mild
+  1 (1.00%) high mild
+  5 (5.00%) high severe
+Benchmarking batch_morton_decode/1000
+Benchmarking batch_morton_decode/1000: Warming up for 3.0000 s
+Benchmarking batch_morton_decode/1000: Collecting 100 samples in estimated 5.0097 s (2.5M iterations)
+Benchmarking batch_morton_decode/1000: Analyzing
+batch_morton_decode/1000
+                        time:   [1.7905 µs 1.8005 µs 1.8154 µs]
+                        thrpt:  [550.85 Melem/s 555.41 Melem/s 558.51 Melem/s]
+                 change:
+                        time:   [−14.057% −6.4553% +2.5547%] (p = 0.14 > 0.05)
+                        thrpt:  [−2.4911% +6.9008% +16.356%]
+                        No change in performance detected.
+Found 22 outliers among 100 measurements (22.00%)
+  22 (22.00%) high severe
+Benchmarking batch_morton_decode/10000
+Benchmarking batch_morton_decode/10000: Warming up for 3.0000 s
+Benchmarking batch_morton_decode/10000: Collecting 100 samples in estimated 5.0311 s (252k iterations)
+Benchmarking batch_morton_decode/10000: Analyzing
+batch_morton_decode/10000
+                        time:   [17.177 µs 17.183 µs 17.191 µs]
+                        thrpt:  [581.71 Melem/s 581.99 Melem/s 582.19 Melem/s]
+                 change:
+                        time:   [−27.687% −23.442% −19.027%] (p = 0.00 < 0.05)
+                        thrpt:  [+23.499% +30.620% +38.288%]
+                        Performance has improved.
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  1 (1.00%) high mild
+  3 (3.00%) high severe
+
+Benchmarking morton_scalar_vs_batch/scalar
+Benchmarking morton_scalar_vs_batch/scalar: Warming up for 3.0000 s
+Benchmarking morton_scalar_vs_batch/scalar: Collecting 100 samples in estimated 5.0062 s (3.6M iterations)
+Benchmarking morton_scalar_vs_batch/scalar: Analyzing
+morton_scalar_vs_batch/scalar
+                        time:   [1.1669 µs 1.1676 µs 1.1688 µs]
+                        thrpt:  [855.61 Melem/s 856.46 Melem/s 856.97 Melem/s]
+                 change:
+                        time:   [−34.842% −29.627% −23.933%] (p = 0.00 < 0.05)
+                        thrpt:  [+31.463% +42.100% +53.473%]
+                        Performance has improved.
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) low mild
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+Benchmarking morton_scalar_vs_batch/batch
+Benchmarking morton_scalar_vs_batch/batch: Warming up for 3.0000 s
+Benchmarking morton_scalar_vs_batch/batch: Collecting 100 samples in estimated 5.0042 s (3.5M iterations)
+Benchmarking morton_scalar_vs_batch/batch: Analyzing
+morton_scalar_vs_batch/batch
+                        time:   [1.2061 µs 1.2066 µs 1.2074 µs]
+                        thrpt:  [828.20 Melem/s 828.75 Melem/s 829.12 Melem/s]
+                 change:
+                        time:   [−33.737% −28.462% −22.711%] (p = 0.00 < 0.05)
+                        thrpt:  [+29.385% +39.786% +50.913%]
+                        Performance has improved.
+Found 11 outliers among 100 measurements (11.00%)
+  2 (2.00%) high mild
+  9 (9.00%) high severe
+

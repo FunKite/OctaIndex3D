@@ -1,0 +1,107 @@
+   Compiling octaindex3d v0.5.0 (/home/ubuntu/octaindex3d)
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `morton`
+  --> benches/tier1_optimizations.rs:50:39
+   |
+50 |                     .map(|&(x, y, z)| morton::morton_encode(x, y, z))
+   |                                       ^^^^^^ use of unresolved module or unlinked crate `morton`
+   |
+   = help: if you wanted to use a crate named `morton`, use `cargo add morton` to add it to your `Cargo.toml`
+help: consider importing this module
+   |
+ 5 + use octaindex3d::morton;
+   |
+
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `morton`
+  --> benches/tier1_optimizations.rs:76:31
+   |
+76 |             .map(|&(x, y, z)| morton::morton_encode(x, y, z))
+   |                               ^^^^^^ use of unresolved module or unlinked crate `morton`
+   |
+   = help: if you wanted to use a crate named `morton`, use `cargo add morton` to add it to your `Cargo.toml`
+help: consider importing this module
+   |
+ 5 + use octaindex3d::morton;
+   |
+
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `morton`
+  --> benches/tier1_optimizations.rs:86:34
+   |
+86 |                     .map(|&code| morton::morton_decode(code))
+   |                                  ^^^^^^ use of unresolved module or unlinked crate `morton`
+   |
+   = help: if you wanted to use a crate named `morton`, use `cargo add morton` to add it to your `Cargo.toml`
+help: consider importing this module
+   |
+ 5 + use octaindex3d::morton;
+   |
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/tier1_optimizations.rs:27:26
+   |
+27 |             let x = (rng.gen::<i32>() % 10000) * 2;
+   |                          ^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/tier1_optimizations.rs:28:26
+   |
+28 |             let y = (rng.gen::<i32>() % 10000) * 2;
+   |                          ^^^
+
+warning: use of deprecated method `rand::Rng::gen`: Renamed to `random` to avoid conflict with the new `gen` keyword in Rust 2024.
+  --> benches/tier1_optimizations.rs:29:26
+   |
+29 |             let z = (rng.gen::<i32>() % 10000) * 2;
+   |                          ^^^
+
+error[E0425]: cannot find function `generate_coords` in this scope
+  --> benches/tier1_optimizations.rs:41:22
+   |
+23 | fn generate_routes(count: usize, seed: u64) -> Vec<Route64> {
+   | ----------------------------------------------------------- similarly named function `generate_routes` defined here
+...
+41 |         let coords = generate_coords(size, 1000);
+   |                      ^^^^^^^^^^^^^^^ help: a function with a similar name exists: `generate_routes`
+
+error[E0282]: type annotations needed for `&_`
+  --> benches/tier1_optimizations.rs:46:81
+   |
+46 |         group.bench_with_input(BenchmarkId::new("standard", size), &coords, |b, coords| {
+   |                                                                                 ^^^^^^
+...
+49 |                     .iter()
+   |                      ---- type must be known at this point
+   |
+help: consider giving this closure parameter an explicit type, where the placeholders `_` are specified
+   |
+46 |         group.bench_with_input(BenchmarkId::new("standard", size), &coords, |b, coords: &I| {
+   |                                                                                       ++++
+
+error[E0425]: cannot find function `generate_coords` in this scope
+  --> benches/tier1_optimizations.rs:73:22
+   |
+23 | fn generate_routes(count: usize, seed: u64) -> Vec<Route64> {
+   | ----------------------------------------------------------- similarly named function `generate_routes` defined here
+...
+73 |         let coords = generate_coords(size, 2000);
+   |                      ^^^^^^^^^^^^^^^ help: a function with a similar name exists: `generate_routes`
+
+error[E0282]: type annotations needed for `&_`
+  --> benches/tier1_optimizations.rs:82:80
+   |
+82 |         group.bench_with_input(BenchmarkId::new("standard", size), &codes, |b, codes| {
+   |                                                                                ^^^^^
+...
+85 |                     .iter()
+   |                      ---- type must be known at this point
+   |
+help: consider giving this closure parameter an explicit type, where the placeholders `_` are specified
+   |
+82 |         group.bench_with_input(BenchmarkId::new("standard", size), &codes, |b, codes: &I| {
+   |                                                                                     ++++
+
+Some errors have detailed explanations: E0282, E0425, E0433.
+For more information about an error, try `rustc --explain E0282`.
+warning: `octaindex3d` (bench "tier1_optimizations") generated 3 warnings
+error: could not compile `octaindex3d` (bench "tier1_optimizations") due to 7 previous errors; 3 warnings emitted
