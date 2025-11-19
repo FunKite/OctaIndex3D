@@ -11,7 +11,7 @@
 [![CI](https://github.com/FunKite/OctaIndex3D/workflows/Rust%20CI/badge.svg)](https://github.com/FunKite/OctaIndex3D/actions)
 [![Downloads](https://img.shields.io/crates/d/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 
-[Documentation](https://docs.rs/octaindex3d) | [Whitepaper](WHITEPAPER.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](CHANGELOG.md) | [Book Roadmap](book/BOOK_ENHANCEMENT_SUGGESTIONS.md)
+[Documentation](https://docs.rs/octaindex3d) | [Book](book/README.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](CHANGELOG.md)
 
 </div>
 
@@ -738,21 +738,26 @@ Copyright (c) 2025 Michael A. McLarney
 
 ## Research and Citation
 
-For an in-depth technical analysis, see the [**OctaIndex3D Whitepaper**](WHITEPAPER.md), which covers:
-- Mathematical foundations of BCC lattice geometry
-- Detailed architecture and implementation
-- Performance benchmarks and analysis
-- Applications across multiple domains
-- Future research directions
+For comprehensive technical coverage, see the [**OctaIndex3D Book**](book/README.md), which provides:
+- Mathematical foundations of BCC lattice geometry with rigorous proofs
+- Detailed architecture and implementation recipes
+- Performance benchmarks tied to real-world scenarios
+- End-to-end application walkthroughs (robotics, geospatial, gaming, scientific computing)
+- Working code examples and design patterns
+- Advanced topics and future research directions
+
+The book transforms theoretical foundations into practical guidance for building production systems. Part I (Chapters 1-3) is complete with ~78 pages covering foundations, mathematical theory, and data structures.
 
 If you use OctaIndex3D in academic work, please cite:
 
 ```bibtex
-@techreport{mclarney2025octaindex3d,
-  title={OctaIndex3D: A High-Performance 3D Spatial Indexing System Based on Body-Centered Cubic Lattice},
-  author={McLarney, Michael A. and Claude},
+@book{mclarney2025octaindex3d,
+  title={High-Performance 3D Spatial Indexing with Body-Centered Cubic Lattices:
+         A Comprehensive Guide to OctaIndex3D},
+  author={McLarney, Michael A. and GPT-5.1 and Claude},
   year={2025},
-  institution={GitHub},
+  publisher={Independent Publication},
+  edition={First},
   url={https://github.com/FunKite/OctaIndex3D}
 }
 ```
