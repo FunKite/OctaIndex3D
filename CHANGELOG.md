@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **3D Occupancy Framework** with probabilistic sensor fusion
+  - `OccupancyLayer`: Bayesian log-odds updates for probabilistic mapping
+  - `TemporalOccupancyLayer`: Time-aware occupancy with decay for dynamic environments
+  - `CompressedOccupancyLayer`: Block-based compression (10-100x) for large maps
+  - GPU-accelerated ray casting (Metal for Apple Silicon, CUDA for NVIDIA)
+  - ROS2 integration bridge with OccupancyGrid and PointCloud2 message types
+- **Layered 3D Mapping System**
+  - `TSDFLayer`: Truncated Signed Distance Fields for surface reconstruction
+  - `ESDFLayer`: Euclidean Signed Distance Fields for path planning
+  - `MeshLayer`: Surface extraction with marching tetrahedra
+  - Unified measurement system for depth, TSDF, occupancy, and ESDF data
+- **Mesh Export Formats**
+  - PLY (Stanford Polygon File Format) - ASCII and binary
+  - OBJ (Wavefront Object) - with normals
+  - STL (Stereolithography) - ASCII and binary
+- **Advanced Occupancy Features**
+  - Temporal filtering with configurable decay rates
+  - Multiple compression methods: None, LZ4, RLE, Octree
+  - Multi-sensor fusion with noise tolerance
+  - Ray integration for depth camera simulation
+  - Frontier detection for autonomous exploration
+- **Examples**
+  - `occupancy_fusion.rs`: Bayesian fusion, multi-sensor integration
+  - `advanced_occupancy.rs`: GPU, temporal filtering, compression, ROS2
+  - `tsdf_reconstruction.rs`: Surface reconstruction from depth
+  - `mesh_reconstruction.rs`: Mesh extraction and export
+  - `esdf_path_planning.rs`: Distance field path planning
+
+### Performance
+- GPU ray casting: 100-1000x speedup on large batches
+- Compressed storage: 10-100x memory reduction for sparse maps
+- Temporal pruning: Automatic cleanup of stale data
+- Block-based compression: 8x8x8 voxel blocks for cache efficiency
+
+### Integration
+- ROS2-compatible message types (nav_msgs, sensor_msgs)
+- Serde serialization for JSON/CDR export
+- BCC lattice integration with 14-neighbor connectivity
+
 ## [0.4.4] - 2025-11-18
 
 ### Changed

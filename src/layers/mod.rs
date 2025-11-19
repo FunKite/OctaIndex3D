@@ -39,6 +39,10 @@ pub mod export;
 pub mod measurement;
 pub mod mesh;
 pub mod occupancy;
+pub mod occupancy_compressed;
+pub mod occupancy_gpu;
+pub mod occupancy_temporal;
+pub mod ros2_bridge;
 pub mod tsdf;
 
 pub use bcc_utils::{is_valid_bcc, physical_to_bcc_voxel, snap_to_nearest_bcc};
@@ -47,7 +51,20 @@ pub use export::{export_mesh_obj, export_mesh_ply, export_mesh_stl};
 pub use measurement::{Measurement, MeasurementType};
 pub use mesh::{extract_mesh_from_tsdf, Mesh, MeshStats, Triangle, Vertex};
 pub use occupancy::{OccupancyLayer, OccupancyState, OccupancyStats};
+pub use occupancy_compressed::{CompressedOccupancyLayer, CompressionMethod, CompressionStats};
+pub use occupancy_temporal::{TemporalConfig, TemporalOccupancyLayer, TemporalStats};
 pub use tsdf::TSDFLayer;
+
+// Re-export ROS2 types
+pub mod ros2 {
+    pub use super::ros2_bridge::*;
+}
+
+// Re-export GPU types (conditionally)
+#[cfg(any(feature = "gpu-metal", feature = "gpu-cuda"))]
+pub mod gpu {
+    pub use super::occupancy_gpu::*;
+}
 
 use crate::error::{Error, Result};
 use crate::Index64;
