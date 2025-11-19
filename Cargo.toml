@@ -112,6 +112,10 @@ harness = false
 name = "simd_batch_optimizations"
 harness = false
 
+[[bench]]
+name = "v0_5_0_features"
+harness = false
+
 [dev-dependencies]
 proptest = "1.9"
 criterion = { version = "0.7", features = ["html_reports"] }

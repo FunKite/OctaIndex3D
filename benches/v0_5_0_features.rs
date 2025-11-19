@@ -103,7 +103,7 @@ fn bench_occupancy_ray_integration(c: &mut Criterion) {
             &ray_length,
             |b, _| {
                 b.iter(|| {
-                    layer.integrate_ray(
+                    let _ = layer.integrate_ray(
                         black_box(origin),
                         black_box(direction),
                         black_box(hit_distance),
@@ -494,7 +494,6 @@ fn bench_information_gain(c: &mut Criterion) {
 /// Benchmark viewpoint candidate generation
 fn bench_viewpoint_generation(c: &mut Criterion) {
     let mut group = c.benchmark_group("viewpoint_generation");
-    let mut rng = StdRng::seed_from_u64(109);
 
     // Create occupancy map with frontiers
     let mut layer = OccupancyLayer::new();
