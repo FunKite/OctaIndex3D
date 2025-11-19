@@ -95,10 +95,78 @@ If the program does not compile:
 
 ---
 
-## 0.4 Where to Go Next
+## 0.4 Autonomous Mapping (NEW in v0.5.0)
 
-Once you have the quick‑start example running, you have options:
+OctaIndex3D now includes a complete autonomous 3D mapping stack. Here's a quick taste:
 
+```rust
+use octaindex3d::occupancy::{OccupancyLayer, OccupancyConfig};
+use octaindex3d::exploration::{FrontierDetectionConfig, InformationGainConfig};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 1. Create an occupancy map
+    let config = OccupancyConfig {
+        resolution: 0.1,  // 10cm voxels
+        prob_hit: 0.7,
+        prob_miss: 0.4,
+        clamp_min: 0.12,
+        clamp_max: 0.97,
+    };
+
+    let mut layer = OccupancyLayer::new(config)?;
+
+    // 2. Integrate a depth sensor measurement
+    let sensor_pos = (0.0, 0.0, 0.0);
+    let obstacle_pos = (5.0, 2.0, 1.0);
+    layer.integrate_ray(sensor_pos, obstacle_pos)?;
+
+    // 3. Detect frontiers (boundaries between known and unknown space)
+    let frontier_config = FrontierDetectionConfig {
+        min_cluster_size: 10,
+        max_distance: 10.0,
+        cluster_distance: 0.3,
+    };
+
+    let frontiers = layer.detect_frontiers(&frontier_config)?;
+    println!("Found {} frontiers to explore", frontiers.len());
+
+    // 4. Generate viewpoint candidates ranked by information gain
+    let ig_config = InformationGainConfig {
+        sensor_range: 5.0,
+        sensor_fov: std::f32::consts::PI / 3.0,  // 60°
+        ray_resolution: 5.0,
+        unknown_weight: 1.0,
+    };
+
+    let candidates = layer.generate_viewpoint_candidates(&frontiers, &ig_config);
+
+    if let Some(best) = candidates.first() {
+        println!(
+            "Best viewpoint: {:?} with {:.2} bits of information gain",
+            best.position,
+            best.information_gain
+        );
+    }
+
+    Ok(())
+}
+```
+
+This example demonstrates:
+- **Probabilistic occupancy mapping** with Bayesian log-odds updates
+- **Frontier detection** to find unexplored boundaries
+- **Information gain calculation** to evaluate viewpoint quality
+- **Viewpoint candidate generation** for next-best-view planning
+
+For the complete autonomous mapping tutorial, see Chapter 10.
+
+---
+
+## 0.5 Where to Go Next
+
+Once you have the quick‑start examples running, you have options:
+
+- **For autonomous robotics applications**, jump directly to Chapter 10 (Robotics and Autonomous Systems) to see the complete mapping stack in action.
 - **For a deeper understanding of the geometry**, continue with Chapter 2 (Mathematical Foundations) and Appendix A.
 - **For system design and integration questions**, skip to Part II (System Architecture, Identifier Types, Coordinate Systems).
 - **For performance and deployment concerns**, read Chapter 7 (Performance Optimization), Chapter 8 (Container Formats), and Appendix C (Benchmarks).
