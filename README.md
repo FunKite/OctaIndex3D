@@ -222,21 +222,21 @@ octaindex3d --help
 
 ### Available Features
 
-| Feature | Default | Description | When to Use |
-|---------|---------|-------------|-------------|
+| Feature | Enabled by Default | Description | When to Use |
+|---------|-------------------|-------------|-------------|
 | **`serde`** | ✅ Yes | Serialization support | Data persistence, JSON export |
 | **`parallel`** | ✅ Yes | Multi-threaded batch operations (Rayon) | Processing 1000+ items |
 | **`simd`** | ✅ Yes | SIMD acceleration (BMI2, AVX2, NEON) | Performance optimization |
 | **`lz4`** | ✅ Yes | LZ4 compression | Container storage |
-| **`hilbert`** | ❌ No | Hilbert64 space-filling curve | Better spatial locality than Morton |
-| **`container_v2`** | ❌ No | Streaming container format | Append-friendly storage, large datasets |
-| **`gis_geojson`** | ❌ No | GeoJSON export (WGS84) | GIS integration (QGIS, ArcGIS) |
-| **`cli`** | ❌ No | Interactive maze game & CLI utilities | Interactive use, demos |
-| **`zstd`** | ❌ No | Zstd compression (slower, better ratio) | High compression needs |
-| **`pathfinding`** | ❌ No | Legacy pathfinding APIs | Compatibility with v0.2.x |
-| **`gpu-metal`** | ❌ No | Metal GPU acceleration (macOS) | Massive batch operations (millions) |
-| **`gpu-cuda`** | ❌ No | CUDA GPU acceleration (Linux) | Massive batch operations (millions) |
-| **`gpu-vulkan`** | ❌ No | Vulkan GPU acceleration (experimental) | Experimental GPU support |
+| **`hilbert`** | No | Hilbert64 space-filling curve | Better spatial locality than Morton |
+| **`container_v2`** | No | Streaming container format | Append-friendly storage, large datasets |
+| **`gis_geojson`** | No | GeoJSON export (WGS84) | GIS integration (QGIS, ArcGIS) |
+| **`cli`** | No | Interactive maze game & CLI utilities | Interactive use, demos |
+| **`zstd`** | No | Zstd compression (slower, better ratio) | High compression needs |
+| **`pathfinding`** | No | Legacy pathfinding APIs | Compatibility with v0.2.x |
+| **`gpu-metal`** | No | Metal GPU acceleration (macOS) | Massive batch operations (millions) |
+| **`gpu-cuda`** | No | CUDA GPU acceleration (Linux) | Massive batch operations (millions) |
+| **`gpu-vulkan`** | No | Vulkan GPU acceleration (experimental) | Experimental GPU support |
 
 **Recommended combinations:**
 ```toml
