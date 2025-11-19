@@ -172,11 +172,11 @@ mod metal_impl {
 
         fn cast_rays(
             &self,
-            origins: &[(f32, f32, f32)],
-            endpoints: &[(f32, f32, f32)],
-            voxel_size: f32,
-            free_confidence: f32,
-            occupied_confidence: f32,
+            _origins: &[(f32, f32, f32)],
+            _endpoints: &[(f32, f32, f32)],
+            _voxel_size: f32,
+            _free_confidence: f32,
+            _occupied_confidence: f32,
         ) -> Result<Vec<(Index64, bool, f32)>> {
             // Implementation would use Metal compute shaders
             // For now, return empty (will be implemented in shader)
@@ -215,11 +215,11 @@ mod cuda_impl {
 
         fn cast_rays(
             &self,
-            origins: &[(f32, f32, f32)],
-            endpoints: &[(f32, f32, f32)],
-            voxel_size: f32,
-            free_confidence: f32,
-            occupied_confidence: f32,
+            _origins: &[(f32, f32, f32)],
+            _endpoints: &[(f32, f32, f32)],
+            _voxel_size: f32,
+            _free_confidence: f32,
+            _occupied_confidence: f32,
         ) -> Result<Vec<(Index64, bool, f32)>> {
             // CUDA implementation
             Ok(Vec::new())

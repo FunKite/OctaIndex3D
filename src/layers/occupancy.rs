@@ -76,7 +76,7 @@ impl Default for OccupancyVoxel {
 ///
 /// // Simulate sensor measurement (occupied)
 /// let idx = Index64::new(0, 0, 5, 100, 200, 300)?;
-/// let measurement = Measurement::occupancy(true, 0.9); // 90% confident occupied
+/// let measurement = Measurement::occupied(0.9); // 90% confident occupied
 ///
 /// // Update with Bayesian fusion
 /// occupancy.update(idx, &measurement)?;

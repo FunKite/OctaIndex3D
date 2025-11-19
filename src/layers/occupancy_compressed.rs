@@ -145,7 +145,7 @@ impl CompressedOccupancyLayer {
 
     /// Compress block
     fn compress_block(&self, data: &[f32]) -> Result<CompressedBlock> {
-        let uncompressed_size = data.len() * std::mem::size_of::<f32>();
+        let uncompressed_size = std::mem::size_of_val(data);
 
         // Convert to bytes
         let mut bytes = Vec::with_capacity(uncompressed_size);
