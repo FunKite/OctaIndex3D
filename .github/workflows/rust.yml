@@ -75,8 +75,66 @@ jobs:
       - name: Test gis_geojson feature
         run: cargo test --verbose --features gis_geojson
 
+      - name: Test pathfinding feature
+        run: cargo test --verbose --features pathfinding
+
       - name: Test combined features
-        run: cargo test --verbose --features "hilbert,container_v2,gis_geojson"
+        run: cargo test --verbose --features "hilbert,container_v2,gis_geojson,pathfinding"
+
+  gpu-feature-tests:
+    name: GPU Feature Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            feature: gpu-metal
+          - os: ubuntu-latest
+            feature: gpu-vulkan
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Test ${{ matrix.feature }} feature
+        run: cargo test --verbose --features ${{ matrix.feature }}
+        continue-on-error: true
+
+      - name: Build ${{ matrix.feature }} feature
+        run: cargo build --verbose --features ${{ matrix.feature }}
+        continue-on-error: true
+
+  examples:
+    name: Example Compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build occupancy_fusion example
+        run: cargo build --example occupancy_fusion --verbose
+
+      - name: Build advanced_occupancy example
+        run: cargo build --example advanced_occupancy --verbose --all-features
+
+      - name: Build esdf_path_planning example
+        run: cargo build --example esdf_path_planning --verbose
+
+      - name: Build exploration_primitives example
+        run: cargo build --example exploration_primitives --verbose
+
+      - name: Build tsdf_reconstruction example
+        run: cargo build --example tsdf_reconstruction --verbose
+
+      - name: Build mesh_reconstruction example
+        run: cargo build --example mesh_reconstruction --verbose
+
+      - name: Build all examples
+        run: cargo build --examples --verbose
 
   clippy:
     name: Clippy
