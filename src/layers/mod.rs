@@ -35,6 +35,7 @@
 
 pub mod bcc_utils;
 pub mod esdf;
+pub mod exploration;
 pub mod export;
 pub mod measurement;
 pub mod mesh;
@@ -47,6 +48,7 @@ pub mod tsdf;
 
 pub use bcc_utils::{is_valid_bcc, physical_to_bcc_voxel, snap_to_nearest_bcc};
 pub use esdf::ESDFLayer;
+pub use exploration::{Frontier, FrontierDetectionConfig, InformationGainConfig, Viewpoint};
 pub use export::{export_mesh_obj, export_mesh_ply, export_mesh_stl};
 pub use measurement::{Measurement, MeasurementType};
 pub use mesh::{extract_mesh_from_tsdf, Mesh, MeshStats, Triangle, Vertex};

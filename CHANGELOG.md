@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Exploration Primitives** for autonomous navigation
+  - `Frontier` detection: clustering of unknown/free boundaries
+  - Information gain calculation from viewpoints
+  - Viewpoint candidate generation with ranking
+  - Building blocks for Next-Best-View (NBV) planning
+  - No prescribed policy - users control exploration strategy
 - **3D Occupancy Framework** with probabilistic sensor fusion
   - `OccupancyLayer`: Bayesian log-odds updates for probabilistic mapping
   - `TemporalOccupancyLayer`: Time-aware occupancy with decay for dynamic environments
