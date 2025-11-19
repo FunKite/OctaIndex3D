@@ -1,6 +1,6 @@
 //! Neighbor operations for spatial IDs
 
-use crate::ids::{Galactic128, Route64};
+use crate::ids::{Galactic128, Index64, Route64};
 use crate::lattice::BCC_NEIGHBORS_14;
 
 /// Get 14 neighbors of a Route64 coordinate
@@ -16,6 +16,38 @@ pub fn neighbors_route64(route: Route64) -> Vec<Route64> {
             let ny = y.checked_add(*dy)?;
             let nz = z.checked_add(*dz)?;
             Route64::new(tier, nx, ny, nz).ok()
+        })
+        .collect()
+}
+
+/// Get 14 neighbors of an Index64 coordinate
+#[must_use]
+pub fn neighbors_index64(index: Index64) -> Vec<Index64> {
+    let (x, y, z) = index.decode_coords();
+    let frame = index.frame_id();
+    let tier = index.scale_tier();
+    let lod = index.lod();
+
+    BCC_NEIGHBORS_14
+        .iter()
+        .filter_map(|(dx, dy, dz)| {
+            // Convert to signed and add offset
+            let nx = (x as i32).checked_add(*dx)?;
+            let ny = (y as i32).checked_add(*dy)?;
+            let nz = (z as i32).checked_add(*dz)?;
+
+            // Check if still in u16 range
+            if nx < 0
+                || ny < 0
+                || nz < 0
+                || nx > u16::MAX as i32
+                || ny > u16::MAX as i32
+                || nz > u16::MAX as i32
+            {
+                return None;
+            }
+
+            Index64::new(frame, tier, lod, nx as u16, ny as u16, nz as u16).ok()
         })
         .collect()
 }
@@ -68,6 +100,26 @@ mod tests {
 
         // Check that all neighbors have opposite parity for diagonal moves
         // or same parity for axis-aligned moves
+    }
+
+    #[test]
+    fn test_index64_neighbors() {
+        // Use center coordinates that won't underflow (14 away from edges)
+        let index = Index64::new(0, 0, 5, 100, 100, 100).unwrap();
+        let neighbors = neighbors_index64(index);
+        // Should get all 14 neighbors when not at boundary
+        assert_eq!(neighbors.len(), 14);
+
+        // Test at boundary - should get fewer neighbors
+        let edge_index = Index64::new(0, 0, 5, 0, 0, 0).unwrap();
+        let edge_neighbors = neighbors_index64(edge_index);
+        // At corner, can only move in positive directions
+        // 8 parity-flipping neighbors: (1,1,1), (1,1,-1)X, (1,-1,1)X, (1,-1,-1)X,
+        //                              (-1,1,1)X, (-1,1,-1)X, (-1,-1,1)X, (-1,-1,-1)X
+        // Only (1,1,1) valid
+        // 6 parity-preserving: (2,0,0), (-2,0,0)X, (0,2,0), (0,-2,0)X, (0,0,2), (0,0,-2)X
+        // 4 neighbors total
+        assert_eq!(edge_neighbors.len(), 4);
     }
 
     #[test]

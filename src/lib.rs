@@ -44,6 +44,7 @@ pub mod error;
 pub mod frame;
 pub mod ids;
 pub mod lattice;
+pub mod layers;
 pub mod morton;
 pub mod neighbors;
 pub mod performance;
@@ -69,6 +70,10 @@ pub use crate::error::{Error, Result};
 pub use crate::frame::{get_frame, list_frames, register_frame, FrameDescriptor};
 pub use crate::ids::{FrameId, Galactic128, Index64, Route64};
 pub use crate::lattice::{Lattice, LatticeCoord, Parity, BCC_NEIGHBORS_14};
+pub use crate::layers::{
+    export_mesh_obj, export_mesh_ply, export_mesh_stl, extract_mesh_from_tsdf, ESDFLayer,
+    LayeredMap, Measurement, Mesh, OccupancyLayer, OccupancyState, OccupancyStats, TSDFLayer,
+};
 
 // Performance module re-exports
 pub use crate::performance::{Backend, BatchIndexBuilder, BatchNeighborCalculator, BatchResult};
