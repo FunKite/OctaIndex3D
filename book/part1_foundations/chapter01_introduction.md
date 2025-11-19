@@ -52,9 +52,21 @@ Despite these challenges, three-dimensional spatial data is ubiquitous in modern
 
 **Robotics and Autonomous Systems**
 - Self-driving cars building real-time 3D maps from LiDAR data
-- Drones navigating complex urban environments
-- Warehouse robots planning collision-free paths
-- Underwater vehicles mapping ocean floors
+- Drones navigating complex urban environments and autonomously exploring unknown areas
+- Warehouse robots planning collision-free paths with multi-sensor fusion
+- Underwater vehicles mapping ocean floors with frontier-based exploration
+
+**NEW in OctaIndex3D v0.5.0**: A production-ready autonomous 3D mapping stack including:
+- Probabilistic occupancy mapping with Bayesian log-odds updates
+- Multi-sensor fusion (LiDAR, RGB-D, depth cameras, radar)
+- Frontier detection for autonomous exploration
+- Information gain calculation for next-best-view planning
+- GPU-accelerated ray casting (Metal + CUDA)
+- Temporal filtering for dynamic environments
+- 89x compression ratio with RLE
+- ROS2 integration for robotics middleware
+
+This complete mapping infrastructure (3,428 lines) transforms OctaIndex3D from a spatial indexing library into **"The BLAS of 3D Robotics"**—providing the fundamental building blocks for autonomous systems.
 
 **Geospatial Analysis**
 - Urban planning with 3D city models

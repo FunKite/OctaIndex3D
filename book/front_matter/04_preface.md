@@ -43,15 +43,23 @@ Each chapter includes, in some form:
 - **Performance Notes** – Benchmarks, complexity analysis, and trade-offs
 - **Deep Dives** – Proofs, derivations, and references when you want them
 
-## A Running Example: From Blocky Paths to Natural Motion
+## A Running Example: From Blocky Paths to Autonomous Exploration
 
 To keep the material grounded, several chapters revisit a common story:
 
-> A robotics team is flying autonomous drones through a warehouse. The planner uses a cubic grid. The paths are safe but “blocky,” the drones burn more battery than expected, and small changes in coordinate frames produce surprisingly different trajectories.
+> A robotics team is flying autonomous drones through a warehouse. The planner uses a cubic grid. The paths are safe but "blocky," the drones burn more battery than expected, and small changes in coordinate frames produce surprisingly different trajectories. Most critically, the drones can't autonomously explore unknown areas—they need pre-mapped environments to function.
 
-In Part I, we use this scenario to show how directional bias and anisotropy show up in real systems. In Part II, we map the warehouse and its frames onto OctaIndex3D’s architecture. In Part III, we implement BCC-aware data structures and encodings that the planner can call directly. In Part IV, we compare the old and new systems on actual metrics: path length, collision rate, and energy usage.
+In Part I, we use this scenario to show how directional bias and anisotropy show up in real systems. In Part II, we map the warehouse and its frames onto OctaIndex3D's architecture. In Part III, we implement BCC-aware data structures and encodings that the planner can call directly. In Part IV, we compare the old and new systems on actual metrics: path length, collision rate, energy usage, **and autonomous exploration capabilities**.
 
-You can mentally substitute your own domain—geospatial tiles, climate grids, voxel worlds—but the core questions remain the same: **How do we represent 3D space so that our algorithms see the world as faithfully and efficiently as possible?**
+**NEW in v0.5.0**: The story now continues to **autonomous mapping and exploration**. Chapter 10 shows how to build a complete autonomous system that:
+- Maintains probabilistic occupancy maps with multi-sensor fusion
+- Detects frontiers between known and unknown space
+- Calculates information gain for viewpoint candidates
+- Plans next-best-view observations to maximize mapping efficiency
+- Handles dynamic environments with temporal filtering
+- Achieves real-time performance with GPU acceleration
+
+You can mentally substitute your own domain—geospatial tiles, climate grids, voxel worlds—but the core questions remain the same: **How do we represent 3D space so that our algorithms see the world as faithfully and efficiently as possible? And how do we use that representation to enable truly autonomous behavior?**
 
 ## The Philosophy Behind This Work
 
