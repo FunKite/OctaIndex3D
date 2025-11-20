@@ -1,0 +1,190 @@
+  ⎿  Read src/layers/mesh.rs (428 lines)
+  ⎿  Read src/layers/export.rs (398 lines)
+  ⎿  Read examples/mesh_reconstruction.rs (268 lines)
+  ⎿  Read src/lib.rs (134 lines)
+  ⎿  Read src/layers/mod.rs (233 lines)
+  ⎿  Todo list read (7 items)
+
+⏺ I'll continue implementing the Occupancy layer with Bayesian fusion as requested.
+
+⏺ Write(src/layers/occupancy.rs)
+  ⎿  Wrote 541 lines to src/layers/occupancy.rs                                  
+     //! Probabilistic Occupancy Layer with Bayesian Fusion
+     //!
+     //! Implements probabilistic occupancy mapping using log-odds representation
+     //! for efficient Bayesian updates on the BCC lattice.
+     //!
+     //! ## Algorithm
+     //!
+     //! Uses log-odds representation: L(x) = log(p(x) / (1 - p(x)))
+     //!
+     //! Benefits:
+     … +531 lines (ctrl+o to expand)
+
+⏺ Now I'll update the layers module to include the occupancy layer:
+
+⏺ Read(src/layers/mod.rs)
+  ⎿  Read 233 lines
+
+⏺ Update(src/layers/mod.rs)
+  ⎿  Updated src/layers/mod.rs with 2 additions                                            
+       38    pub mod export;
+       39    pub mod measurement;
+       40    pub mod mesh;
+       41 +  pub mod occupancy;
+       42    pub mod tsdf;
+       43    
+       44    pub use bcc_utils::{is_valid_bcc, physical_to_bcc_voxel, snap_to_nearest_bcc};
+     ...
+       45    pub use export::{export_mesh_obj, export_mesh_ply, export_mesh_stl};
+       46    pub use measurement::{Measurement, MeasurementType};
+       47    pub use mesh::{extract_mesh_from_tsdf, Mesh, MeshStats, Triangle, Vertex};
+       48 +  pub use occupancy::{OccupancyLayer, OccupancyState, OccupancyStats};
+       49    pub use tsdf::TSDFLayer;
+       50    
+       51    use crate::error::{Error, Result};
+
+⏺ Now I'll add occupancy layer support to LayeredMap:
+
+⏺ Update(src/layers/mod.rs)
+  ⎿  Updated src/layers/mod.rs with 5 additions                                 
+       135            self.layers.insert(LayerType::ESDF, Box::new(layer));
+       136        }
+       137    
+       138 +      /// Add an Occupancy layer for probabilistic sensor fusion
+       139 +      pub fn add_occupancy_layer(&mut self, layer: OccupancyLayer) {
+       140 +          self.layers.insert(LayerType::Occupancy, Box::new(layer));
+       141 +      }
+       142 +  
+       143        /// Get reference to TSDF layer
+       144        ///
+       145        /// Note: This returns None if the layer doesn't exist.
+
+⏺ Update(src/layers/mod.rs)
+  ⎿  Updated src/layers/mod.rs with 17 additions                                                             
+       185                .and_then(|layer| layer.query(idx))
+       186        }
+       187    
+       188 +      /// Update Occupancy layer with measurement
+       189 +      pub fn update_occupancy(&mut self, idx: Index64, measurement: &Measurement) -> Result<()> {
+       190 +          match self.layers.get_mut(&LayerType::Occupancy) {
+       191 +              Some(layer) => layer.update(idx, measurement),
+       192 +              None => Err(Error::InvalidFormat(
+       193 +                  "Occupancy layer not initialized".to_string(),
+       194 +              )),
+       195 +          }
+       196 +      }
+       197 +  
+       198 +      /// Query Occupancy probability value
+       199 +      pub fn query_occupancy(&self, idx: Index64) -> Option<f32> {
+       200 +          self.layers
+       201 +              .get(&LayerType::Occupancy)
+       202 +              .and_then(|layer| layer.query(idx))
+       203 +      }
+       204 +  
+       205        /// Check if a layer exists
+       206        pub fn has_layer(&self, layer_type: LayerType) -> bool {
+       207            self.layers.contains_key(&layer_type)
+
+⏺ Now I'll update lib.rs to export the occupancy types:
+
+⏺ Update(src/lib.rs)
+  ⎿  Updated src/lib.rs with 1 addition and 1 removal                                                     
+       72    pub use crate::lattice::{Lattice, LatticeCoord, Parity, BCC_NEIGHBORS_14};
+       73    pub use crate::layers::{
+       74        extract_mesh_from_tsdf, export_mesh_obj, export_mesh_ply, export_mesh_stl, ESDFLayer,
+       75 -      LayeredMap, Measurement, Mesh, TSDFLayer,
+       75 +      LayeredMap, Measurement, Mesh, OccupancyLayer, OccupancyState, OccupancyStats, TSDFLayer,
+       76    };
+       77    
+       78    // Performance module re-exports
+
+⏺ Now I'll create a comprehensive example demonstrating occupancy fusion:
+
+⏺ Write(examples/occupancy_fusion.rs)
+  ⎿  Wrote 289 lines to examples/occupancy_fusion.rs                
+     //! Probabilistic Occupancy Mapping with Bayesian Sensor Fusion
+     //!
+     //! Demonstrates:
+     //! 1. Bayesian log-odds updates from noisy sensors
+     //! 2. Ray integration for depth camera simulation
+     //! 3. Occupancy state classification (Unknown/Free/Occupied)
+     //! 4. Multi-sensor fusion and convergence
+     //! 5. Frontier detection for autonomous exploration
+     //!
+     //! Run with:
+     … +279 lines (ctrl+o to expand)
+
+⏺ Bash(cargo test --lib 2>&1 | tail -50)
+  ⎿  error[E0026]: variant `measurement::MeasurementType::Occupancy` does not have a field named `occupied`
+        --> src/layers/occupancy.rs:358:42
+         |
+     … +46 lines (ctrl+o to expand)
+
+⏺ Let me check the Measurement structure to fix the errors:
+
+⏺ Read(src/layers/measurement.rs)
+  ⎿  Read 120 lines
+
+⏺ Now I'll fix the errors in the occupancy layer:
+
+⏺ Update(src/layers/occupancy.rs)
+  ⎿  Updated src/layers/occupancy.rs with 3 additions and 3 removals                           
+       354        }
+       355    
+       356        fn update(&mut self, idx: Index64, measurement: &Measurement) -> Result<()> {
+       357 -          match measurement.data {
+       358 -              MeasurementType::Occupancy { occupied } => {
+       359 -                  self.update_occupancy(idx, occupied, measurement.confidence);
+       357 +          match &measurement.data {
+       358 +              MeasurementData::Occupancy { occupied } => {
+       359 +                  self.update_occupancy(idx, *occupied, measurement.confidence);
+       360                    Ok(())
+       361                }
+       362                _ => Ok(()), // Ignore non-occupancy measurements
+
+⏺ Update(src/layers/occupancy.rs)
+  ⎿  Updated src/layers/occupancy.rs with 2 additions and 1 removal      
+       25    
+       26    use crate::error::Result;
+       27    use crate::Index64;
+       28 -  use super::{Layer, LayerType, Measurement, MeasurementType};
+       28 +  use super::{Layer, LayerType, Measurement};
+       29 +  use super::measurement::MeasurementData;
+       30    use std::collections::HashMap;
+       31    
+       32    /// Occupancy state classification
+
+⏺ Update(src/layers/occupancy.rs)
+  ⎿  Updated src/layers/occupancy.rs with 1 addition and 1 removal               
+       487            let mut layer = OccupancyLayer::new();
+       488            let idx = Index64::new(0, 0, 5, 100, 200, 300)?;
+       489    
+       490 -          let measurement = Measurement::occupancy(true, 0.9);
+       490 +          let measurement = Measurement::occupied(0.9);
+       491            layer.update(idx, &measurement)?;
+       492    
+       493            assert_eq!(layer.get_state(idx), OccupancyState::Occupied);
+
+⏺ Bash(cargo test --lib 2>&1 | tail -80)
+  ⎿  Running in the background (down arrow to manage)
+
+⏺ BashOutput(Reading shell output)
+  ⎿  (No content)
+
+⏺ BashOutput(Reading shell output)
+  ⎿  (No content)
+
+⏺ BashOutput(Reading shell output)
+  ⎿  (No content)
+  ⎿  Session limit reached ∙ resets 12am
+     /upgrade to increase your usage limit.
+
+  Todos
+  ☒ Implement Occupancy layer with Bayesian fusion
+  ☒ Add unknown/free/occupied state management
+  ☒ Create occupancy example with sensor fusion
+  ☐ Test occupancy functionality
+  ☐ Commit all changes to git
+  ☐ Push to GitHub
+  ☐ Create TODO list for future work

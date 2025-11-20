@@ -48,7 +48,7 @@ Because connectivity and neighbor counts are uniform, model designers can reason
 
 ---
 
-### 15.1.1 Building Graphs from Containers
+### 16.1.1 Building Graphs from Containers
 
 To feed GNNs, you need:
 
@@ -75,7 +75,7 @@ Because BCC neighbors are consistent, you can:
 - Control the effective receptive field by stacking GNN layers.
 - Reason about how many LODs and neighbor rings a model “sees”.
 
-### 15.1.2 Spatial Attention on BCC Graphs
+### 16.1.2 Spatial Attention on BCC Graphs
 
 Attention mechanisms (as in transformers or graph attention networks) require:
 
@@ -98,7 +98,7 @@ Typical patterns:
 
 This lets models learn anisotropic behavior when appropriate, while starting from an isotropic underlying graph.
 
-## 15.2 Point Clouds and Feature Extraction
+## 16.2 Point Clouds and Feature Extraction
 
 Many machine learning tasks involve point clouds:
 
@@ -134,7 +134,7 @@ Because the binning step is deterministic and reversible, labels produced by dow
 
 ---
 
-### 15.2.1 Voxelization Schemes
+### 16.2.1 Voxelization Schemes
 
 Point clouds can be voxelized onto BCC lattices in several ways:
 
@@ -156,7 +156,7 @@ Design choices include:
 - Whether to keep empty cells (dense tensors) or omit them (sparse tensors).
 - How to normalize features (per-cell counts, log counts, min–max scaling).
 
-### 15.2.2 Multi-LOD Features
+### 16.2.2 Multi-LOD Features
 
 Multi-resolution representations often improve robustness:
 
@@ -175,7 +175,7 @@ Models can then:
 - Attend to coarse context while focusing on fine details when necessary.
 - Generalize across sensor resolutions by relying on shared structure across LODs.
 
-## 15.3 3D Object Detection and Trajectory Prediction
+## 16.3 3D Object Detection and Trajectory Prediction
 
 In domains like autonomous driving:
 
@@ -206,7 +206,7 @@ Here, BCC indexing ensures that the notion of “local neighborhood” is isotro
 
 ---
 
-### 15.3.1 Label Projection and Consistency
+### 16.3.1 Label Projection and Consistency
 
 Supervised learning requires labels that align with inputs. With BCC-indexed inputs:
 
@@ -224,7 +224,7 @@ Maintaining consistency:
 - Use the same frame registry for both labels and data.
 - Store label information in containers keyed by the same identifiers as features.
 
-### 15.3.2 Training Data Generation Pipelines
+### 16.3.2 Training Data Generation Pipelines
 
 Training pipelines often:
 
@@ -247,7 +247,7 @@ Because identifiers are stable, you can:
 - Recompute features with new algorithms while preserving label alignment.
 - Merge additional modalities or annotations into existing datasets.
 
-## 15.4 Framework Integration
+## 16.4 Framework Integration
 
 While OctaIndex3D is implemented in Rust, many ML workflows use:
 
@@ -274,7 +274,7 @@ This division of labor respects the strengths of each ecosystem while keeping BC
 
 ---
 
-### 15.4.1 PyTorch-Oriented Workflow
+### 16.4.1 PyTorch-Oriented Workflow
 
 In a typical PyTorch setup:
 
@@ -295,7 +295,7 @@ This keeps:
 - Heavy numeric work (neighbor queries, aggregation) in Rust.
 - Model experimentation and training loops in Python.
 
-### 15.4.2 Serving and Online Inference
+### 16.4.2 Serving and Online Inference
 
 For online inference (production serving):
 
@@ -313,14 +313,14 @@ Because both training and serving use the same indexing and feature extraction l
 
 ---
 
-## 15.5 Data Pipelines and Training
+## 16.5 Data Pipelines and Training
 
 Machine learning projects succeed or fail on their **data pipelines** at least as much as on model architectures. OctaIndex3D supports robust pipelines by:
 
 - Providing a stable spatial index across experiments.
 - Making it cheap to recompute features or add new ones.
 
-### 15.5.1 Offline Training Pipelines
+### 16.5.1 Offline Training Pipelines
 
 An offline pipeline might:
 
@@ -337,7 +337,7 @@ Because identifiers are unchanged across runs:
 - You can add new labels or features without reindexing.
 - Experiments remain comparable even as feature sets evolve.
 
-### 15.5.2 Online Learning and Feedback
+### 16.5.2 Online Learning and Feedback
 
 Some systems incorporate:
 
@@ -361,11 +361,11 @@ This supports:
 
 ---
 
-## 15.6 PyTorch Integration in Depth
+## 16.6 PyTorch Integration in Depth
 
 This section provides complete, production-ready examples of integrating OctaIndex3D with PyTorch.
 
-### 15.6.1 Custom Dataset Class for BCC Containers
+### 16.6.1 Custom Dataset Class for BCC Containers
 
 A PyTorch `Dataset` that reads from BCC-indexed containers:
 
@@ -456,7 +456,7 @@ class BCCDataset(Dataset):
         return sample
 ```rust
 
-### 15.6.2 Custom Collation Function
+### 16.6.2 Custom Collation Function
 
 Batch BCC data efficiently:
 
@@ -485,7 +485,7 @@ def bcc_collate_fn(batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tens
     }
 ```
 
-### 15.6.3 DataLoader with BCC Containers
+### 16.6.3 DataLoader with BCC Containers
 
 ```python
 from torch.utils.data import DataLoader
@@ -522,7 +522,7 @@ def create_bcc_dataloader(
     return dataloader
 ```rust
 
-### 15.6.4 GPU Data Transfer Optimizations
+### 16.6.4 GPU Data Transfer Optimizations
 
 Minimize CPU-GPU transfer overhead:
 
@@ -573,9 +573,9 @@ class BCCDataModule:
 
 ---
 
-## 15.7 Complete Training Pipeline
+## 16.7 Complete Training Pipeline
 
-### 15.7.1 Training Loop with Progress Tracking
+### 16.7.1 Training Loop with Progress Tracking
 
 ```python
 import torch
@@ -744,7 +744,7 @@ class BCCTrainer:
                   f"val_loss={val_metrics['val_loss']:.4f}")
 ```toml
 
-### 15.7.2 Hyperparameter Tuning with Ray Tune
+### 16.7.2 Hyperparameter Tuning with Ray Tune
 
 ```python
 from ray import tune

@@ -77,7 +77,7 @@ Open questions:
 
 **Expected Impact**: Enable confident use of BCC in multi-physics simulations with provable accuracy guarantees.
 
-### 16.1.2 Systems and Data-Management Challenges
+### 17.1.2 Systems and Data-Management Challenges
 
 On the systems side, open problems include:
 
@@ -136,7 +136,7 @@ BCC pipelines have complex trade-offs:
 - Profile-guided optimization for container layouts
 - Hardware-software co-design for BCC-specific accelerators
 
-## 16.2 Optimal Hilbert State Machines
+## 17.2 Optimal Hilbert State Machines
 
 Hilbert curves rely on state machines that:
 
@@ -155,7 +155,7 @@ Future work may include:
 
 ---
 
-### 16.2.1 Search and Verification
+### 17.2.1 Search and Verification
 
 Designing good state machines is partly:
 
@@ -173,7 +173,7 @@ Future efforts might:
 
 This would reduce the risk of subtle encoding bugs and provide reusable libraries for other projects.
 
-### 16.2.2 Hardware-Friendly Encodings
+### 17.2.2 Hardware-Friendly Encodings
 
 Different accelerators favor different patterns:
 
@@ -188,7 +188,7 @@ There is room for:
 
 Such work would build bridges between indexing theory and hardware design.
 
-## 16.3 Compression-Aware Queries
+## 17.3 Compression-Aware Queries
 
 Traditional designs treat compression and querying as separate layers. Compression-aware designs aim to:
 
@@ -208,7 +208,7 @@ This area connects:
 
 ---
 
-### 16.3.1 Domain-Specific Compression
+### 17.3.1 Domain-Specific Compression
 
 Generic compressors often ignore:
 
@@ -225,7 +225,7 @@ Examples include:
 - Wavelet-style schemes adapted to BCC refinement hierarchies.
 - Block-based schemes where blocks align with identifier ranges and LODs.
 
-### 16.3.2 In-Place and Approximate Querying
+### 17.3.2 In-Place and Approximate Querying
 
 Compression-aware querying invites:
 
@@ -241,7 +241,7 @@ Potential directions:
   - Answer coarse questions from compressed coarse-level data.
   - Drill into finer, less compressed data only where needed.
 
-## 16.4 BCC-Native Rendering and Visualization
+## 17.4 BCC-Native Rendering and Visualization
 
 Most visualization tools assume cubic grids or unstructured meshes. BCC-native rendering would:
 
@@ -260,7 +260,7 @@ Better visualization can:
 
 ---
 
-### 16.4.1 Rendering Pipelines
+### 17.4.1 Rendering Pipelines
 
 Future rendering pipelines might:
 
@@ -274,7 +274,7 @@ Hybrid approaches can:
 - Render BCC data into intermediate cubic or mesh representations for compatibility.
 - Retain enough metadata to trace pixels back to original BCC cells (for debugging and selection).
 
-### 16.4.2 Interactive Exploration Tools
+### 17.4.2 Interactive Exploration Tools
 
 There is room for tools that:
 
@@ -286,7 +286,7 @@ Such tools would:
 - Shorten feedback loops for developers tuning encodings and containers.
 - Provide educational visualizations that make BCC concepts more approachable.
 
-## 16.5 Emerging Hardware Architectures
+## 17.5 Emerging Hardware Architectures
 
 New hardware trends pose both challenges and opportunities:
 
@@ -302,7 +302,7 @@ Questions for future exploration include:
 
 ---
 
-### 16.5.1 Advanced GPU Acceleration
+### 17.5.1 Advanced GPU Acceleration
 
 Current GPU usage focuses on:
 
@@ -320,7 +320,7 @@ Future work could explore:
 
 This would blur the line between “indexing” and “simulation” on GPU-heavy workloads.
 
-### 16.5.2 Quantum and Novel Accelerators
+### 17.5.2 Quantum and Novel Accelerators
 
 Quantum computing and other novel accelerators remain speculative for BCC indexing, but potential directions include:
 
@@ -333,7 +333,7 @@ Quantum computing and other novel accelerators remain speculative for BCC indexi
 
 These ideas are early-stage, but articulating them now can help guide future collaborations between indexing researchers and hardware designers.
 
-## 16.6 Community and Ecosystem
+## 17.6 Community and Ecosystem
 
 Finally, the long-term health of OctaIndex3D depends on:
 
@@ -348,7 +348,7 @@ Future directions may include:
 
 ---
 
-### 16.6.1 Contribution Pathways
+### 17.6.1 Contribution Pathways
 
 Healthy ecosystems make it easy to contribute. For OctaIndex3D, potential pathways include:
 
@@ -364,7 +364,7 @@ Healthy ecosystems make it easy to contribute. For OctaIndex3D, potential pathwa
 
 Clear contribution guides, issue labels, and mentoring can help welcome new contributors.
 
-### 16.6.2 Shared Datasets and Benchmarks
+### 17.6.2 Shared Datasets and Benchmarks
 
 Common datasets and benchmarks accelerate progress. Future work might include:
 
@@ -383,11 +383,11 @@ These resources would make it easier to:
 
 ---
 
-## 16.7 Implementation Roadmap
+## 17.7 Implementation Roadmap
 
 This section outlines a practical roadmap for evolving OctaIndex3D over the next 1-3 years.
 
-### 16.7.1 Short-Term Goals (3-6 months)
+### 17.7.1 Short-Term Goals (3-6 months)
 
 **Performance and Stability**:
 - Achieve 99.99% test coverage for core modules
@@ -413,7 +413,7 @@ This section outlines a practical roadmap for evolving OctaIndex3D over the next
 - Create contribution guide and code of conduct
 - Set up CI/CD with automated benchmarks
 
-### 16.7.2 Medium-Term Goals (6-12 months)
+### 17.7.2 Medium-Term Goals (6-12 months)
 
 **Distributed Systems Support**:
 - Implement distributed container sharding across nodes
@@ -439,7 +439,7 @@ This section outlines a practical roadmap for evolving OctaIndex3D over the next
 - DuckDB integration for analytics
 - Apache Kafka connector for streaming
 
-### 16.7.3 Long-Term Vision (1-3 years)
+### 17.7.3 Long-Term Vision (1-3 years)
 
 **Research-Driven Features**:
 - Implement findings from locality optimization research
@@ -467,11 +467,11 @@ This section outlines a practical roadmap for evolving OctaIndex3D over the next
 
 ---
 
-## 16.8 Community Contribution Guidelines
+## 17.8 Community Contribution Guidelines
 
 OctaIndex3D thrives on community contributions. This section provides pathways for getting involved.
 
-### 16.8.1 How to Contribute
+### 17.8.1 How to Contribute
 
 **Finding Issues to Work On**:
 
@@ -515,7 +515,7 @@ pub fn enc(p: Vec3, l: u8) -> Result<Index64> {
 }
 ```rust
 
-### 16.8.2 Documentation Standards
+### 17.8.2 Documentation Standards
 
 All public APIs must include:
 
@@ -563,7 +563,7 @@ pub fn query_sphere(
 }
 ```
 
-### 16.8.3 Testing Requirements
+### 17.8.3 Testing Requirements
 
 **Unit Tests**:
 - Test all public functions
@@ -631,7 +631,7 @@ mod tests {
 }
 ```rust
 
-### 16.8.4 Proposing New Features
+### 17.8.4 Proposing New Features
 
 For substantial changes:
 
@@ -652,11 +652,11 @@ For substantial changes:
 
 ---
 
-## 16.9 Benchmarking and Evaluation
+## 17.9 Benchmarking and Evaluation
 
 Rigorous benchmarking ensures OctaIndex3D meets performance claims.
 
-### 16.9.1 Proposed Benchmark Suites
+### 17.9.1 Proposed Benchmark Suites
 
 **Microbenchmarks**:
 - Encoding/decoding throughput
@@ -679,7 +679,7 @@ Rigorous benchmarking ensures OctaIndex3D meets performance claims.
 - Multi-hour endurance runs
 - Crash recovery scenarios
 
-### 16.9.2 Evaluation Methodologies
+### 17.9.2 Evaluation Methodologies
 
 **Comparison Frameworks**:
 
@@ -715,7 +715,7 @@ Example benchmark result table:
 | H3 (geospatial) | 2.1 ms | 52,000 | 2.8 |
 | PostGIS | 4.5 ms | 18,000 | 5.2 |
 
-### 16.9.3 Continuous Performance Monitoring
+### 17.9.3 Continuous Performance Monitoring
 
 **Regression Detection**:
 - Run benchmarks on every PR
@@ -731,9 +731,9 @@ Example benchmark result table:
 
 ---
 
-## 16.10 Emerging Applications
+## 17.10 Emerging Applications
 
-### 16.10.1 Augmented and Virtual Reality
+### 17.10.1 Augmented and Virtual Reality
 
 **Use Case**: Real-time spatial mapping for AR/VR headsets
 
@@ -772,7 +772,7 @@ impl ARWorldMap {
 }
 ```
 
-### 16.10.2 Digital Twins and Metaverse
+### 17.10.2 Digital Twins and Metaverse
 
 **Use Case**: Persistent, multi-user virtual worlds with physics
 

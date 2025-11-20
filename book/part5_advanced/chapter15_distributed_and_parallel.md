@@ -40,7 +40,7 @@ Because BCC indices respect spatial locality in both Morton and Hilbert ordering
 
 ---
 
-### 14.1.1 Distributed Indexing Architecture
+### 15.1.1 Distributed Indexing Architecture
 
 A practical distributed architecture built on OctaIndex3D often includes:
 
@@ -68,7 +68,7 @@ This separation keeps:
 - Network and orchestration concerns out of the indexing library.
 - Indexing and container details out of the coordinator.
 
-### 14.1.2 Sharding and Rebalancing
+### 15.1.2 Sharding and Rebalancing
 
 As data volume and traffic grow, partitions must be:
 
@@ -125,7 +125,7 @@ Because neighbor enumeration is the same regardless of whether a cell is local o
 
 ---
 
-### 14.2.1 Time-Stepping Patterns
+### 15.2.1 Time-Stepping Patterns
 
 For time-dependent simulations (CFD, weather, particle systems), a common distributed time step:
 
@@ -146,7 +146,7 @@ The communication layer (MPI, gRPC, custom RPC) then:
 - Packs identifier/value pairs into messages.
 - Ensures ordering and reliability according to the simulation’s needs.
 
-### 14.2.2 Overlap for Load Balancing
+### 15.2.2 Overlap for Load Balancing
 
 Sometimes partitions intentionally **overlap**:
 
@@ -196,7 +196,7 @@ This keeps high-performance simulation code and high-level analytics code decoup
 
 ---
 
-### 14.3.1 Mapping Containers to Arrow
+### 15.3.1 Mapping Containers to Arrow
 
 To integrate with Arrow, containers typically:
 
@@ -218,7 +218,7 @@ This makes BCC-indexed data:
 - Queryable via SQL engines.
 - Directly consumable by Python, R, and other ecosystems with Arrow bindings.
 
-### 14.3.2 Parquet and Data Lakes
+### 15.3.2 Parquet and Data Lakes
 
 For long-term storage, **Parquet** (built on Arrow schemas) is a natural fit:
 
@@ -238,7 +238,7 @@ Downstream tools can then:
 - Run ad hoc analytics over historical BCC-indexed data.
 - Train machine learning models using the same identifiers and fields that online systems use.
 
-## 14.4 Distributed A* and Graph Search
+## 15.4 Distributed A* and Graph Search
 
 Pathfinding problems often span multiple partitions:
 
@@ -272,7 +272,7 @@ This mirrors the multiresolution planning patterns used in single-machine roboti
 
 ---
 
-### 14.4.1 Frontier Management
+### 15.4.1 Frontier Management
 
 Distributed A* needs a consistent view of:
 
@@ -293,7 +293,7 @@ OctaIndex3D contributes:
 - Compact keys for frontier entries.
 - Deterministic neighbor expansion order, simplifying debugging and reproducibility.
 
-### 14.4.2 Alternative Distributed Search Algorithms
+### 15.4.2 Alternative Distributed Search Algorithms
 
 Beyond A*, large-scale systems may use:
 
@@ -311,7 +311,7 @@ Distributed implementations can:
 - Split the graph by partitions as described in 14.1.
 - Use ghost-zone-like exchange to keep frontier information consistent across boundaries.
 
-## 14.5 Fault Tolerance and Scalability
+## 15.5 Fault Tolerance and Scalability
 
 Scaling BCC-based systems requires:
 
@@ -337,7 +337,7 @@ In a cluster setting, containers stored in sequential formats are particularly h
 
 ---
 
-## 14.6 Cloud Deployment Examples
+## 15.6 Cloud Deployment Examples
 
 While OctaIndex3D itself is agnostic to deployment environment, common cloud patterns include:
 
@@ -360,7 +360,7 @@ Typical workflows:
 
 Because OctaIndex3D's abstractions are **purely logical** (frames, identifiers, containers), they map cleanly onto different cloud stacks without changing the core library.
 
-### 14.6.1 AWS Deployment Architecture
+### 15.6.1 AWS Deployment Architecture
 
 ```rust
 use aws_sdk_s3::{Client as S3Client, primitives::ByteStream};
@@ -526,7 +526,7 @@ impl ShardServer {
 }
 ```rust
 
-### 14.6.2 Google Cloud Platform Integration
+### 15.6.2 Google Cloud Platform Integration
 
 ```rust
 use google_cloud_storage::client::Client as GCSClient;
@@ -592,7 +592,7 @@ enum UpdateType {
 }
 ```
 
-### 14.6.3 Azure Deployment with Cosmos DB
+### 15.6.3 Azure Deployment with Cosmos DB
 
 ```rust
 use azure_storage_blobs::prelude::*;
@@ -644,11 +644,11 @@ struct PartitionMetadata {
 }
 ```rust
 
-## 14.7 Monitoring and Observability
+## 15.7 Monitoring and Observability
 
 Distributed systems require comprehensive monitoring to detect and diagnose issues.
 
-### 14.7.1 Metrics Collection
+### 15.7.1 Metrics Collection
 
 ```rust
 use prometheus::{IntCounter, IntGauge, Histogram, Registry};
@@ -719,7 +719,7 @@ impl DistributedMetrics {
 }
 ```
 
-### 14.7.2 Distributed Tracing
+### 15.7.2 Distributed Tracing
 
 ```rust
 use opentelemetry::{global, sdk::trace as sdktrace};
@@ -762,7 +762,7 @@ async fn traced_range_query(
 }
 ```rust
 
-### 14.7.3 Health Checks and Readiness Probes
+### 15.7.3 Health Checks and Readiness Probes
 
 ```rust
 use axum::{Router, routing::get, http::StatusCode};
@@ -794,9 +794,9 @@ fn create_health_router(shard: Arc<ShardServer>) -> Router {
 }
 ```
 
-## 14.8 Troubleshooting Distributed Systems
+## 15.8 Troubleshooting Distributed Systems
 
-### 14.8.1 Partition Skew
+### 15.8.1 Partition Skew
 
 **Problem**: Some partitions receive disproportionate load.
 

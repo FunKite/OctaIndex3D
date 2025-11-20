@@ -14,7 +14,7 @@ The focus here is on:
 
 ## Chapter Summaries
 
-### [Chapter 15: Distributed and Parallel Processing](chapter14_distributed_and_parallel.md)
+### [Chapter 15: Distributed and Parallel Processing](chapter15_distributed_and_parallel.md)
 
 **Topics Covered**:
 - Spatial partitioning strategies for clusters
@@ -23,7 +23,7 @@ The focus here is on:
 - Distributed A* and graph search
 - Fault tolerance and scalability analysis
 
-### [Chapter 16: Machine Learning Integration](chapter15_machine_learning_integration.md)
+### [Chapter 16: Machine Learning Integration](chapter16_machine_learning_integration.md)
 
 **Topics Covered**:
 - Representing BCC-indexed data for graph neural networks
@@ -31,7 +31,7 @@ The focus here is on:
 - 3D object detection and trajectory prediction
 - Interfacing with PyTorch and TensorFlow
 
-### [Chapter 17: Future Directions](chapter16_future_directions.md)
+### [Chapter 17: Future Directions](chapter17_future_directions.md)
 
 **Topics Covered**:
 - Open research challenges in BCC-based indexing
