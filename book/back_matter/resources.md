@@ -90,7 +90,7 @@ This section provides curated resources to help you go deeper with OctaIndex3D a
   - k-d tree implementation
   - Useful for point cloud operations
 
-- **nabo-rs**: https://github.com/rust-cv/nabo-rs
+- **nabo-rs**: https://github.com/enlightware/nabo-rs
   - Fast nearest-neighbor search
   - Production-quality implementation
 
@@ -233,14 +233,14 @@ For readers interested in the theoretical foundations:
 
 ### Volume Rendering with BCC
 
-**Entezari, A., Möller, T., & Shahidi, R.** (2005)
+**Entezari, A., Van De Ville, D., & Möller, T.** (2008)
 "Practical box splines for reconstruction on the body centered cubic lattice"
-*IEEE Transactions on Visualization and Computer Graphics*, 11(4), 500-512
+*IEEE Transactions on Visualization and Computer Graphics*, 14(2), 313-328
 **Key Result:** Practical BCC volume rendering algorithms
 
-**Csébfalvi, B.** (2008)
+**Csébfalvi, B.** (2019)
 "Beyond trilinear interpolation: Higher quality for free"
-*SIGGRAPH 2008 Talks*
+*ACM Transactions on Graphics*, 38(4), 1-8
 **Key Result:** Quality improvements of BCC over cubic grids in volume rendering
 
 ### Space-Filling Curves
