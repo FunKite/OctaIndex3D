@@ -495,11 +495,6 @@ OctaIndex3D is optimized for modern CPU architectures with support for:
 - **AVX2 vectorization** (x86_64)
 - **Adaptive batch processing** with automatic threshold selection
 
-For detailed performance analysis and benchmarks, see:
-- [Performance Guide](PERFORMANCE.md) - Usage examples and optimization tips
-- [CPU Comparison](docs/CPU_COMPARISON.md) - Cross-platform performance analysis
-- [Benchmark Suite](benches/README.md) - Criterion benchmarks and profiling tools
-
 ## The Complete Autonomous Mapping Stack
 
 OctaIndex3D now provides a **autonomous 3D mapping system** with all the layers needed for real-world robotics applications:
@@ -586,7 +581,6 @@ Using these primitives, you can build various exploration strategies:
 | **macOS** | Apple Silicon (M1+) | ✅ Full | NEON | Metal |
 | **macOS** | x86_64 | ✅ Full | BMI2, AVX2 | - |
 | **Windows** | x86_64 | ✅ Full | BMI2, AVX2 | - |
-| **Windows** | aarch64 | ⚠️ Tier 2 | NEON | - |
 
 ### Minimum Requirements
 
