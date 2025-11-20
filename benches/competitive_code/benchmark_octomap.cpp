@@ -32,12 +32,12 @@ public:
         }
         auto end = high_resolution_clock::now();
 
-        auto duration = duration_cast<nanoseconds>(end - start).count();
-        double per_insert = (double)duration / count;
+        auto duration_us = duration_cast<microseconds>(end - start).count();
+        double per_insert = (duration_us * 1000.0) / count;
         double throughput = 1e9 / per_insert;
 
         cout << "Single Insertions (" << count << "):" << endl;
-        cout << "  Total time: " << duration / 1e6 << " ms" << endl;
+        cout << "  Total time: " << duration_us / 1000.0 << " ms" << endl;
         cout << "  Per insert: " << per_insert << " ns" << endl;
         cout << "  Throughput: " << fixed << setprecision(2) << throughput / 1e6 << " M ops/sec" << endl;
         cout << endl;
@@ -58,12 +58,12 @@ public:
         tree.insertPointCloud(cloud, sensor_origin);
         auto end = high_resolution_clock::now();
 
-        auto duration = duration_cast<nanoseconds>(end - start).count();
-        double per_point = (double)duration / batch_size;
+        auto duration_us = duration_cast<microseconds>(end - start).count();
+        double per_point = (duration_us * 1000.0) / batch_size;
         double throughput = 1e9 / per_point;
 
         cout << "Batch Insertion (" << batch_size << " points):" << endl;
-        cout << "  Total time: " << duration / 1e6 << " ms" << endl;
+        cout << "  Total time: " << duration_us / 1000.0 << " ms" << endl;
         cout << "  Per point: " << per_point << " ns" << endl;
         cout << "  Throughput: " << fixed << setprecision(2) << throughput / 1e6 << " M points/sec" << endl;
         cout << endl;
@@ -71,14 +71,15 @@ public:
 
     // Benchmark 3: Ray insertion (simulating depth camera)
     void bench_ray_insertions(int ray_count) {
-        uniform_real_distribution<double> angle(-M_PI, M_PI);
+        uniform_real_distribution<double> theta_dist(-M_PI, M_PI);
+        uniform_real_distribution<double> phi_dist(0.0, M_PI);
         uniform_real_distribution<double> distance(0.5, 10.0);
         point3d sensor_origin(0, 0, 0);
 
         auto start = high_resolution_clock::now();
         for (int i = 0; i < ray_count; i++) {
-            double theta = angle(rng);
-            double phi = angle(rng);
+            double theta = theta_dist(rng);
+            double phi = phi_dist(rng);
             double r = distance(rng);
 
             point3d end(
@@ -89,14 +90,14 @@ public:
 
             tree.insertRay(sensor_origin, end);
         }
-        auto end = high_resolution_clock::now();
+        auto end_time = high_resolution_clock::now();
 
-        auto duration = duration_cast<nanoseconds>(end - start).count();
-        double per_ray = (double)duration / ray_count;
+        auto duration_us = duration_cast<microseconds>(end_time - start).count();
+        double per_ray = (duration_us * 1000.0) / ray_count;
         double throughput = 1e9 / per_ray;
 
         cout << "Ray Insertion (" << ray_count << " rays):" << endl;
-        cout << "  Total time: " << duration / 1e6 << " ms" << endl;
+        cout << "  Total time: " << duration_us / 1000.0 << " ms" << endl;
         cout << "  Per ray: " << per_ray << " ns" << endl;
         cout << "  Throughput: " << fixed << setprecision(2) << throughput / 1e6 << " M rays/sec" << endl;
         cout << endl;
@@ -104,18 +105,24 @@ public:
 
     // Benchmark 4: Point queries
     void bench_queries(int query_count) {
-        // First, insert some points
+        // Setup phase: insert points BEFORE measurement
         uniform_real_distribution<double> dist(-10.0, 10.0);
         for (int i = 0; i < 10000; i++) {
             point3d p(dist(rng), dist(rng), dist(rng));
             tree.updateNode(p, i % 2 == 0); // 50% occupied
         }
 
-        // Now query
+        // Generate query points before timing
+        vector<point3d> query_points;
+        query_points.reserve(query_count);
+        for (int i = 0; i < query_count; i++) {
+            query_points.emplace_back(dist(rng), dist(rng), dist(rng));
+        }
+
+        // Measurement phase: only queries
         auto start = high_resolution_clock::now();
         int occupied_count = 0;
-        for (int i = 0; i < query_count; i++) {
-            point3d p(dist(rng), dist(rng), dist(rng));
+        for (const auto& p : query_points) {
             OcTreeNode* node = tree.search(p);
             if (node && tree.isNodeOccupied(node)) {
                 occupied_count++;
@@ -123,12 +130,12 @@ public:
         }
         auto end = high_resolution_clock::now();
 
-        auto duration = duration_cast<nanoseconds>(end - start).count();
-        double per_query = (double)duration / query_count;
+        auto duration_us = duration_cast<microseconds>(end - start).count();
+        double per_query = (duration_us * 1000.0) / query_count;
         double throughput = 1e9 / per_query;
 
         cout << "Point Queries (" << query_count << "):" << endl;
-        cout << "  Total time: " << duration / 1e6 << " ms" << endl;
+        cout << "  Total time: " << duration_us / 1000.0 << " ms" << endl;
         cout << "  Per query: " << per_query << " ns" << endl;
         cout << "  Throughput: " << fixed << setprecision(2) << throughput / 1e6 << " M queries/sec" << endl;
         cout << "  Occupied: " << occupied_count << " / " << query_count << endl;
@@ -139,12 +146,16 @@ public:
     void report_memory() {
         size_t node_count = tree.size();
         size_t memory_usage = tree.memoryUsage();
-        double bytes_per_node = (double)memory_usage / node_count;
 
         cout << "Memory Usage:" << endl;
         cout << "  Nodes: " << node_count << endl;
         cout << "  Total memory: " << memory_usage / 1024.0 / 1024.0 << " MB" << endl;
-        cout << "  Bytes per node: " << bytes_per_node << endl;
+        if (node_count > 0) {
+            double bytes_per_node = (double)memory_usage / node_count;
+            cout << "  Bytes per node: " << bytes_per_node << endl;
+        } else {
+            cout << "  Bytes per node: N/A (tree is empty)" << endl;
+        }
         cout << endl;
     }
 };

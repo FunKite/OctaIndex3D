@@ -25,9 +25,9 @@ fn generate_routes(count: usize, seed: u64) -> Vec<Route64> {
     let mut rng = StdRng::seed_from_u64(seed);
     (0..count)
         .map(|_| {
-            let x = (rng.random::<i32>() % 10000) * 2;
-            let y = (rng.random::<i32>() % 10000) * 2;
-            let z = (rng.random::<i32>() % 10000) * 2;
+            let x = ((rng.random::<u32>() % 10000) * 2) as i32;
+            let y = ((rng.random::<u32>() % 10000) * 2) as i32;
+            let z = ((rng.random::<u32>() % 10000) * 2) as i32;
             Route64::new(0, x, y, z).unwrap()
         })
         .collect()
@@ -193,7 +193,7 @@ fn bench_cache_optimization(c: &mut Criterion) {
                 b.iter(|| {
                     let mut result = Vec::with_capacity(routes.len() * 14);
                     for &route in routes {
-                        result.extend_from_slice(&neighbors_route64_fast(route));
+                        result.extend_from_slice(&neighbors_route64_fast(black_box(route)));
                     }
                     black_box(result)
                 });
