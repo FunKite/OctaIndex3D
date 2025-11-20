@@ -249,6 +249,24 @@ At a high level, you can visualize the system in three concentric layers:
    - Service APIs (gRPC/HTTP)  
    - Offline batch tools and CLI utilities  
 
+```mermaid
+graph TD
+    subgraph Layer3[Integration Layer]
+        A[Application Adapters]
+        B[Service APIs]
+    end
+    subgraph Layer2[Container & Query Layer]
+        C[Container I/O]
+        D[Query Primitives]
+    end
+    subgraph Layer1[Core Layer]
+        E[Lattice Math & Identifiers]
+        F[Frame Registry]
+    end
+    Layer3 --> Layer2
+    Layer2 --> Layer1
+```  
+
 In a typical deployment, control flows *downward* from applications into the core, while data flows *upward* as typed results. This mirrors a classic **ports-and-adapters** (hexagonal) architecture:
 
 - **Ports** are expressed as Rust traits (`ContainerReader`, `ContainerWriter`, query traits).
@@ -266,10 +284,26 @@ To make this concrete, imagine an ingest pipeline storing LiDAR tiles into an Oc
 5. A separate **query service** opens the same container via a **container reader**, exposes a gRPC or HTTP API, and implements range / k-NN queries.  
 6. Queries arrive in frame coordinates, are converted into lattice identifiers, resolved against the container, and returned as application-specific DTOs.  
 
-In diagram form (Figure 4.1 in the finished book), the main components would appear as:
+In diagram form (Figure 4.1), the main components would appear as:
 
-- **Ingest Service** → **Frame Registry** → **Identifier Encoder** → **Container Writer** → **Storage Backend**  
-- **Query Service** → **Frame Registry** → **Container Reader** → **Query Engine** → **Response Encoder**  
+```mermaid
+graph LR
+    subgraph Ingest Pipeline
+    A[Data Source] --> B[Ingest Service]
+    B --> C[Frame Registry]
+    C --> D[Identifier Encoder]
+    D --> E[Container Writer]
+    E --> F[(Storage Backend)]
+    end
+
+    subgraph Query Pipeline
+    G[Query Service] --> H[Frame Registry]
+    H --> I[Container Reader]
+    I --> J[Query Engine]
+    J --> K[Response Encoder]
+    F -.-> I
+    end
+```  
 
 The important point is that *all* of these components depend on a small, stable core:
 
@@ -503,3 +537,15 @@ With this architectural context, you are ready to dive deeper:
 - Chapter 6 will explain how **coordinate reference systems** are modeled, registered, and transformed in a way that remains safe under heavy concurrency.
 
 Together, these chapters complete the conceptual bridge from the theory of BCC lattices (Part I) to the implementation details explored in Part III.
+
+---
+
+## 4.7 Further Reading
+
+- **Kleppmann, M.** (2017). *Designing Data-Intensive Applications*. O'Reilly Media.
+  - Essential reading for understanding the trade-offs in distributed system design and data storage.
+- **Blandy, J., & Orendorff, J.** (2021). *Programming Rust*. O'Reilly Media.
+  - Deep dive into Rust's type system and ownership model, which inspired OctaIndex3D's design.
+- **Fowler, M.** (2002). *Patterns of Enterprise Application Architecture*. Addison-Wesley.
+  - Source of the "Ports and Adapters" (Hexagonal) architecture pattern.
+

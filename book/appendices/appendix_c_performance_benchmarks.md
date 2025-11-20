@@ -121,6 +121,8 @@ All benchmarks were conducted on the following hardware:
 | Cubic 6-neighbor | 11.8M | 142 ns |
 | Cubic 26-neighbor | 4.1M | 387 ns |
 
+![Neighbor Lookup Latency](../images/benchmark_neighbor_lookup.png)
+
 **Analysis**: BCC 14-neighbor queries are faster than cubic 26-neighbor due to better cache locality and simpler offset patterns.
 
 ### C.3.2 Radius-Based Neighbor Query
@@ -133,6 +135,12 @@ All benchmarks were conducted on the following hardware:
 | BCC (Morton) | 380K | 3.8 µs |
 | Cubic grid | 310K | 4.9 µs |
 | Octree | 215K | 7.1 µs |
+
+### C.3.3 Directional Bias (Isotropy)
+
+**Benchmark**: Coefficient of Variation (CV) of neighbor distances. Lower is better (more isotropic).
+
+![Directional Bias](../images/benchmark_isotropy.png)
 
 ---
 
@@ -221,6 +229,8 @@ All benchmarks were conducted on the following hardware:
 | Cubic grid | 4.5 | 3.0× |
 | Octree | 1.8 | 1.2× |
 | Hash map (raw) | 5.8 | 3.9× |
+
+![Sampling Efficiency](../images/benchmark_memory_efficiency.png)
 
 **Theoretical minimum**: 100M × (8 bytes index + 4 bytes payload) = 1.2 GB
 

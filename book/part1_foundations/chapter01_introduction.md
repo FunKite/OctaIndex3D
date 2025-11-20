@@ -341,6 +341,8 @@ $$
 
 This single constraint eliminates half of the points in a cubic grid, but does so in a way that **maximizes uniformity**.
 
+![BCC vs Cubic Lattice](../images/lattice_comparison.png)
+
 ### 1.4.2 Why Is BCC Special?
 
 The BCC lattice has remarkable properties:
@@ -355,11 +357,46 @@ Each point has exactly **14 neighbors**:
 
 The coefficient of variation (standard deviation / mean) of neighbor distances is just **0.086**, compared to **0.414** for cubic grids. This near-uniformity is the key to isotropy.
 
+```mermaid
+graph TD
+    Center((Center Node))
+    subgraph "Tier 1 Neighbors (d=√3)"
+    N1[Corner 1]
+    N2[Corner 2]
+    N3[...]
+    N8[Corner 8]
+    end
+    subgraph "Tier 2 Neighbors (d=2)"
+    M1[Face Center 1]
+    M2[Face Center 2]
+    M3[...]
+    M6[Face Center 6]
+    end
+    Center --- N1
+    Center --- N2
+    Center --- N8
+    Center --- M1
+    Center --- M2
+    Center --- M6
+```
+*Figure 1.3: Schematic of 14-neighbor connectivity in a BCC lattice.*
+
 **3. Optimal Sampling (Nyquist)**
 As proven by Petersen & Middleton (1962), BCC requires **29% fewer samples** than cubic grids for the same bandlimited signal reconstruction quality.
 
 **4. Hierarchical Structure**
 BCC lattices support clean 8:1 hierarchical refinement. Each coarse cell splits into 8 finer cells, all satisfying the parity constraint. This enables level-of-detail (LOD) systems.
+
+```mermaid
+graph TD
+    L0[LOD 0 Cell] --> L1_1[LOD 1 Cell 1]
+    L0 --> L1_2[LOD 1 Cell 2]
+    L0 --> L1_3[...]
+    L0 --> L1_8[LOD 1 Cell 8]
+    L1_1 --> L2_1[LOD 2 Cell 1]
+    L1_1 --> L2_2[...]
+```
+*Figure 1.4: Hierarchical refinement tree.*
 
 **5. Practical Computability**
 Despite seeming exotic, BCC lattices can be encoded efficiently using **space-filling curves** (Morton and Hilbert codes) and **bit manipulation** (BMI2 instructions on modern CPUs).
@@ -370,6 +407,8 @@ The **Voronoi cell** of a BCC lattice point is a **truncated octahedron**—a po
 - **14 faces**: 6 squares and 8 regular hexagons
 - **24 edges**: all of equal length
 - **24 vertices**
+
+![Truncated Octahedron](../images/truncated_octahedron.png)
 
 This shape appears throughout nature and science:
 

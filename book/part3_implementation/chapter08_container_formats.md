@@ -47,9 +47,20 @@ At a high level, a sequential container:
 
 Conceptually, the file layout looks like:
 
-```text
-[Header][Block 0][Index 0][Block 1][Index 1]... [Footer]
-```rust
+```mermaid
+graph LR
+    File[File Stream]
+    subgraph Layout
+    H[Header] --> B0[Block 0]
+    B0 --> B1[Block 1]
+    B1 --> I0[Index Block 0]
+    I0 --> B2[Block 2]
+    B2 --> B3[...]
+    B3 --> F[Final Index]
+    end
+    File --- Layout
+```
+*Figure 8.1: Sequential Container Layout showing interleaved data and index blocks.*rust
 
 Each data block contains:
 
@@ -798,6 +809,21 @@ Convert streaming logs into optimized sequential containers:
 
 ```rust
 pub fn convert_stream_to_sequential(
+    // Implementation details...
+)
+```
+
+---
+
+## 8.4 Further Reading
+
+- **Petrov, A.** (2019). *Database Internals: A Deep Dive into How Distributed Data Systems Work*. O'Reilly Media.
+  - Excellent overview of storage engine concepts, including log-structured merge trees and page organization.
+- **Collet, Y.** (2011). *LZ4 Frame Format*.
+  - Documentation for the LZ4 compression format used in OctaIndex3D.
+- **Facebook.** (2016). *Zstandard Compression Format*.
+  - Specification for Zstd, offering higher compression ratios for archival storage.
+
     stream_path: &str,
     output_path: &str,
 ) -> Result<()> {
