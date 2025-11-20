@@ -406,7 +406,6 @@ The **Voronoi cell** of a BCC lattice point is a **truncated octahedron**—a po
 - **24 edges**: all of equal length
 - **24 vertices**
 
-![Truncated Octahedron](../images/truncated_octahedron.png)
 *[Interactive 3D View](../images/truncated_octahedron_interactive.html)*
 
 This shape appears throughout nature and science:
