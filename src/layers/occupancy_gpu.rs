@@ -126,9 +126,9 @@ mod metal_impl {
     use std::sync::Arc;
 
     pub struct MetalRayCaster {
-        device: Arc<Device>,
-        command_queue: Arc<CommandQueue>,
-        pipeline: ComputePipelineState,
+        _device: Arc<Device>,
+        _command_queue: Arc<CommandQueue>,
+        _pipeline: ComputePipelineState,
     }
 
     impl MetalRayCaster {
@@ -154,9 +154,9 @@ mod metal_impl {
                 .map_err(|e| Error::InvalidFormat(format!("Failed to create pipeline: {}", e)))?;
 
             Ok(Self {
-                device: Arc::new(device),
-                command_queue: Arc::new(command_queue),
-                pipeline,
+                _device: Arc::new(device),
+                _command_queue: Arc::new(command_queue),
+                _pipeline: pipeline,
             })
         }
     }

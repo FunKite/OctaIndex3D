@@ -16,7 +16,7 @@
 //! ```
 
 use octaindex3d::layers::Layer;
-use octaindex3d::{Index64, LayeredMap, Measurement, Result, TSDFLayer};
+use octaindex3d::{Index64, LayeredMap, Result, TSDFLayer};
 use std::time::Instant;
 
 fn main() -> Result<()> {

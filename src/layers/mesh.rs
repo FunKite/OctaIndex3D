@@ -407,7 +407,7 @@ mod tests {
 
         // Should have some vertices (from zero crossings)
         let stats = mesh.stats();
-        assert!(stats.vertex_count > 0 || stats.triangle_count >= 0); // May have no triangles if not enough connectivity
+        assert!(stats.vertex_count > 0); // May have no triangles if not enough connectivity
 
         Ok(())
     }

@@ -18,7 +18,7 @@ fn bench_morton_encode(c: &mut Criterion) {
 
     // Add random samples covering the full range
     for _ in 0..10 {
-        coords.push((rng.gen::<u16>(), rng.gen::<u16>(), rng.gen::<u16>()));
+        coords.push((rng.random::<u16>(), rng.random::<u16>(), rng.random::<u16>()));
     }
 
     for (x, y, z) in coords {
@@ -47,9 +47,9 @@ fn bench_morton_decode(c: &mut Criterion) {
     // Random codes
     for _ in 0..10 {
         codes.push(morton::morton_encode(
-            rng.gen::<u16>(),
-            rng.gen::<u16>(),
-            rng.gen::<u16>(),
+            rng.random::<u16>(),
+            rng.random::<u16>(),
+            rng.random::<u16>(),
         ));
     }
 
@@ -67,10 +67,10 @@ fn bench_index64_creation(c: &mut Criterion) {
 
     c.bench_function("index64_new", |b| {
         b.iter(|| {
-            let lod = rng.gen_range(0..16u8);
-            let x = rng.gen::<u16>();
-            let y = rng.gen::<u16>();
-            let z = rng.gen::<u16>();
+            let lod = rng.random_range(0..16u8);
+            let x = rng.random::<u16>();
+            let y = rng.random::<u16>();
+            let z = rng.random::<u16>();
             Index64::new(
                 black_box(0),
                 black_box(0),
@@ -85,9 +85,9 @@ fn bench_index64_creation(c: &mut Criterion) {
 
 fn bench_index64_extract(c: &mut Criterion) {
     let mut rng = StdRng::seed_from_u64(45);
-    let x = rng.gen::<u16>();
-    let y = rng.gen::<u16>();
-    let z = rng.gen::<u16>();
+    let x = rng.random::<u16>();
+    let y = rng.random::<u16>();
+    let z = rng.random::<u16>();
     let index = Index64::new(0, 0, 5, x, y, z).unwrap();
 
     c.bench_function("index64_extract_coords", |b| {
@@ -105,9 +105,9 @@ fn bench_route64_creation(c: &mut Criterion) {
     c.bench_function("route64_new", |b| {
         b.iter(|| {
             // Generate random even coordinates (parity requirement)
-            let x = (rng.gen::<i32>() % 10000) * 2;
-            let y = (rng.gen::<i32>() % 10000) * 2;
-            let z = (rng.gen::<i32>() % 10000) * 2;
+            let x = (rng.random::<i32>() % 10000) * 2;
+            let y = (rng.random::<i32>() % 10000) * 2;
+            let z = (rng.random::<i32>() % 10000) * 2;
             Route64::new(black_box(0), black_box(x), black_box(y), black_box(z))
         });
     });
@@ -123,9 +123,9 @@ fn bench_neighbors_route64(c: &mut Criterion) {
     routes.push(Route64::new(0, 0, 0, 0).unwrap()); // Origin
 
     for _ in 0..10 {
-        let x = (rng.gen::<i32>() % 10000) * 2;
-        let y = (rng.gen::<i32>() % 10000) * 2;
-        let z = (rng.gen::<i32>() % 10000) * 2;
+        let x = (rng.random::<i32>() % 10000) * 2;
+        let y = (rng.random::<i32>() % 10000) * 2;
+        let z = (rng.random::<i32>() % 10000) * 2;
         routes.push(Route64::new(0, x, y, z).unwrap());
     }
 
@@ -151,9 +151,9 @@ fn bench_lattice_coord_creation(c: &mut Criterion) {
     c.bench_function("lattice_coord_new", |b| {
         b.iter(|| {
             // Generate even coordinates to satisfy parity requirements
-            let x = (rng.gen_range(-5000..5000)) * 2;
-            let y = (rng.gen_range(-5000..5000)) * 2;
-            let z = (rng.gen_range(-5000..5000)) * 2;
+            let x = (rng.random_range(-5000..5000)) * 2;
+            let y = (rng.random_range(-5000..5000)) * 2;
+            let z = (rng.random_range(-5000..5000)) * 2;
             lattice::LatticeCoord::new(black_box(x), black_box(y), black_box(z))
         });
     });
@@ -163,15 +163,15 @@ fn bench_lattice_distance(c: &mut Criterion) {
     let mut rng = StdRng::seed_from_u64(49);
     // Generate even coordinates to satisfy parity requirements
     let coord1 = lattice::LatticeCoord::new(
-        (rng.gen_range(-2500..2500)) * 2,
-        (rng.gen_range(-2500..2500)) * 2,
-        (rng.gen_range(-2500..2500)) * 2,
+        (rng.random_range(-2500..2500)) * 2,
+        (rng.random_range(-2500..2500)) * 2,
+        (rng.random_range(-2500..2500)) * 2,
     )
     .unwrap();
     let coord2 = lattice::LatticeCoord::new(
-        (rng.gen_range(-2500..2500)) * 2,
-        (rng.gen_range(-2500..2500)) * 2,
-        (rng.gen_range(-2500..2500)) * 2,
+        (rng.random_range(-2500..2500)) * 2,
+        (rng.random_range(-2500..2500)) * 2,
+        (rng.random_range(-2500..2500)) * 2,
     )
     .unwrap();
 
@@ -188,7 +188,7 @@ fn bench_batch_index_creation(c: &mut Criterion) {
         // Pre-generate random coordinates for this batch size
         let mut rng = StdRng::seed_from_u64(50 + size as u64);
         let coords: Vec<(u16, u16, u16)> = (0..size)
-            .map(|_| (rng.gen(), rng.gen(), rng.gen()))
+            .map(|_| (rng.random(), rng.random(), rng.random()))
             .collect();
 
         group.throughput(Throughput::Elements(size as u64));
@@ -218,9 +218,9 @@ fn bench_batch_neighbors(c: &mut Criterion) {
         let mut rng = StdRng::seed_from_u64(60 + size as u64);
         let routes: Vec<_> = (0..size)
             .map(|_| {
-                let x = (rng.gen::<i32>() % 10000) * 2;
-                let y = (rng.gen::<i32>() % 10000) * 2;
-                let z = (rng.gen::<i32>() % 10000) * 2;
+                let x = (rng.random::<i32>() % 10000) * 2;
+                let y = (rng.random::<i32>() % 10000) * 2;
+                let z = (rng.random::<i32>() % 10000) * 2;
                 Route64::new(0, x, y, z).unwrap()
             })
             .collect();
@@ -250,15 +250,15 @@ fn bench_galactic128_creation(c: &mut Criterion) {
 
     c.bench_function("galactic128_new", |b| {
         b.iter(|| {
-            let frame = rng.gen::<u8>();
-            let scale_mant = rng.gen_range(0..16u8);
-            let scale_tier = rng.gen_range(0..4u8);
-            let lod = rng.gen_range(0..16u8);
-            let attr_usr = rng.gen::<u8>();
+            let frame = rng.random::<u8>();
+            let scale_mant = rng.random_range(0..16u8);
+            let scale_tier = rng.random_range(0..4u8);
+            let lod = rng.random_range(0..16u8);
+            let attr_usr = rng.random::<u8>();
             // Generate random even coordinates (parity requirement)
-            let x = (rng.gen::<i32>() % 100000) * 2;
-            let y = (rng.gen::<i32>() % 100000) * 2;
-            let z = (rng.gen::<i32>() % 100000) * 2;
+            let x = (rng.random::<i32>() % 100000) * 2;
+            let y = (rng.random::<i32>() % 100000) * 2;
+            let z = (rng.random::<i32>() % 100000) * 2;
             Galactic128::new(
                 black_box(frame),
                 black_box(scale_mant),

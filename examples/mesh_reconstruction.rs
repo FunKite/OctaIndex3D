@@ -11,10 +11,10 @@
 //! cargo run --release --example mesh_reconstruction
 //! ```
 
-use octaindex3d::layers::Layer;
+
 use octaindex3d::{
     export_mesh_obj, export_mesh_ply, export_mesh_stl, extract_mesh_from_tsdf, Index64,
-    Measurement, Result, TSDFLayer,
+    Result, TSDFLayer,
 };
 use std::time::Instant;
 
@@ -209,9 +209,8 @@ fn main() -> Result<()> {
     println!("║                                                           ║");
     println!("║  Quality Metrics:                                         ║");
     println!(
-        "║  • {} vertices, {} triangles                       ║",
-        format!("{:6}", mesh_stats.vertex_count),
-        format!("{:6}", mesh_stats.triangle_count)
+        "║  • {:6} vertices, {:6} triangles                       ║",
+        mesh_stats.vertex_count, mesh_stats.triangle_count
     );
     if mesh_stats.vertex_count > 0 {
         let surface_area = mesh.surface_area();

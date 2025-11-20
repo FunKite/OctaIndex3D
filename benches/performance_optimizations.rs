@@ -15,9 +15,9 @@ fn generate_test_routes(count: usize, seed: u64) -> Vec<Route64> {
     let mut rng = StdRng::seed_from_u64(seed);
     (0..count)
         .map(|_| {
-            let x = (rng.gen::<i32>() % 10000) * 2;
-            let y = (rng.gen::<i32>() % 10000) * 2;
-            let z = (rng.gen::<i32>() % 10000) * 2;
+            let x = (rng.random::<i32>() % 10000) * 2;
+            let y = (rng.random::<i32>() % 10000) * 2;
+            let z = (rng.random::<i32>() % 10000) * 2;
             Route64::new(0, x, y, z).unwrap()
         })
         .collect()
@@ -65,9 +65,9 @@ fn bench_batch_index_creation_comparison(c: &mut Criterion) {
         let frame_ids = vec![0u8; size];
         let dimension_ids = vec![0u8; size];
         let lods = vec![5u8; size];
-        let x_coords: Vec<u16> = (0..size).map(|_| rng.gen()).collect();
-        let y_coords: Vec<u16> = (0..size).map(|_| rng.gen()).collect();
-        let z_coords: Vec<u16> = (0..size).map(|_| rng.gen()).collect();
+        let x_coords: Vec<u16> = (0..size).map(|_| rng.random()).collect();
+        let y_coords: Vec<u16> = (0..size).map(|_| rng.random()).collect();
+        let z_coords: Vec<u16> = (0..size).map(|_| rng.random()).collect();
 
         group.throughput(Throughput::Elements(size as u64));
 
