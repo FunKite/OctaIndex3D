@@ -7,12 +7,39 @@
 
 | Metric | Apple M1 Max | AMD EPYC 7R13 | OctoMap (AMD) | OctaIndex3D Advantage |
 |--------|-------------|---------------|---------------|----------------------|
-| **Single Updates** | 95 M/sec | 65 M/sec | 1.1 M/sec | **60x faster** |
-| **Batch Updates (10K)** | 83 M/sec | 57 M/sec | 0.004 M/sec | **15,000x faster** |
+| **Single Updates** | 95 M/sec | 65 M/sec | 1.1 M/sec | **~60x faster** |
+| **Batch Updates (10K)** | 83 M/sec | 57 M/sec | 0.004 M/sec | **see caveats**‡ |
 | **TSDF Integration** | 282 M/sec | 206 M/sec | N/A | - |
 | **ESDF Computation** | 759 M/sec | 653 M/sec | N/A | - |
 | **Queries** | 127 M/sec | 111 M/sec | 3.5 M/sec | **32x faster** |
-| **Ray Casting** | 18-95 ns | 33-129 ns | 75,000 ns | **2,000x faster** |
+| **Ray Casting** | 18-95 ns | 33-129 ns | 75,000 ns | **~600x faster**† |
+
+---
+
+## ⚠️ Methodology Caveats
+
+**Important**: The competitive comparison numbers require context:
+
+### OctoMap Benchmark Limitations
+1. **Docker overhead**: OctoMap ran in Docker container (10-30% performance penalty)
+2. **Different operations**: OctoMap `insertPointCloud` does full ray tracing; OctaIndex3D batch updates are direct occupancy changes
+3. **Resolution sensitivity**: At 5cm/10m rays, OctoMap is known to be slow (905+ ms/scan per Voxblox docs)
+
+### Published Reference Numbers
+Per Voxblox documentation (Intel i7-4810MQ @ 2.8GHz, KITTI dataset):
+- **OctoMap**: 38-3748 ms/scan (varies by resolution)
+- **Voxblox**: 14-100 ms/scan
+- **Ratio**: Voxblox is **2-4x faster** than OctoMap (not 2000x)
+
+### Conservative Estimates
+For fair comparison, expected realistic speedups:
+- **Single updates**: 30-60x faster (hash O(1) vs octree O(log n))
+- **Queries**: 20-40x faster
+- **Ray casting**: Need native OctoMap benchmark to validate
+
+†Ray casting comparison may be inflated due to Docker overhead and operation differences.
+
+‡Batch comparison is **not apples-to-apples**: OctoMap `insertPointCloud` performs full ray tracing while OctaIndex3D batch updates are direct occupancy changes. For fair comparison, use single update or ray casting metrics.
 
 ---
 
