@@ -19,6 +19,7 @@ exclude = [
     "docs/",
     ".github/workflows/internal/*",
     "book/",
+    "benches/",
 ]
 
 [[bin]]
