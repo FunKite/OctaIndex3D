@@ -394,20 +394,23 @@ mod tests {
 
     #[test]
     fn test_mesh_extraction() -> Result<()> {
-        // Create simple TSDF with surface
+        // Create simple TSDF with surface (zero crossing between positive and negative values)
         let mut tsdf = TSDFLayer::new(0.1);
 
-        for i in 0..5 {
-            let idx = Index64::new(0, 0, 5, 100 + i, 100, 100)?;
-            tsdf.update(idx, &Measurement::depth(0.01, 1.0))?;
-        }
+        // BCC neighbors are at distance 2 for axial neighbors (±2, 0, 0)
+        // Create voxels at x=100 and x=102 (BCC neighbors) with opposite signs
+        let idx1 = Index64::new(0, 0, 5, 100, 100, 100)?;
+        let idx2 = Index64::new(0, 0, 5, 102, 100, 100)?; // +2 axial neighbor
+
+        tsdf.update(idx1, &Measurement::depth(0.02, 1.0))?;  // positive (outside)
+        tsdf.update(idx2, &Measurement::depth(-0.02, 1.0))?; // negative (inside)
 
         // Extract mesh
         let mesh = extract_mesh_from_tsdf(&tsdf)?;
 
-        // Should have some vertices (from zero crossings)
+        // Should have some vertices (from zero crossing between idx1 and idx2)
         let stats = mesh.stats();
-        assert!(stats.vertex_count > 0); // May have no triangles if not enough connectivity
+        assert!(stats.vertex_count > 0);
 
         Ok(())
     }

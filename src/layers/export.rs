@@ -357,11 +357,11 @@ mod tests {
         let v2 = mesh.add_vertex(Vertex::new(0.0, 1.0, 0.0));
         mesh.add_triangle(Triangle::new(v0, v1, v2));
 
-        let temp_path = "/tmp/test_mesh.ply";
-        export_mesh_ply(&mesh, temp_path, false)?;
+        let temp_path = std::env::temp_dir().join("test_mesh.ply");
+        export_mesh_ply(&mesh, &temp_path, false)?;
 
         // Verify file exists and has content
-        let mut file = File::open(temp_path)?;
+        let mut file = File::open(&temp_path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
 
@@ -369,7 +369,7 @@ mod tests {
         assert!(contents.contains("element vertex 3"));
         assert!(contents.contains("element face 1"));
 
-        std::fs::remove_file(temp_path).ok();
+        std::fs::remove_file(&temp_path).ok();
 
         Ok(())
     }
@@ -382,11 +382,11 @@ mod tests {
         let v2 = mesh.add_vertex(Vertex::new(0.0, 1.0, 0.0));
         mesh.add_triangle(Triangle::new(v0, v1, v2));
 
-        let temp_path = "/tmp/test_mesh.obj";
-        export_mesh_obj(&mesh, temp_path)?;
+        let temp_path = std::env::temp_dir().join("test_mesh.obj");
+        export_mesh_obj(&mesh, &temp_path)?;
 
         // Verify file exists and has content
-        let mut file = File::open(temp_path)?;
+        let mut file = File::open(&temp_path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
 
@@ -394,7 +394,7 @@ mod tests {
         assert!(contents.contains("v 1"));
         assert!(contents.contains("f 1 2 3"));
 
-        std::fs::remove_file(temp_path).ok();
+        std::fs::remove_file(&temp_path).ok();
 
         Ok(())
     }
