@@ -18,7 +18,11 @@ fn bench_morton_encode(c: &mut Criterion) {
 
     // Add random samples covering the full range
     for _ in 0..10 {
-        coords.push((rng.random::<u16>(), rng.random::<u16>(), rng.random::<u16>()));
+        coords.push((
+            rng.random::<u16>(),
+            rng.random::<u16>(),
+            rng.random::<u16>(),
+        ));
     }
 
     for (x, y, z) in coords {

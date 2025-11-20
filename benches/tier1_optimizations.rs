@@ -36,8 +36,6 @@ fn generate_routes(count: usize, seed: u64) -> Vec<Route64> {
         .collect()
 }
 
-
-
 /// Generate test coordinates for Morton encoding benchmarks
 #[cfg(target_arch = "x86_64")]
 fn generate_coords(count: usize, seed: u64) -> Vec<(u16, u16, u16)> {

@@ -11,10 +11,9 @@
 //! cargo run --release --example mesh_reconstruction
 //! ```
 
-
 use octaindex3d::{
-    export_mesh_obj, export_mesh_ply, export_mesh_stl, extract_mesh_from_tsdf, Index64,
-    Result, TSDFLayer,
+    export_mesh_obj, export_mesh_ply, export_mesh_stl, extract_mesh_from_tsdf, Index64, Result,
+    TSDFLayer,
 };
 use std::time::Instant;
 

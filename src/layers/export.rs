@@ -12,7 +12,7 @@ use std::path::Path;
 /// Export mesh to PLY format (Stanford Polygon File Format)
 ///
 /// PLY is a simple, open format for storing 3D mesh data.
-/// Specification: http://paulbourke.net/dataformats/ply/
+/// Specification: <http://paulbourke.net/dataformats/ply/>
 ///
 /// # Arguments
 /// * `mesh` - Mesh to export
@@ -149,7 +149,7 @@ fn write_ply_binary(writer: &mut BufWriter<File>, mesh: &Mesh, has_normals: bool
 /// Export mesh to OBJ format (Wavefront OBJ)
 ///
 /// OBJ is a widely-supported open format for 3D geometry.
-/// Specification: http://www.martinreddy.net/gfx/3d/OBJ.spec
+/// Specification: <http://www.martinreddy.net/gfx/3d/OBJ.spec>
 ///
 /// # Arguments
 /// * `mesh` - Mesh to export
@@ -226,7 +226,7 @@ pub fn export_mesh_obj(mesh: &Mesh, path: impl AsRef<Path>) -> Result<()> {
 /// Export mesh to STL format (Stereolithography)
 ///
 /// STL is a simple format used for 3D printing.
-/// Specification: https://en.wikipedia.org/wiki/STL_(file_format)
+/// Specification: <https://en.wikipedia.org/wiki/STL_(file_format)>
 ///
 /// # Arguments
 /// * `mesh` - Mesh to export

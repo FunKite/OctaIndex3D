@@ -15,8 +15,8 @@
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use octaindex3d::layers::{
-    ESDFLayer, FrontierDetectionConfig, InformationGainConfig, Layer, Measurement,
-    OccupancyLayer, TSDFLayer, TemporalConfig, TemporalOccupancyLayer,
+    ESDFLayer, FrontierDetectionConfig, InformationGainConfig, Layer, Measurement, OccupancyLayer,
+    TSDFLayer, TemporalConfig, TemporalOccupancyLayer,
 };
 use octaindex3d::Index64;
 use rand::rngs::StdRng;
@@ -240,7 +240,9 @@ fn bench_tsdf_depth_frame_integration(c: &mut Criterion) {
                 b.iter(|| {
                     for &(idx, distance) in points {
                         let measurement = Measurement::depth(distance, 1.0);
-                        layer.update(black_box(idx), black_box(&measurement)).unwrap();
+                        layer
+                            .update(black_box(idx), black_box(&measurement))
+                            .unwrap();
                     }
                 });
             },
@@ -436,16 +438,12 @@ fn bench_frontier_detection(c: &mut Criterion) {
 
         let config = FrontierDetectionConfig::default();
 
-        group.bench_with_input(
-            BenchmarkId::new("map_size", map_size),
-            &map_size,
-            |b, _| {
-                b.iter(|| {
-                    let frontiers = layer.detect_frontiers(black_box(&config));
-                    black_box(frontiers)
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("map_size", map_size), &map_size, |b, _| {
+            b.iter(|| {
+                let frontiers = layer.detect_frontiers(black_box(&config));
+                black_box(frontiers)
+            });
+        });
     }
 
     group.finish();

@@ -402,7 +402,7 @@ mod tests {
         let idx1 = Index64::new(0, 0, 5, 100, 100, 100)?;
         let idx2 = Index64::new(0, 0, 5, 102, 100, 100)?; // +2 axial neighbor
 
-        tsdf.update(idx1, &Measurement::depth(0.02, 1.0))?;  // positive (outside)
+        tsdf.update(idx1, &Measurement::depth(0.02, 1.0))?; // positive (outside)
         tsdf.update(idx2, &Measurement::depth(-0.02, 1.0))?; // negative (inside)
 
         // Extract mesh
