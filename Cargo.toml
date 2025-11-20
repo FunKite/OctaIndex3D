@@ -18,8 +18,16 @@ exclude = [
     "TIER1_OPTIMIZATIONS.md",
     "docs/",
     ".github/workflows/internal/*",
+    ".github/PULL_REQUEST_TEMPLATE.md",
     "book/",
     "benches/",
+    ".cargo/",
+    "deny.toml",
+    "rust-toolchain.toml",
+    "CLI_USAGE.md",
+    "CODE_REVIEW_REPORT.md",
+    "GAME_ENHANCEMENTS.md",
+    "workinprogress.txt",
 ]
 
 [[bin]]
