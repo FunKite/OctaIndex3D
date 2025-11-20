@@ -196,13 +196,13 @@ Add to your `Cargo.toml`:
 ```toml
 [dependencies]
 # Minimal installation
-octaindex3d = "0.4"
+octaindex3d = "0.5"
 
 # Recommended (includes common features)
-octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "container_v2"] }
+octaindex3d = { version = "0.5", features = ["hilbert", "parallel", "container_v2"] }
 
 # Full-featured (for advanced use cases)
-octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "container_v2", "gis_geojson", "zstd"] }
+octaindex3d = { version = "0.5", features = ["hilbert", "parallel", "container_v2", "gis_geojson", "zstd"] }
 ```
 
 ### As a CLI Tool
@@ -239,16 +239,16 @@ octaindex3d --help
 **Recommended combinations:**
 ```toml
 # For general use
-octaindex3d = { version = "0.4", features = ["hilbert", "parallel"] }
+octaindex3d = { version = "0.5", features = ["hilbert", "parallel"] }
 
 # For GIS applications
-octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "gis_geojson"] }
+octaindex3d = { version = "0.5", features = ["hilbert", "parallel", "gis_geojson"] }
 
 # For data storage systems
-octaindex3d = { version = "0.4", features = ["hilbert", "parallel", "container_v2", "zstd"] }
+octaindex3d = { version = "0.5", features = ["hilbert", "parallel", "container_v2", "zstd"] }
 
 # For interactive development
-octaindex3d = { version = "0.4", features = ["cli"] }
+octaindex3d = { version = "0.5", features = ["cli"] }
 ```
 
 ### Build from Source
@@ -699,7 +699,7 @@ sysctl machdep.cpu.features | grep BMI2
 **Issue**: Container v2 files won't open
 **Solution**: Ensure you're using the `container_v2` feature. V2 containers are incompatible with v0.2.x readers:
 ```toml
-octaindex3d = { version = "0.4", features = ["container_v2"] }
+octaindex3d = { version = "0.5", features = ["container_v2"] }
 ```
 
 ### Getting Help
