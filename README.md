@@ -11,7 +11,7 @@
 [![CI](https://github.com/FunKite/OctaIndex3D/workflows/Rust%20CI/badge.svg)](https://github.com/FunKite/OctaIndex3D/actions)
 [![Downloads](https://img.shields.io/crates/d/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 
-[Documentation](https://docs.rs/octaindex3d) | [Book](book/README.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](CHANGELOG.md)
+[Documentation](https://docs.rs/octaindex3d) | [Book](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](CHANGELOG.md)
 
 </div>
 
@@ -66,9 +66,9 @@ octaindex3d play --difficulty medium
 cargo add octaindex3d
 ```
 
-**For code examples and tutorials**, see the [OctaIndex3D Book](book/README.md):
-- [Quick Start Guide](book/front_matter/10_quick_start.md) - Basic usage and autonomous mapping examples
-- [Chapter 10: Robotics & Autonomous Systems](book/part4_applications/chapter10_robotics_and_autonomy.md) - Complete autonomous mapping tutorial
+**For code examples and tutorials**, see the [OctaIndex3D Book](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md):
+- [Quick Start Guide](https://github.com/FunKite/OctaIndex3D/blob/main/book/front_matter/10_quick_start.md) - Basic usage and autonomous mapping examples
+- [Chapter 10: Robotics & Autonomous Systems](https://github.com/FunKite/OctaIndex3D/blob/main/book/part4_applications/chapter10_robotics_and_autonomy.md) - Complete autonomous mapping tutorial
 - [API Documentation](https://docs.rs/octaindex3d) - Full API reference
 
 ### Key Features
@@ -299,9 +299,9 @@ OctaIndex3D provides three main capability areas:
 - **Parallel processing** with Rayon for multi-threaded workloads
 - **Memory-efficient** representations with optional compression
 
-**For detailed code examples and tutorials**, see the [OctaIndex3D Book](book/README.md):
-- [Quick Start Guide](book/front_matter/10_quick_start.md) - Basic usage and autonomous mapping examples
-- [Chapter 10: Robotics & Autonomous Systems](book/part4_applications/chapter10_robotics_and_autonomy.md) - Complete autonomous mapping tutorial with working code
+**For detailed code examples and tutorials**, see the [OctaIndex3D Book](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md):
+- [Quick Start Guide](https://github.com/FunKite/OctaIndex3D/blob/main/book/front_matter/10_quick_start.md) - Basic usage and autonomous mapping examples
+- [Chapter 10: Robotics & Autonomous Systems](https://github.com/FunKite/OctaIndex3D/blob/main/book/part4_applications/chapter10_robotics_and_autonomy.md) - Complete autonomous mapping tutorial with working code
 - [API Documentation](https://docs.rs/octaindex3d) - Full API reference
 
 ## ID System Architecture (v0.3.0+)
@@ -537,7 +537,7 @@ Using these primitives, you can build various exploration strategies:
 3. **Calculate information gain** - evaluate how much each viewpoint would reveal
 4. **Select next-best-view** - balance information gain against distance/cost
 
-**For complete working examples**, see [Chapter 10: Robotics & Autonomous Systems](book/part4_applications/chapter10_robotics_and_autonomy.md).
+**For complete working examples**, see [Chapter 10: Robotics & Autonomous Systems](https://github.com/FunKite/OctaIndex3D/blob/main/book/part4_applications/chapter10_robotics_and_autonomy.md).
 
 ## Use Cases
 
@@ -732,7 +732,7 @@ Copyright (c) 2025 Michael A. McLarney
 
 ## Research and Citation
 
-For comprehensive technical coverage, see the [**OctaIndex3D Book**](book/README.md), which provides:
+For comprehensive technical coverage, see the [**OctaIndex3D Book**](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md), which provides:
 - Mathematical foundations of BCC lattice geometry with rigorous proofs
 - Detailed architecture and implementation recipes
 - Performance benchmarks tied to real-world scenarios
