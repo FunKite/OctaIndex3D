@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truncated Octahedron</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 640px;
+            height: 640px;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 640px;
+            height: 640px;
+            background: radial-gradient(circle at 30% 30%, rgba(20, 100, 60, 0.1), transparent 50%),
+                        radial-gradient(circle at center, #0a0e27, #050810);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const container = document.getElementById('canvas-container');
+        const width = 640;
+        const height = 640;
+
+        const scene = new THREE.Scene();
+        scene.background = null;
+
+        const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 10000);
+        camera.position.set(0, 0, 3.5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Minimal lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+
+        // Create proper truncated octahedron
+        function createTruncatedOctahedron() {
+            const geometry = new THREE.BufferGeometry();
+
+            // 24 vertices of truncated octahedron: all permutations of (0, ±1, ±2)
+            const verts = [
+                // (0, 1, 2), (0, 1, -2), (0, -1, 2), (0, -1, -2)
+                [0, 1, 2],    [0, 1, -2],   [0, -1, 2],   [0, -1, -2],
+                // (0, 2, 1), (0, 2, -1), (0, -2, 1), (0, -2, -1)
+                [0, 2, 1],    [0, 2, -1],   [0, -2, 1],   [0, -2, -1],
+                // (1, 0, 2), (1, 0, -2), (-1, 0, 2), (-1, 0, -2)
+                [1, 0, 2],    [1, 0, -2],   [-1, 0, 2],   [-1, 0, -2],
+                // (2, 0, 1), (2, 0, -1), (-2, 0, 1), (-2, 0, -1)
+                [2, 0, 1],    [2, 0, -1],   [-2, 0, 1],   [-2, 0, -1],
+                // (1, 2, 0), (1, -2, 0), (-1, 2, 0), (-1, -2, 0)
+                [1, 2, 0],    [1, -2, 0],   [-1, 2, 0],   [-1, -2, 0],
+                // (2, 1, 0), (2, -1, 0), (-2, 1, 0), (-2, -1, 0)
+                [2, 1, 0],    [2, -1, 0],   [-2, 1, 0],   [-2, -1, 0]
+            ];
+
+            // Normalize and scale
+            const vertices = [];
+            const scale = 0.75;
+            for (let v of verts) {
+                const len = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+                vertices.push(v[0]/len * scale, v[1]/len * scale, v[2]/len * scale);
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+
+            // Create edges by finding adjacent vertices (distance-based)
+            const edges = [];
+            const edgeSet = new Set();
+
+            for (let i = 0; i < verts.length; i++) {
+                for (let j = i + 1; j < verts.length; j++) {
+                    const dx = verts[i][0] - verts[j][0];
+                    const dy = verts[i][1] - verts[j][1];
+                    const dz = verts[i][2] - verts[j][2];
+                    const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+                    // Adjacent vertices are at distance sqrt(2)
+                    if (Math.abs(dist - Math.sqrt(2)) < 0.01) {
+                        const key = Math.min(i,j) + "," + Math.max(i,j);
+                        if (!edgeSet.has(key)) {
+                            edgeSet.add(key);
+                            edges.push(i, j);
+                        }
+                    }
+                }
+            }
+
+            geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(edges), 1));
+
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x00ff99,
+                linewidth: 2
+            });
+
+            const lines = new THREE.LineSegments(geometry, lineMaterial);
+            return lines;
+        }
+
+        const octahedron = createTruncatedOctahedron();
+        scene.add(octahedron);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            octahedron.rotation.x += 0.002;
+            octahedron.rotation.y += 0.0025;
+            octahedron.rotation.z += 0.0015;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

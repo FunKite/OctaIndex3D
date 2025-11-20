@@ -341,8 +341,6 @@ $$
 
 This single constraint eliminates half of the points in a cubic grid, but does so in a way that **maximizes uniformity**.
 
-![BCC vs Cubic Lattice](../images/lattice_comparison.png)
-
 ### 1.4.2 Why Is BCC Special?
 
 The BCC lattice has remarkable properties:
@@ -409,6 +407,7 @@ The **Voronoi cell** of a BCC lattice point is a **truncated octahedron**—a po
 - **24 vertices**
 
 ![Truncated Octahedron](../images/truncated_octahedron.png)
+*[Interactive 3D View](../images/truncated_octahedron_interactive.html)*
 
 This shape appears throughout nature and science:
 
