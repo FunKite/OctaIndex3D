@@ -117,8 +117,8 @@ For fair comparison, expected realistic speedups:
 | Category | OctaIndex3D | OctoMap | Speedup |
 |----------|-------------|---------|---------|
 | **Insertions** | 65 M/sec | 1.1 M/sec | **60x** |
-| **Batch Updates** | 57 M/sec | 0.004 M/sec | **15,000x** |
-| **Ray Casting** | 33 ns/ray | 75,000 ns/ray | **2,000x** |
+| **Batch Updates** | 57 M/sec | 0.004 M/sec | **see caveats**‡ |
+| **Ray Casting** | 33 ns/ray | 75,000 ns/ray | **~600x**† |
 | **Queries** | 111 M/sec | 3.5 M/sec | **32x** |
 | **Memory/Node** | 10-15 bytes | 39.3 bytes | **3-4x** |
 
@@ -197,7 +197,7 @@ All OctaIndex3D benchmarks exceed "Excellent" tier thresholds:
 
 ### OctaIndex3D Advantages Over Competitors:
 1. **60x faster** single insertions vs OctoMap
-2. **15,000x faster** batch operations vs OctoMap
+2. **30-60x faster** single updates vs OctoMap (see caveats for batch)
 3. **3-4x** better memory efficiency
 4. **TSDF/ESDF** support (not available in OctoMap)
 5. **Temporal tracking** for dynamic environments
@@ -227,7 +227,7 @@ All OctaIndex3D benchmarks exceed "Excellent" tier thresholds:
 
 - **Apple M1 Max:** Highest single-thread performance
 - **AMD EPYC 7R13:** Excellent x86 performance with GPU potential
-- **vs OctoMap:** 32-15,000x faster depending on operation
+- **vs OctoMap:** 30-60x faster (conservative estimate)
 
 ### Production Readiness
 
