@@ -23,7 +23,7 @@ Topics include:
 pub struct Index64 {
     raw: u64,  // Packed Morton code
 }
-```rust
+```
 
 **Key Methods**:
 
@@ -36,7 +36,7 @@ impl Index64 {
     pub fn from_coords(i: i32, j: i32, k: i32, lod: u8) -> Self;
 
     /// Decode to lattice coordinates
-    pub fn to_coords(self) -> (i32, i32, k32, u8);
+    pub fn to_coords(self) -> (i32, i32, i32, u8);
 
     /// Get Morton code
     pub fn morton_code(self) -> u64;
@@ -61,7 +61,7 @@ let idx = Index64::from_coords(10, 20, 30, 3);
 let morton = idx.morton_code();
 let (i, j, k, lod) = idx.to_coords();
 let neighbors = idx.neighbors();
-```rust
+```
 
 ### B.1.2 Galactic128
 
@@ -83,7 +83,7 @@ impl Galactic128 {
     pub fn morton_code(self) -> u128;
     pub fn neighbors(self) -> [Galactic128; 14];
 }
-```rust
+```
 
 ### B.1.3 Hilbert64
 
@@ -110,7 +110,7 @@ impl Route64 {
     pub fn encode_route(path: &[Direction]) -> Self;
     pub fn decode_route(self) -> Vec<Direction>;
 }
-```rust
+```
 
 ---
 
@@ -172,7 +172,7 @@ impl FrameRegistry {
         frame: &FrameId,
     ) -> Result<Vec3>;
 }
-```rust
+```
 
 **Example**:
 ```rust
@@ -230,7 +230,7 @@ pub trait Container<V> {
         max: Self::Index,
     ) -> Vec<Self::Index>;
 }
-```rust
+```
 
 ### B.3.2 SequentialContainer
 
@@ -280,7 +280,7 @@ impl<V> StreamingContainer<V> {
     pub fn push(&mut self, idx: Index64, value: V);
     pub fn flush(&mut self) -> Vec<(Index64, V)>;
 }
-```rust
+```
 
 ### B.3.4 HashContainer
 
@@ -323,7 +323,7 @@ pub fn get_neighbors_at_lod<V>(
     idx: Index64,
     target_lod: u8,
 ) -> Vec<(Index64, &V)>;
-```rust
+```
 
 ### B.4.2 Range Queries
 
@@ -372,7 +372,7 @@ pub fn max_region<V: Ord + Copy>(
     container: &impl Container<V>,
     region: &Region,
 ) -> Option<V>;
-```rust
+```
 
 ---
 
@@ -416,7 +416,7 @@ pub fn recover_container(
     damaged: &str,
     output: &str,
 ) -> Result<RecoveryStats>;
-```rust
+```
 
 ---
 
@@ -480,7 +480,7 @@ for coarse_idx in coarse_hits {
         }
     }
 }
-```bash
+```
 
 ---
 
