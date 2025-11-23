@@ -728,8 +728,6 @@ Feel free to:
 
 Licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-Copyright (c) 2025 Michael A. McLarney
-
 ## Research and Citation
 
 For comprehensive technical coverage, see the [**OctaIndex3D Book**](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md), which provides:
@@ -740,21 +738,7 @@ For comprehensive technical coverage, see the [**OctaIndex3D Book**](https://git
 - Working code examples and design patterns
 - Advanced topics and future research directions
 
-The book transforms theoretical foundations into practical guidance for building production systems. Part I (Chapters 1-3) is complete with ~78 pages covering foundations, mathematical theory, and data structures.
-
-If you use OctaIndex3D in academic work, please cite:
-
-```bibtex
-@book{mclarney2025octaindex3d,
-  title={High-Performance 3D Spatial Indexing with Body-Centered Cubic Lattices:
-         A Comprehensive Guide to OctaIndex3D},
-  author={McLarney, Michael A. and GPT-5.1 and Claude},
-  year={2025},
-  publisher={Independent Publication},
-  edition={First},
-  url={https://github.com/FunKite/OctaIndex3D}
-}
-```
+The book transforms theoretical foundations into practical guidance for building production systems.
 
 ## References
 
