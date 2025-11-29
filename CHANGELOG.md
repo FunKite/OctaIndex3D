@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Updated `zerocopy` from 0.8.27 to 0.8.28
+- Updated `clap` from 4.5.52 to 4.5.53
+- Updated GitHub Actions `actions/checkout` from v5 to v6
+
 ## [0.5.0] - 2025-11-19
 
 ### Added
