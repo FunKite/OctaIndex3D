@@ -70,6 +70,7 @@ pub fn batch_neighbors_fast(routes: &[Route64]) -> Vec<Route64> {
     let output_count = routes.len() * 14;
     let mut result: Vec<Route64> = Vec::with_capacity(output_count);
 
+    /// Number of routes to prefetch ahead
     const PREFETCH_DISTANCE: usize = 4;
 
     for i in 0..routes.len() {
@@ -121,6 +122,7 @@ pub fn batch_neighbors_small<const N: usize>(routes: &[Route64; N]) -> Vec<Route
 ///
 /// Optimizes for L1/L2 cache efficiency with blocking.
 pub fn batch_neighbors_medium(routes: &[Route64]) -> Vec<Route64> {
+    /// Block size optimized for L1 cache
     const BLOCK_SIZE: usize = 64; // Fits in L1 cache
 
     let mut result = Vec::with_capacity(routes.len() * 14);
@@ -179,12 +181,16 @@ pub fn batch_neighbors_auto(routes: &[Route64]) -> Vec<Route64> {
 /// Processes routes in chunks and yields results incrementally,
 /// minimizing peak memory usage.
 pub struct NeighborStream<'a> {
+    /// Input routes to process
     routes: &'a [Route64],
+    /// Current position in the routes array
     position: usize,
+    /// Number of routes to process per chunk
     chunk_size: usize,
 }
 
 impl<'a> NeighborStream<'a> {
+    /// Create new neighbor stream with default chunk size
     pub fn new(routes: &'a [Route64]) -> Self {
         Self {
             routes,
@@ -193,6 +199,7 @@ impl<'a> NeighborStream<'a> {
         }
     }
 
+    /// Set custom chunk size for the stream
     pub fn with_chunk_size(mut self, size: usize) -> Self {
         self.chunk_size = size;
         self

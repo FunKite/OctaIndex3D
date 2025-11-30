@@ -13,15 +13,22 @@ use std::path::Path;
 /// Cell data for serialization
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CellData {
+    /// Frame ID
     pub frame: u8,
+    /// Resolution level
     pub resolution: u8,
+    /// X coordinate
     pub x: i32,
+    /// Y coordinate
     pub y: i32,
+    /// Z coordinate
     pub z: i32,
+    /// Attribute value
     pub value: f64,
 }
 
 impl CellData {
+    /// Create from cell ID and value
     pub fn from_cell_value(cell: CellID, value: f64) -> Self {
         Self {
             frame: cell.frame(),
@@ -33,6 +40,7 @@ impl CellData {
         }
     }
 
+    /// Convert back to cell ID
     pub fn to_cell(&self) -> Result<CellID> {
         CellID::from_coords(self.frame, self.resolution, self.x, self.y, self.z)
     }
@@ -41,11 +49,14 @@ impl CellData {
 /// Dataset container for serialization
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Dataset {
+    /// Dataset name
     pub name: String,
+    /// Cell data entries
     pub cells: Vec<CellData>,
 }
 
 impl Dataset {
+    /// Create dataset from a layer
     pub fn from_layer(layer: &Layer<f64>) -> Self {
         let cells: Vec<CellData> = layer
             .iter()
@@ -58,6 +69,7 @@ impl Dataset {
         }
     }
 
+    /// Convert dataset to a layer
     pub fn to_layer(&self) -> Result<Layer<f64>> {
         let mut layer = Layer::new(&self.name);
 
@@ -103,9 +115,12 @@ impl Dataset {
 /// GeoJSON point feature (simplified)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GeoJsonPoint {
+    /// GeoJSON type ("Point")
     #[serde(rename = "type")]
     pub type_: String,
+    /// Coordinates [x, y, z]
     pub coordinates: [f64; 3],
+    /// Optional properties object
     pub properties: Option<serde_json::Value>,
 }
 

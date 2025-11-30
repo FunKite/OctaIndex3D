@@ -388,10 +388,15 @@ impl Layer for OccupancyLayer {
 /// Statistics about occupancy layer
 #[derive(Debug, Clone)]
 pub struct OccupancyStats {
+    /// Total number of voxels with measurements
     pub total_voxels: usize,
+    /// Number of voxels classified as occupied
     pub occupied_count: usize,
+    /// Number of voxels classified as free
     pub free_count: usize,
+    /// Number of voxels in unknown/uncertain state
     pub unknown_count: usize,
+    /// Total measurements received across all voxels
     pub total_measurements: u32,
 }
 

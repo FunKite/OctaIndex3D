@@ -263,11 +263,17 @@ impl Default for TemporalOccupancyLayer {
 /// Statistics for temporal occupancy layer
 #[derive(Debug, Default)]
 pub struct TemporalStats {
+    /// Total number of voxels tracked
     pub total_voxels: usize,
+    /// Number of voxels classified as occupied
     pub occupied_count: usize,
+    /// Number of voxels classified as free
     pub free_count: usize,
+    /// Number of voxels classified as unknown
     pub unknown_count: usize,
+    /// Number of voxels with velocity tracking
     pub dynamic_voxels: usize,
+    /// Number of voxels older than max_age
     pub stale_voxels: usize,
 }
 

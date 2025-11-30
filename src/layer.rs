@@ -11,18 +11,26 @@ use std::collections::HashMap;
 /// Aggregation function type
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Aggregation {
+    /// Count the number of values
     Count,
+    /// Sum all values
     Sum,
+    /// Calculate the arithmetic mean
     Mean,
+    /// Find the minimum value
     Min,
+    /// Find the maximum value
     Max,
+    /// Calculate the median value
     Median,
 }
 
 /// Generic data layer for storing cell attributes
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Layer<T> {
+    /// Name of this layer
     name: String,
+    /// Map from cell IDs to attribute values
     data: FxHashMap<CellID, T>,
 }
 
@@ -176,40 +184,53 @@ impl Layer<f64> {
 /// Flag bits for common cell properties
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CellFlags {
+    /// Bitfield storing cell flags
     bits: u32,
 }
 
 impl CellFlags {
+    /// No flags set
     pub const NONE: u32 = 0;
+    /// Cell is blocked (impassable)
     pub const BLOCKED: u32 = 1 << 0;
+    /// No-fly zone
     pub const NO_FLY: u32 = 1 << 1;
+    /// Water region
     pub const WATER: u32 = 1 << 2;
+    /// Boundary cell
     pub const BOUNDARY: u32 = 1 << 3;
 
+    /// Create new cell flags from bits
     pub fn new(bits: u32) -> Self {
         Self { bits }
     }
 
+    /// Create empty flags (no flags set)
     pub fn empty() -> Self {
         Self { bits: 0 }
     }
 
+    /// Check if a specific flag is set
     pub fn has_flag(&self, flag: u32) -> bool {
         self.bits & flag != 0
     }
 
+    /// Set a specific flag
     pub fn set_flag(&mut self, flag: u32) {
         self.bits |= flag;
     }
 
+    /// Clear a specific flag
     pub fn clear_flag(&mut self, flag: u32) {
         self.bits &= !flag;
     }
 
+    /// Check if cell is blocked (impassable)
     pub fn is_blocked(&self) -> bool {
         self.has_flag(Self::BLOCKED)
     }
 
+    /// Get raw bitfield value
     pub fn bits(&self) -> u32 {
         self.bits
     }

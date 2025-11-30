@@ -20,9 +20,13 @@ pub const HUGE_PAGE_SIZE: usize = 2 * 1024 * 1024;
 ///
 /// Ensures data is aligned to cache lines for maximum throughput.
 pub struct AlignedVec<T> {
+    /// Pointer to the aligned memory
     ptr: NonNull<T>,
+    /// Number of elements currently stored
     len: usize,
+    /// Total capacity (number of elements that can be stored)
     capacity: usize,
+    /// Alignment in bytes
     alignment: usize,
 }
 
@@ -114,10 +118,12 @@ unsafe impl<T: Sync> Sync for AlignedVec<T> {}
 ///
 /// Allocates memory aligned to cache lines for maximum throughput.
 pub struct AlignedBatchProcessor {
+    /// Memory alignment in bytes
     alignment: usize,
 }
 
 impl AlignedBatchProcessor {
+    /// Create new batch processor with default cache-line alignment
     pub fn new() -> Self {
         Self {
             alignment: CACHE_LINE_SIZE,
@@ -152,7 +158,9 @@ impl Default for AlignedBatchProcessor {
 /// NUMA (Non-Uniform Memory Access) node information
 #[derive(Debug, Clone)]
 pub struct NumaInfo {
+    /// Total number of NUMA nodes in the system
     pub node_count: usize,
+    /// Current NUMA node this process is running on
     pub current_node: usize,
 }
 
@@ -167,6 +175,7 @@ impl NumaInfo {
         }
     }
 
+    /// Print NUMA configuration to stdout
     pub fn print_info(&self) {
         println!("NUMA Configuration:");
         println!("  Node count: {}", self.node_count);
@@ -176,10 +185,12 @@ impl NumaInfo {
 
 /// Memory access pattern analyzer
 pub struct MemoryAccessAnalyzer {
+    /// Cache line size in bytes
     cache_line_size: usize,
 }
 
 impl MemoryAccessAnalyzer {
+    /// Create new memory access analyzer
     pub fn new() -> Self {
         Self {
             cache_line_size: CACHE_LINE_SIZE,
@@ -211,10 +222,12 @@ impl Default for MemoryAccessAnalyzer {
 
 /// Prefetch strategy for sequential access
 pub struct SequentialPrefetcher {
+    /// Number of elements to prefetch ahead
     distance: usize,
 }
 
 impl SequentialPrefetcher {
+    /// Create new sequential prefetcher with specified distance
     pub fn new(distance: usize) -> Self {
         Self { distance }
     }

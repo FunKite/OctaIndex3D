@@ -9,11 +9,16 @@
 use crate::morton;
 
 /// Check if BMI2 instructions are available (x86_64 only)
+///
+/// Returns true on x86_64 if the CPU supports BMI2, false otherwise
 #[cfg(target_arch = "x86_64")]
 pub fn has_bmi2() -> bool {
     is_x86_feature_detected!("bmi2")
 }
 
+/// Check if BMI2 instructions are available (x86_64 only)
+///
+/// Always returns false on non-x86_64 architectures
 #[cfg(not(target_arch = "x86_64"))]
 pub fn has_bmi2() -> bool {
     false
@@ -71,6 +76,7 @@ pub unsafe fn morton_decode_bmi2(code: u64) -> (u16, u16, u16) {
 /// Batch Morton encoding with BMI2 (x86_64)
 ///
 /// Processes multiple coordinates with BMI2 for maximum throughput.
+/// Falls back to standard implementation if BMI2 is not available.
 #[cfg(target_arch = "x86_64")]
 pub fn batch_morton_encode_bmi2(coords: &[(u16, u16, u16)]) -> Vec<u64> {
     if !has_bmi2() {
@@ -93,6 +99,9 @@ pub fn batch_morton_encode_bmi2(coords: &[(u16, u16, u16)]) -> Vec<u64> {
 }
 
 /// Batch Morton decoding with BMI2 (x86_64)
+///
+/// Decodes multiple Morton codes using BMI2 PEXT instruction.
+/// Falls back to standard implementation if BMI2 is not available.
 #[cfg(target_arch = "x86_64")]
 pub fn batch_morton_decode_bmi2(codes: &[u64]) -> Vec<(u16, u16, u16)> {
     if !has_bmi2() {
@@ -115,6 +124,8 @@ pub fn batch_morton_decode_bmi2(codes: &[u64]) -> Vec<(u16, u16, u16)> {
 }
 
 /// Vectorized Morton encoding with ARM NEON (4 coordinates at once)
+///
+/// Processes coordinates in batches of 4 using NEON-optimized code paths.
 #[cfg(target_arch = "aarch64")]
 pub fn batch_morton_encode_neon(coords: &[(u16, u16, u16)]) -> Vec<u64> {
     let len = coords.len();
@@ -210,11 +221,16 @@ where
     result
 }
 
-/// Branch prediction hint - likely to be true
+/// Branch prediction hint - marks code path as unlikely (cold)
+///
+/// Use with `likely()` and `unlikely()` to provide branch hints to the compiler
 #[inline(always)]
 #[cold]
 pub fn cold() {}
 
+/// Branch prediction hint - marks condition as likely to be true
+///
+/// Helps the compiler optimize for the common case
 #[inline(always)]
 pub fn likely(b: bool) -> bool {
     if !b {
@@ -223,6 +239,9 @@ pub fn likely(b: bool) -> bool {
     b
 }
 
+/// Branch prediction hint - marks condition as unlikely to be true
+///
+/// Helps the compiler optimize for the common case (when condition is false)
 #[inline(always)]
 pub fn unlikely(b: bool) -> bool {
     if b {
@@ -233,15 +252,24 @@ pub fn unlikely(b: bool) -> bool {
 
 /// Architecture-specific optimization info
 pub struct ArchInfo {
+    /// Target architecture name ("x86_64", "aarch64", etc.)
     pub arch: &'static str,
+    /// BMI2 instruction set available (x86_64)
     pub has_bmi2: bool,
+    /// AVX2 instruction set available (x86_64)
     pub has_avx2: bool,
+    /// AVX-512 instruction set available (x86_64)
     pub has_avx512: bool,
+    /// NEON instruction set available (ARM)
     pub has_neon: bool,
+    /// Cache line size in bytes
     pub cache_line_size: usize,
 }
 
 impl ArchInfo {
+    /// Detect architecture-specific features and capabilities
+    ///
+    /// Returns information about available instruction sets and cache parameters
     pub fn detect() -> Self {
         #[cfg(target_arch = "x86_64")]
         {
@@ -280,6 +308,9 @@ impl ArchInfo {
         }
     }
 
+    /// Print architecture information to stdout
+    ///
+    /// Displays detected architecture, available instruction sets, and cache parameters
     pub fn print_info(&self) {
         println!("Architecture: {}", self.arch);
         println!("  BMI2: {}", self.has_bmi2);

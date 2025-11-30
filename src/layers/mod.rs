@@ -57,7 +57,7 @@ pub use occupancy_compressed::{CompressedOccupancyLayer, CompressionMethod, Comp
 pub use occupancy_temporal::{TemporalConfig, TemporalOccupancyLayer, TemporalStats};
 pub use tsdf::TSDFLayer;
 
-// Re-export ROS2 types
+/// Re-export ROS2 types for robotics integration
 pub mod ros2 {
     pub use super::ros2_bridge::*;
 }
@@ -132,7 +132,7 @@ pub trait Layer: Send + Sync {
 /// BCC lattice structure, sharing the spatial indexing infrastructure.
 #[derive(Default)]
 pub struct LayeredMap {
-    /// Active layers
+    /// Active layers mapped by type
     layers: HashMap<LayerType, Box<dyn Layer>>,
 }
 

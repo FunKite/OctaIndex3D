@@ -38,11 +38,14 @@ impl CostFn for EuclideanCost {
 
 /// Cost function that avoids blocked cells
 pub struct AvoidBlockedCost {
+    /// Cell flags layer for checking blocked status
     flags: Layer<CellFlags>,
+    /// Penalty factor for blocked cells
     _blocked_penalty: f64,
 }
 
 impl AvoidBlockedCost {
+    /// Create new cost function that avoids blocked cells
     pub fn new(flags: Layer<CellFlags>, blocked_penalty: f64) -> Self {
         Self {
             flags,
@@ -76,6 +79,8 @@ impl CostFn for AvoidBlockedCost {
 }
 
 /// A* pathfinding result
+///
+/// Contains the sequence of cells and the total cost of the path
 #[derive(Debug, Clone)]
 pub struct Path {
     /// Sequence of cells from start to goal
@@ -99,17 +104,21 @@ impl Path {
 /// A* pathfinding state
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct AStarNode {
+    /// Cell ID
     cell: CellID,
+    /// Combined cost (g + h)
     f_score: OrderedFloat<f64>, // f = g + h
 }
 
 impl PartialOrd for AStarNode {
+    /// Partial comparison for ordering in priority queue
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl Ord for AStarNode {
+    /// Total ordering for priority queue (reversed for min-heap)
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         // Reverse for min-heap
         other.f_score.cmp(&self.f_score)

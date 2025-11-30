@@ -328,9 +328,13 @@ impl Default for CompressedOccupancyLayer {
 /// Compression statistics
 #[derive(Debug)]
 pub struct CompressionStats {
+    /// Total number of compressed blocks
     pub total_blocks: usize,
+    /// Total compressed data size in bytes
     pub compressed_bytes: usize,
+    /// Original uncompressed size in bytes
     pub uncompressed_bytes: usize,
+    /// Number of blocks currently in cache
     pub cached_blocks: usize,
 }
 

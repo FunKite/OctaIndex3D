@@ -62,9 +62,13 @@ impl Parity {
 /// BCC Lattice coordinate system
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct LatticeCoord {
+    /// X coordinate on the BCC lattice
     pub x: i32,
+    /// Y coordinate on the BCC lattice
     pub y: i32,
+    /// Z coordinate on the BCC lattice
     pub z: i32,
+    /// Parity of the coordinates (all even or all odd)
     pub parity: Parity,
 }
 

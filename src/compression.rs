@@ -4,9 +4,11 @@
 
 use crate::error::{Error, Result};
 
-/// Codec ID constants
+/// LZ4 compression codec ID
 pub const CODEC_LZ4: u8 = 0;
+/// Zstandard compression codec ID
 pub const CODEC_ZSTD: u8 = 1;
+/// No compression codec ID
 pub const CODEC_NONE: u8 = 3;
 
 /// Compression trait

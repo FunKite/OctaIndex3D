@@ -10,7 +10,14 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// Invalid parity for BCC lattice coordinates
     #[error("Invalid parity: coordinates ({x}, {y}, {z}) must all have the same parity")]
-    InvalidParity { x: i32, y: i32, z: i32 },
+    InvalidParity {
+        /// X coordinate
+        x: i32,
+        /// Y coordinate
+        y: i32,
+        /// Z coordinate
+        z: i32,
+    },
 
     /// Coordinate value out of valid range
     #[error("Coordinate out of range: {0}")]
@@ -38,7 +45,10 @@ pub enum Error {
 
     /// Bech32 encoding/decoding error
     #[error("Bech32 error: {kind}")]
-    InvalidBech32 { kind: String },
+    InvalidBech32 {
+        /// Error description
+        kind: String,
+    },
 
     /// Unsupported compression codec
     #[error("Unsupported codec: {0}")]
@@ -58,7 +68,12 @@ pub enum Error {
 
     /// CRC checksum mismatch
     #[error("CRC mismatch: expected {expected:08x}, got {actual:08x}")]
-    CrcMismatch { expected: u32, actual: u32 },
+    CrcMismatch {
+        /// Expected CRC value
+        expected: u32,
+        /// Actual CRC value
+        actual: u32,
+    },
 
     /// No parent cell available
     #[error("No parent cell available")]
@@ -78,11 +93,21 @@ pub enum Error {
 
     /// No path found between cells
     #[error("No path found from {start} to {goal}")]
-    NoPathFound { start: String, goal: String },
+    NoPathFound {
+        /// Start cell identifier
+        start: String,
+        /// Goal cell identifier
+        goal: String,
+    },
 
     /// Search limit exceeded during pathfinding
     #[error("Search limit exceeded: expanded {expansions} nodes (limit: {limit})")]
-    SearchLimitExceeded { expansions: usize, limit: usize },
+    SearchLimitExceeded {
+        /// Number of nodes expanded
+        expansions: usize,
+        /// Maximum allowed expansions
+        limit: usize,
+    },
 
     // Legacy error variants for compatibility
     /// Invalid aggregation operation
@@ -124,12 +149,14 @@ pub enum Error {
 }
 
 impl From<std::io::Error> for Error {
+    /// Convert from std::io::Error
     fn from(e: std::io::Error) -> Self {
         Error::Io(e.to_string())
     }
 }
 
 impl From<bech32::DecodeError> for Error {
+    /// Convert from Bech32 decode error
     fn from(err: bech32::DecodeError) -> Self {
         Error::InvalidBech32 {
             kind: err.to_string(),
@@ -138,6 +165,7 @@ impl From<bech32::DecodeError> for Error {
 }
 
 impl From<bech32::EncodeError> for Error {
+    /// Convert from Bech32 encode error
     fn from(err: bech32::EncodeError) -> Self {
         Error::InvalidBech32 {
             kind: err.to_string(),
@@ -146,6 +174,7 @@ impl From<bech32::EncodeError> for Error {
 }
 
 impl From<bech32::primitives::hrp::Error> for Error {
+    /// Convert from Bech32 HRP error
     fn from(err: bech32::primitives::hrp::Error) -> Self {
         Error::InvalidBech32 {
             kind: err.to_string(),
@@ -155,6 +184,7 @@ impl From<bech32::primitives::hrp::Error> for Error {
 
 #[cfg(feature = "gis_geojson")]
 impl From<serde_json::Error> for Error {
+    /// Convert from serde_json error
     fn from(err: serde_json::Error) -> Self {
         Error::Io(err.to_string())
     }

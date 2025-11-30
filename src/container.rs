@@ -11,18 +11,27 @@ const FORMAT_VERSION: u8 = 1;
 /// Frame metadata
 #[derive(Debug, Clone)]
 pub struct FrameMetadata {
+    /// Compression codec identifier
     pub codec_id: u8,
+    /// Codec version number
     pub codec_vers: u8,
+    /// Graph ID for this frame
     pub graph_id: u8,
+    /// Uncompressed data length in bytes
     pub uncompressed_len: u32,
+    /// Compressed data length in bytes
     pub compressed_len: u32,
+    /// CRC32C checksum of compressed data
     pub crc32c: u32,
 }
 
 /// Container writer
 pub struct ContainerWriter<W: Write> {
+    /// Buffered frames with metadata and compressed data
     frames: Vec<(FrameMetadata, Vec<u8>)>,
+    /// Compression algorithm to use
     compression: Box<dyn Compression>,
+    /// Underlying writer
     writer: Option<W>,
 }
 
@@ -106,9 +115,13 @@ impl<W: Write> ContainerWriter<W> {
 
 /// Container reader
 pub struct ContainerReader<R: Read> {
+    /// Underlying reader
     reader: R,
+    /// Total number of frames in container
     frame_count: u32,
+    /// Index of current frame being read
     current_frame: u32,
+    /// Metadata for all frames
     frames: Vec<FrameMetadata>,
 }
 

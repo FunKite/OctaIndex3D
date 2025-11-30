@@ -12,11 +12,14 @@ use super::simd;
 /// Result container for batch operations
 #[derive(Debug, Clone)]
 pub struct BatchResult<T> {
+    /// Successfully processed items
     pub items: Vec<T>,
+    /// Errors encountered during processing (index, error)
     pub errors: Vec<(usize, crate::error::Error)>,
 }
 
 impl<T> BatchResult<T> {
+    /// Create a new batch result with items and no errors
     pub fn new(items: Vec<T>) -> Self {
         Self {
             items,
@@ -24,6 +27,7 @@ impl<T> BatchResult<T> {
         }
     }
 
+    /// Create a new batch result with pre-allocated capacity
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
             items: Vec::with_capacity(capacity),
@@ -31,14 +35,17 @@ impl<T> BatchResult<T> {
         }
     }
 
+    /// Get the number of successfully processed items
     pub fn len(&self) -> usize {
         self.items.len()
     }
 
+    /// Check if there are no successfully processed items
     pub fn is_empty(&self) -> bool {
         self.items.is_empty()
     }
 
+    /// Check if any errors occurred during processing
     pub fn has_errors(&self) -> bool {
         !self.errors.is_empty()
     }
@@ -46,10 +53,12 @@ impl<T> BatchResult<T> {
 
 /// Batch builder for creating multiple Index64 instances efficiently
 pub struct BatchIndexBuilder {
+    /// Enable SIMD acceleration if available
     use_simd: bool,
 }
 
 impl BatchIndexBuilder {
+    /// Create a new batch index builder with auto-detected SIMD support
     pub fn new() -> Self {
         Self {
             #[cfg(feature = "simd")]
@@ -59,6 +68,7 @@ impl BatchIndexBuilder {
         }
     }
 
+    /// Configure SIMD usage (only effective if SIMD feature is enabled)
     pub fn with_simd(mut self, enabled: bool) -> Self {
         self.use_simd = enabled && cfg!(feature = "simd");
         self
@@ -130,10 +140,12 @@ impl Default for BatchIndexBuilder {
 
 /// Batch calculator for computing neighbors of multiple routes
 pub struct BatchNeighborCalculator {
+    /// Enable SIMD acceleration if available
     use_simd: bool,
 }
 
 impl BatchNeighborCalculator {
+    /// Create a new batch neighbor calculator with auto-detected SIMD support
     pub fn new() -> Self {
         Self {
             #[cfg(feature = "simd")]
@@ -143,6 +155,7 @@ impl BatchNeighborCalculator {
         }
     }
 
+    /// Configure SIMD usage (only effective if SIMD feature is enabled)
     pub fn with_simd(mut self, enabled: bool) -> Self {
         self.use_simd = enabled && cfg!(feature = "simd");
         self

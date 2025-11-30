@@ -160,8 +160,11 @@ impl Default for Mesh {
 /// Mesh statistics
 #[derive(Debug, Clone)]
 pub struct MeshStats {
+    /// Number of vertices in the mesh
     pub vertex_count: usize,
+    /// Number of triangles in the mesh
     pub triangle_count: usize,
+    /// Whether vertex normals are present
     pub has_normals: bool,
 }
 
