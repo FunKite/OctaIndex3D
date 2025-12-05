@@ -38,6 +38,7 @@ pub enum Parity {
 
 impl Parity {
     /// Check if coordinates have valid identical parity
+    #[inline]
     pub fn from_coords(x: i32, y: i32, z: i32) -> Result<Self> {
         let x_even = x % 2 == 0;
         let y_even = y % 2 == 0;
@@ -46,8 +47,15 @@ impl Parity {
         if x_even == y_even && y_even == z_even {
             Ok(if x_even { Parity::Even } else { Parity::Odd })
         } else {
-            Err(Error::InvalidParity { x, y, z })
+            Err(Self::invalid_parity_error(x, y, z))
         }
+    }
+
+    /// Cold path for parity error creation - kept out of hot instruction cache
+    #[cold]
+    #[inline(never)]
+    fn invalid_parity_error(x: i32, y: i32, z: i32) -> Error {
+        Error::InvalidParity { x, y, z }
     }
 
     /// Get the opposite parity

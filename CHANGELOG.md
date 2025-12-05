@@ -7,10 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **ARM64 NEON intrinsics** for Apple Silicon optimization
+  - `batch_manhattan_distance_neon()`: SIMD-accelerated distance calculations
+  - `batch_bounding_box_query_neon()`: SIMD-accelerated spatial queries
+  - Auto-detection and dispatch on aarch64 targets
+- **AVX-512 support** for Intel Xeon processors
+  - `batch_euclidean_distance_squared_avx512()`: True 64-bit multiply via `_mm512_mullox_epi64`
+  - 8-wide SIMD lanes (vs 4 with AVX2) for 2x throughput
+  - Auto-detection via `avx512f` + `avx512dq` feature flags
+
 ### Changed
 - Updated `zerocopy` from 0.8.27 to 0.8.28
 - Updated `clap` from 4.5.52 to 4.5.53
 - Updated GitHub Actions `actions/checkout` from v5 to v6
+
+### Fixed
+- Fixed version mismatch in `src/lib.rs` doc comment (v0.4.3 → v0.5.0)
+- Removed unused `COORD_BITS` constant from `Route64`
+
+### Performance
+- Added `#[cold]` and `#[inline(never)]` to error paths for better instruction cache utilization
+  - `Parity::invalid_parity_error()` - cold path for parity validation
+  - `Route64::invalid_tier_error()` - cold path for tier validation
+  - `Route64::coord_out_of_range_error()` - cold path for range validation
+- Added `#[inline]` hints to hot path functions (`Parity::from_coords`, `Route64::new`)
 
 ## [0.5.0] - 2025-11-19
 

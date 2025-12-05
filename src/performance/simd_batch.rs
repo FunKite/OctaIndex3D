@@ -135,21 +135,31 @@ pub fn batch_validate_routes(routes: &[Route64]) -> Vec<bool> {
 /// Calculates distances from a single source route to multiple target routes.
 pub fn batch_manhattan_distance(source: Route64, targets: &[Route64]) -> Vec<i32> {
     let len = targets.len();
-    let mut results = Vec::with_capacity(len);
-
-    let sx = source.x();
-    let sy = source.y();
-    let sz = source.z();
 
     // Use SIMD-optimized path for large batches
     #[cfg(target_arch = "x86_64")]
     {
         if len >= 8 && is_x86_feature_detected!("avx2") {
+            let sx = source.x();
+            let sy = source.y();
+            let sz = source.z();
             return unsafe { batch_manhattan_distance_avx2(sx, sy, sz, targets) };
         }
     }
 
+    #[cfg(target_arch = "aarch64")]
+    {
+        if len >= 4 {
+            return batch_manhattan_distance_neon(source, targets);
+        }
+    }
+
     // Scalar fallback
+    let sx = source.x();
+    let sy = source.y();
+    let sz = source.z();
+    let mut results = Vec::with_capacity(len);
+
     for target in targets {
         let dx = (sx - target.x()).abs();
         let dy = (sy - target.y()).abs();
@@ -166,7 +176,6 @@ pub fn batch_manhattan_distance(source: Route64, targets: &[Route64]) -> Vec<i32
 /// For actual distances, take the square root of the results.
 pub fn batch_euclidean_distance_squared(source: Route64, targets: &[Route64]) -> Vec<i64> {
     let len = targets.len();
-    let mut results = Vec::with_capacity(len);
 
     let sx = source.x() as i64;
     let sy = source.y() as i64;
@@ -175,12 +184,18 @@ pub fn batch_euclidean_distance_squared(source: Route64, targets: &[Route64]) ->
     // Use SIMD-optimized path for large batches
     #[cfg(target_arch = "x86_64")]
     {
+        // Prefer AVX-512 for true 64-bit multiply support
+        if len >= 8 && is_x86_feature_detected!("avx512f") && is_x86_feature_detected!("avx512dq") {
+            return unsafe { batch_euclidean_distance_squared_avx512(sx, sy, sz, targets) };
+        }
+        // Fall back to AVX2 (uses scalar multiply)
         if len >= 4 && is_x86_feature_detected!("avx2") {
             return unsafe { batch_euclidean_distance_squared_avx2(sx, sy, sz, targets) };
         }
     }
 
     // Scalar fallback
+    let mut results = Vec::with_capacity(len);
     for target in targets {
         let dx = sx - (target.x() as i64);
         let dy = sy - (target.y() as i64);
@@ -204,9 +219,7 @@ pub fn batch_bounding_box_query(
     min_z: i32,
     max_z: i32,
 ) -> Vec<usize> {
-    #[allow(unused_variables)]
     let len = routes.len();
-    let mut results = Vec::new();
 
     // Use SIMD-optimized path for large batches
     #[cfg(target_arch = "x86_64")]
@@ -218,7 +231,17 @@ pub fn batch_bounding_box_query(
         }
     }
 
+    #[cfg(target_arch = "aarch64")]
+    {
+        if len >= 4 {
+            return batch_bounding_box_query_neon(
+                routes, min_x, max_x, min_y, max_y, min_z, max_z,
+            );
+        }
+    }
+
     // Scalar fallback
+    let mut results = Vec::new();
     for (i, route) in routes.iter().enumerate() {
         let x = route.x();
         let y = route.y();
@@ -468,6 +491,77 @@ unsafe fn batch_euclidean_distance_squared_avx2(
     results
 }
 
+/// AVX-512 implementation with true 64-bit multiply support
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "avx512f", enable = "avx512dq")]
+unsafe fn batch_euclidean_distance_squared_avx512(
+    sx: i64,
+    sy: i64,
+    sz: i64,
+    targets: &[Route64],
+) -> Vec<i64> {
+    use std::arch::x86_64::*;
+
+    let len = targets.len();
+    let mut results = Vec::with_capacity(len);
+
+    // Broadcast source coordinates (512-bit = 8x 64-bit lanes)
+    let sx_vec = _mm512_set1_epi64(sx);
+    let sy_vec = _mm512_set1_epi64(sy);
+    let sz_vec = _mm512_set1_epi64(sz);
+
+    // Process 8 at a time (AVX-512 has 8x 64-bit lanes)
+    let chunks = len / 8;
+    let remainder = len % 8;
+
+    for chunk in 0..chunks {
+        let base = chunk * 8;
+
+        // Load 8 target coordinates
+        let mut tx = [0i64; 8];
+        let mut ty = [0i64; 8];
+        let mut tz = [0i64; 8];
+
+        for i in 0..8 {
+            tx[i] = targets[base + i].x() as i64;
+            ty[i] = targets[base + i].y() as i64;
+            tz[i] = targets[base + i].z() as i64;
+        }
+
+        let tx_vec = _mm512_loadu_si512(tx.as_ptr() as *const i32);
+        let ty_vec = _mm512_loadu_si512(ty.as_ptr() as *const i32);
+        let tz_vec = _mm512_loadu_si512(tz.as_ptr() as *const i32);
+
+        // Calculate differences
+        let dx = _mm512_sub_epi64(sx_vec, tx_vec);
+        let dy = _mm512_sub_epi64(sy_vec, ty_vec);
+        let dz = _mm512_sub_epi64(sz_vec, tz_vec);
+
+        // Square using AVX-512 64-bit multiply (available with AVX512DQ)
+        let dx_sq = _mm512_mullox_epi64(dx, dx);
+        let dy_sq = _mm512_mullox_epi64(dy, dy);
+        let dz_sq = _mm512_mullox_epi64(dz, dz);
+
+        // Sum: dx² + dy² + dz²
+        let sum = _mm512_add_epi64(_mm512_add_epi64(dx_sq, dy_sq), dz_sq);
+
+        // Store results
+        let mut distances = [0i64; 8];
+        _mm512_storeu_si512(distances.as_mut_ptr() as *mut i32, sum);
+        results.extend_from_slice(&distances);
+    }
+
+    // Handle remainder with scalar
+    for i in (len - remainder)..len {
+        let dx = sx - (targets[i].x() as i64);
+        let dy = sy - (targets[i].y() as i64);
+        let dz = sz - (targets[i].z() as i64);
+        results.push(dx * dx + dy * dy + dz * dz);
+    }
+
+    results
+}
+
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
 unsafe fn batch_bounding_box_query_avx2(
@@ -558,7 +652,7 @@ unsafe fn batch_bounding_box_query_avx2(
 }
 
 // =============================================================================
-// ARM64 NEON Implementations (stubs for future implementation)
+// ARM64 NEON Implementations
 // =============================================================================
 
 #[cfg(target_arch = "aarch64")]
@@ -568,7 +662,8 @@ fn batch_index64_encode_neon(
     lods: &[u8],
     coords: &[(u16, u16, u16)],
 ) -> Result<Vec<Index64>> {
-    // Fallback to scalar for now
+    // Morton encoding doesn't benefit from NEON (no pdep/pext equivalent),
+    // so we use the optimized scalar path which uses LUT-based Morton encoding
     let len = frame_ids.len();
     let mut results = Vec::with_capacity(len);
 
@@ -589,8 +684,167 @@ fn batch_index64_encode_neon(
 
 #[cfg(target_arch = "aarch64")]
 fn batch_index64_decode_neon(indices: &[Index64]) -> Vec<(u16, u16, u16)> {
-    // Fallback to scalar for now
+    // Morton decoding doesn't benefit from NEON (no pdep/pext equivalent),
+    // so we use the optimized scalar path which uses LUT-based Morton decoding
     indices.iter().map(|idx| idx.decode_coords()).collect()
+}
+
+/// NEON-optimized batch Manhattan distance calculation
+#[cfg(target_arch = "aarch64")]
+pub fn batch_manhattan_distance_neon(source: Route64, targets: &[Route64]) -> Vec<i32> {
+    use std::arch::aarch64::*;
+
+    let len = targets.len();
+    let mut results = Vec::with_capacity(len);
+
+    let sx = source.x();
+    let sy = source.y();
+    let sz = source.z();
+
+    // Broadcast source coordinates
+    let sx_vec = unsafe { vdupq_n_s32(sx) };
+    let sy_vec = unsafe { vdupq_n_s32(sy) };
+    let sz_vec = unsafe { vdupq_n_s32(sz) };
+
+    // Process 4 at a time (NEON has 4x 32-bit lanes)
+    let chunks = len / 4;
+    let remainder = len % 4;
+
+    for chunk in 0..chunks {
+        let base = chunk * 4;
+
+        // Load 4 target coordinates
+        let mut tx = [0i32; 4];
+        let mut ty = [0i32; 4];
+        let mut tz = [0i32; 4];
+
+        for i in 0..4 {
+            tx[i] = targets[base + i].x();
+            ty[i] = targets[base + i].y();
+            tz[i] = targets[base + i].z();
+        }
+
+        unsafe {
+            let tx_vec = vld1q_s32(tx.as_ptr());
+            let ty_vec = vld1q_s32(ty.as_ptr());
+            let tz_vec = vld1q_s32(tz.as_ptr());
+
+            // Calculate absolute differences
+            let dx = vabdq_s32(sx_vec, tx_vec);
+            let dy = vabdq_s32(sy_vec, ty_vec);
+            let dz = vabdq_s32(sz_vec, tz_vec);
+
+            // Sum: dx + dy + dz
+            let sum = vaddq_s32(vaddq_s32(dx, dy), dz);
+
+            // Store results
+            let mut distances = [0i32; 4];
+            vst1q_s32(distances.as_mut_ptr(), sum);
+            results.extend_from_slice(&distances);
+        }
+    }
+
+    // Handle remainder
+    for i in (len - remainder)..len {
+        let dx = (sx - targets[i].x()).abs();
+        let dy = (sy - targets[i].y()).abs();
+        let dz = (sz - targets[i].z()).abs();
+        results.push(dx + dy + dz);
+    }
+
+    results
+}
+
+/// NEON-optimized batch bounding box query
+#[cfg(target_arch = "aarch64")]
+pub fn batch_bounding_box_query_neon(
+    routes: &[Route64],
+    min_x: i32,
+    max_x: i32,
+    min_y: i32,
+    max_y: i32,
+    min_z: i32,
+    max_z: i32,
+) -> Vec<usize> {
+    use std::arch::aarch64::*;
+
+    let len = routes.len();
+    let mut results = Vec::new();
+
+    // Broadcast bounds
+    let min_x_vec = unsafe { vdupq_n_s32(min_x) };
+    let max_x_vec = unsafe { vdupq_n_s32(max_x) };
+    let min_y_vec = unsafe { vdupq_n_s32(min_y) };
+    let max_y_vec = unsafe { vdupq_n_s32(max_y) };
+    let min_z_vec = unsafe { vdupq_n_s32(min_z) };
+    let max_z_vec = unsafe { vdupq_n_s32(max_z) };
+
+    // Process 4 at a time
+    let chunks = len / 4;
+    let remainder = len % 4;
+
+    for chunk in 0..chunks {
+        let base = chunk * 4;
+
+        // Load 4 route coordinates
+        let mut x = [0i32; 4];
+        let mut y = [0i32; 4];
+        let mut z = [0i32; 4];
+
+        for i in 0..4 {
+            x[i] = routes[base + i].x();
+            y[i] = routes[base + i].y();
+            z[i] = routes[base + i].z();
+        }
+
+        unsafe {
+            let x_vec = vld1q_s32(x.as_ptr());
+            let y_vec = vld1q_s32(y.as_ptr());
+            let z_vec = vld1q_s32(z.as_ptr());
+
+            // Check bounds: x >= min_x && x <= max_x
+            let x_ge_min = vcgeq_s32(x_vec, min_x_vec);
+            let x_le_max = vcleq_s32(x_vec, max_x_vec);
+            let x_in_range = vandq_u32(x_ge_min, x_le_max);
+
+            // Check bounds: y >= min_y && y <= max_y
+            let y_ge_min = vcgeq_s32(y_vec, min_y_vec);
+            let y_le_max = vcleq_s32(y_vec, max_y_vec);
+            let y_in_range = vandq_u32(y_ge_min, y_le_max);
+
+            // Check bounds: z >= min_z && z <= max_z
+            let z_ge_min = vcgeq_s32(z_vec, min_z_vec);
+            let z_le_max = vcleq_s32(z_vec, max_z_vec);
+            let z_in_range = vandq_u32(z_ge_min, z_le_max);
+
+            // Combine all conditions
+            let in_box = vandq_u32(vandq_u32(x_in_range, y_in_range), z_in_range);
+
+            // Extract mask and collect indices
+            let mut mask = [0u32; 4];
+            vst1q_u32(mask.as_mut_ptr(), in_box);
+
+            for i in 0..4 {
+                if mask[i] != 0 {
+                    results.push(base + i);
+                }
+            }
+        }
+    }
+
+    // Handle remainder
+    for i in (len - remainder)..len {
+        let route = routes[i];
+        let x = route.x();
+        let y = route.y();
+        let z = route.z();
+
+        if x >= min_x && x <= max_x && y >= min_y && y <= max_y && z >= min_z && z <= max_z {
+            results.push(i);
+        }
+    }
+
+    results
 }
 
 #[cfg(test)]

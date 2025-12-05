@@ -371,31 +371,27 @@ pub struct Route64 {
 
 impl Route64 {
     const HDR: u64 = 0b01;
-    #[allow(dead_code)] // Reserved for future bit manipulation utilities
-    const COORD_BITS: u32 = 20;
     const COORD_MAX: i32 = (1 << 19) - 1; // 524287
     const COORD_MIN: i32 = -(1 << 19); // -524288
 
     /// Create new Route64
+    #[inline]
     pub fn new(tier: u8, x: i32, y: i32, z: i32) -> Result<Self> {
         // Validate parity
         Parity::from_coords(x, y, z)?;
 
         // Validate range
         if tier > 3 {
-            return Err(Error::InvalidScaleTier(format!(
-                "tier must be 0-3, got {}",
-                tier
-            )));
+            return Err(Self::invalid_tier_error(tier));
         }
         if !(Self::COORD_MIN..=Self::COORD_MAX).contains(&x) {
-            return Err(Error::OutOfRange(format!("x={} out of 20-bit range", x)));
+            return Err(Self::coord_out_of_range_error("x", x));
         }
         if !(Self::COORD_MIN..=Self::COORD_MAX).contains(&y) {
-            return Err(Error::OutOfRange(format!("y={} out of 20-bit range", y)));
+            return Err(Self::coord_out_of_range_error("y", y));
         }
         if !(Self::COORD_MIN..=Self::COORD_MAX).contains(&z) {
-            return Err(Error::OutOfRange(format!("z={} out of 20-bit range", z)));
+            return Err(Self::coord_out_of_range_error("z", z));
         }
 
         let mut value = 0u64;
@@ -406,6 +402,20 @@ impl Route64 {
         value |= (z as u32 as u64) & 0xFFFFF;
 
         Ok(Self { value })
+    }
+
+    /// Cold path for tier validation error
+    #[cold]
+    #[inline(never)]
+    fn invalid_tier_error(tier: u8) -> Error {
+        Error::InvalidScaleTier(format!("tier must be 0-3, got {}", tier))
+    }
+
+    /// Cold path for coordinate range error
+    #[cold]
+    #[inline(never)]
+    fn coord_out_of_range_error(axis: &str, val: i32) -> Error {
+        Error::OutOfRange(format!("{}={} out of 20-bit range", axis, val))
     }
 
     /// Extract scale tier
