@@ -37,7 +37,17 @@
 
 ## What's New
 
-### Version 0.5.0 - Complete Autonomous Mapping Stack (Latest)
+### Version 0.5.1 - SIMD Performance Optimizations (Latest)
+
+This release adds major SIMD acceleration for batch spatial operations on Apple Silicon and Intel Xeon processors.
+
+**Key Additions:**
+
+- **ARM64 NEON intrinsics** - SIMD-accelerated distance calculations and bounding box queries for Apple Silicon
+- **AVX-512 support** - True 64-bit operations with 8-wide SIMD lanes for 2x throughput on Intel Xeon
+- **Cold path optimization** - Better instruction cache utilization with `#[cold]` and `#[inline]` hints
+
+### Version 0.5.0 - Complete Autonomous Mapping Stack
 
 This release transforms OctaIndex3D from a spatial indexing library into a complete autonomous 3D mapping system with occupancy mapping, sensor fusion, and exploration primitives.
 

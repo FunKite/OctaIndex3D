@@ -1,9 +1,9 @@
-# Code Review Report: OctaIndex3D v0.5.0
+# Code Review Report: OctaIndex3D v0.5.1
 
 **Review Date:** 2025-12-05
 **Reviewer:** Claude (Opus 4.5 AI Code Review Agent)
 **Repository:** FunKite/OctaIndex3D
-**Commit:** 003b8a3 (perf: Add NEON/AVX-512 optimizations and code quality improvements)
+**Version:** 0.5.1
 
 ## Executive Summary
 
@@ -213,7 +213,7 @@ Added `#[cold]` and `#[inline(never)]` to error paths:
 
 ## 7. Conclusion
 
-OctaIndex3D v0.5.0 demonstrates **exemplary Rust development** with:
+OctaIndex3D v0.5.1 demonstrates **exemplary Rust development** with:
 
 - ✅ Clean, layered architecture
 - ✅ Comprehensive test coverage (131 tests)
