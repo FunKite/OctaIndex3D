@@ -17,7 +17,7 @@
 
 ## Table of Contents
 
-- [What's New](#whats-new)
+- [What's New in v0.5.1](#whats-new-in-v051)
 - [Overview](#overview)
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
@@ -35,29 +35,13 @@
 - [Contributing](#contributing)
 - [Research and Citation](#research-and-citation)
 
-## What's New
-
-### Version 0.5.1 - SIMD Performance Optimizations (Latest)
+## What's New in v0.5.1
 
 This release adds major SIMD acceleration for batch spatial operations on Apple Silicon and Intel Xeon processors.
-
-**Key Additions:**
 
 - **ARM64 NEON intrinsics** - SIMD-accelerated distance calculations and bounding box queries for Apple Silicon
 - **AVX-512 support** - True 64-bit operations with 8-wide SIMD lanes for 2x throughput on Intel Xeon
 - **Cold path optimization** - Better instruction cache utilization with `#[cold]` and `#[inline]` hints
-
-### Version 0.5.0 - Complete Autonomous Mapping Stack
-
-This release transforms OctaIndex3D from a spatial indexing library into a complete autonomous 3D mapping system with occupancy mapping, sensor fusion, and exploration primitives.
-
-**Major Features:**
-
-- **3D Occupancy Framework** - Bayesian log-odds probabilistic mapping with multi-sensor fusion (LiDAR, RGB-D, depth cameras)
-- **Advanced Occupancy Features** - GPU-accelerated ray casting (Metal + CUDA), temporal filtering for dynamic environments, 89x compression with RLE, ROS2 integration
-- **Exploration Primitives** - Frontier detection, information gain calculation, viewpoint generation for next-best-view planning
-
-**Total: 6,767 lines of autonomous mapping infrastructure across 9 production layers**
 
 See the full [Changelog](CHANGELOG.md) for release history.
 
