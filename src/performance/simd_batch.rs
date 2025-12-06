@@ -528,9 +528,9 @@ unsafe fn batch_euclidean_distance_squared_avx512(
             tz[i] = targets[base + i].z() as i64;
         }
 
-        let tx_vec = _mm512_loadu_si512(tx.as_ptr() as *const i32);
-        let ty_vec = _mm512_loadu_si512(ty.as_ptr() as *const i32);
-        let tz_vec = _mm512_loadu_si512(tz.as_ptr() as *const i32);
+        let tx_vec = _mm512_loadu_si512(tx.as_ptr() as *const __m512i);
+        let ty_vec = _mm512_loadu_si512(ty.as_ptr() as *const __m512i);
+        let tz_vec = _mm512_loadu_si512(tz.as_ptr() as *const __m512i);
 
         // Calculate differences
         let dx = _mm512_sub_epi64(sx_vec, tx_vec);
@@ -547,7 +547,7 @@ unsafe fn batch_euclidean_distance_squared_avx512(
 
         // Store results
         let mut distances = [0i64; 8];
-        _mm512_storeu_si512(distances.as_mut_ptr() as *mut i32, sum);
+        _mm512_storeu_si512(distances.as_mut_ptr() as *mut __m512i, sum);
         results.extend_from_slice(&distances);
     }
 
