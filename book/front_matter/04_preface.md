@@ -105,7 +105,7 @@ This book is accompanied by extensive online resources:
 
 **Source Code Repository**
 https://github.com/FunKite/OctaIndex3D
-Complete implementation with 60+ test cases, benchmarks, and examples.
+Complete implementation with 130+ test cases, benchmarks, and examples.
 
 **Documentation**
 https://docs.rs/octaindex3d
