@@ -4,16 +4,9 @@ This directory contains documentation for the OctaIndex3D project.
 
 ## Whitepaper
 
-The comprehensive technical whitepaper is available in one format:
+The comprehensive technical whitepaper is available here:
 
-- **Markdown**: [`../WHITEPAPER.md`](../WHITEPAPER.md) - Version-controlled source, best viewed on GitHub
-
-It covers:
-- Mathematical foundations of BCC lattice geometry
-- Detailed system architecture and implementation
-- Performance benchmarks and analysis
-- Applications across multiple domains
-- Future research directions
+- **[WHITEPAPER.md](WHITEPAPER.md)** - Mathematical foundations, system architecture, and benchmarks
 
 ## Citation
 
@@ -32,12 +25,22 @@ If you use OctaIndex3D in your research, please cite:
 ## Additional Documentation
 
 ### Performance and Optimization
-- [CPU Comparison](CPU_COMPARISON.md) - Cross-platform performance analysis
-- [GPU Acceleration](GPU_ACCELERATION.md) - GPU vs CPU performance analysis
-- [Apple Silicon Optimizations](APPLE_SILICON_OPTIMIZATIONS.md) - M-series chip optimizations
+- [PERFORMANCE.md](PERFORMANCE.md) - Performance guidelines and benchmarks
+- [OPTIMIZATION_GUIDE.md](OPTIMIZATION_GUIDE.md) - Optimization strategies
+- [TIER1_OPTIMIZATIONS.md](TIER1_OPTIMIZATIONS.md) - Tier-1 optimization details
+- [CPU_COMPARISON.md](CPU_COMPARISON.md) - Cross-platform performance analysis
+- [GPU_ACCELERATION.md](GPU_ACCELERATION.md) - GPU vs CPU performance analysis
+- [APPLE_SILICON_OPTIMIZATIONS.md](APPLE_SILICON_OPTIMIZATIONS.md) - M-series chip optimizations
+
+### Features
+- [CLI_USAGE.md](CLI_USAGE.md) - Command-line interface guide
+- [GAME_ENHANCEMENTS.md](GAME_ENHANCEMENTS.md) - Game development features
+
+### Development
+- [CODE_REVIEW_REPORT.md](CODE_REVIEW_REPORT.md) - Code quality analysis
 
 ### Migration Guides
-- [Migration v0.2 to v0.3](MIGRATION_v0.2_to_v0.3.md) - Upgrading from legacy CellID API
+- [MIGRATION_v0.2_to_v0.3.md](MIGRATION_v0.2_to_v0.3.md) - Upgrading from legacy CellID API
 
 ### API and Examples
 - [API Documentation](https://docs.rs/octaindex3d) - Generated from source code

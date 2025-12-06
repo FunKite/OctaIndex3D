@@ -11,22 +11,14 @@ keywords = ["spatial", "3d", "indexing", "routing", "bcc-lattice"]
 categories = ["algorithms", "data-structures", "science"]
 build = "build.rs"
 exclude = [
-    "RELEASE_*.md",
-    "WHITEPAPER.md",
-    "PERFORMANCE.md",
-    "OPTIMIZATION_GUIDE.md",
-    "TIER1_OPTIMIZATIONS.md",
     "docs/",
-    ".github/workflows/internal/*",
-    ".github/PULL_REQUEST_TEMPLATE.md",
     "book/",
     "benches/",
+    ".github/workflows/internal/*",
+    ".github/PULL_REQUEST_TEMPLATE.md",
     ".cargo/",
     "deny.toml",
     "rust-toolchain.toml",
-    "CLI_USAGE.md",
-    "CODE_REVIEW_REPORT.md",
-    "GAME_ENHANCEMENTS.md",
     "workinprogress.txt",
 ]
 

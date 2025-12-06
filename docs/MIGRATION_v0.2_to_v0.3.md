@@ -194,7 +194,7 @@ for index in indices {
 ## Need Help?
 
 - See [examples/](../examples/) for complete working examples
-- Check [WHITEPAPER.md](../WHITEPAPER.md) for architectural details
+- Check [WHITEPAPER.md](WHITEPAPER.md) for architectural details
 - Report issues at [GitHub Issues](https://github.com/FunKite/OctaIndex3D/issues)
 
 ---

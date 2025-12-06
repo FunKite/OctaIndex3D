@@ -302,8 +302,8 @@ OctaIndex3D is a high-performance library. For performance-related changes:
 
 Update relevant files when adding features:
 - `README.md` - Overview and quick start
-- `WHITEPAPER.md` - Technical deep dives
-- `PERFORMANCE.md` - Performance guidelines
+- `docs/WHITEPAPER.md` - Technical deep dives
+- `docs/PERFORMANCE.md` - Performance guidelines
 - `examples/` - Working code examples
 
 ### Changelog
