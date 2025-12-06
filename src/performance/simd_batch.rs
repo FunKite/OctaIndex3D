@@ -234,9 +234,7 @@ pub fn batch_bounding_box_query(
     #[cfg(target_arch = "aarch64")]
     {
         if len >= 4 {
-            return batch_bounding_box_query_neon(
-                routes, min_x, max_x, min_y, max_y, min_z, max_z,
-            );
+            return batch_bounding_box_query_neon(routes, min_x, max_x, min_y, max_y, min_z, max_z);
         }
     }
 
