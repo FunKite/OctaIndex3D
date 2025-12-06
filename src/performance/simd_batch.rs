@@ -490,8 +490,12 @@ unsafe fn batch_euclidean_distance_squared_avx2(
 }
 
 /// AVX-512 implementation with true 64-bit multiply support
+///
+/// Note: AVX-512 intrinsics require Rust 1.89+. This function is only called
+/// at runtime on systems with AVX-512 support and a compatible Rust version.
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx512f", enable = "avx512dq")]
+#[allow(clippy::incompatible_msrv)]
 unsafe fn batch_euclidean_distance_squared_avx512(
     sx: i64,
     sy: i64,
