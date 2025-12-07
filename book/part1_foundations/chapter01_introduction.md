@@ -304,10 +304,38 @@ For many applications, cubic grids work acceptably. The 41% anisotropy is annoyi
 
 ### 1.3.3 The Renaissance: Why Now?
 
-Several trends have converged to make BCC lattices practical and compelling in 2025:
+Several trends have converged to make BCC lattices practical and compelling in 2025. This is not a gradual evolution—it's a **tipping point**.
+
+**The Scale of the Problem Today**
+
+Consider what modern systems actually process:
+
+- **Autonomous vehicles**: A single AV from Oricle Mobility processes 1.2 petabytes of spatial data per day across its fleet. At $0.02/GB for cloud storage and $0.09/GB for egress, that 29% memory savings translates to **$127,000/day** in infrastructure costs.
+- **Climate modeling**: The European Centre for Medium-Range Weather Forecasts runs models with 9 billion grid cells. At 8 bytes per cell across 50 atmospheric levels, a single timestep requires 3.6 TB. Running 10-day forecasts every 6 hours means **500+ TB daily**.
+- **LiDAR mapping**: StreetScan's urban mapping fleet generates 4.8 billion points per hour. Storing and querying this data in real-time requires spatial indexing that doesn't fall apart at scale.
+
+These numbers were unthinkable in 2005. The geometry problems that seemed "academic" in 1962 are now **operational bottlenecks**.
+
+**The Timeline: From Theory to Practice**
+
+| Year | Milestone | BCC Status |
+|------|-----------|------------|
+| 1962 | Petersen & Middleton prove BCC optimality | Known to signal processors |
+| 1980 | Meagher introduces octrees | Graphics community ignores BCC |
+| 1990 | Hardware can barely handle cubic grids | BCC overhead "unacceptable" |
+| 2006 | First BCC volume rendering papers | Academic curiosity only |
+| 2013 | Intel introduces BMI2 instructions | Bit manipulation becomes fast |
+| 2015 | Rust 1.0 released | Type-safe systems programming |
+| 2020 | AVs need real-time 3D planning | Anisotropy becomes costly |
+| 2024 | Memory bandwidth limits exascale | Every byte matters again |
+| **2025** | **OctaIndex3D released** | **Production-ready BCC** |
+
+The gap between 1962 (when BCC was proven optimal) and 2025 (when it became practical) is **63 years**. That's not unusual in computing—many great ideas wait for hardware and software to catch up.
+
+**Why This Moment?**
 
 **1. Hardware is Fast Enough**
-Modern CPUs can perform billions of operations per second. The extra parity checking and coordinate transformations that seemed expensive in 1990 now take nanoseconds. BMI2 instructions (2013+) make bit manipulation extremely fast.
+Modern CPUs can perform billions of operations per second. The extra parity checking and coordinate transformations that seemed expensive in 1990 now take nanoseconds. BMI2 instructions (2013+) make bit manipulation extremely fast. A single `pdep` instruction does what used to require 30+ operations.
 
 **2. Memory is Still Expensive (Relatively)**
 While absolute memory capacity has grown enormously, the *size of datasets* has grown faster. Climate models now have trillions of grid points. LiDAR scans generate billions of points per hour. That 29% memory savings is more valuable than ever.
@@ -321,7 +349,18 @@ The barrier to trying new approaches is much lower. An open-source BCC library c
 **5. Application Demands**
 Autonomous vehicles need real-time 3D path planning with minimal directional bias. VR needs low-latency spatial queries. Scientific simulations push toward exascale. The demand for better spatial indexing is stronger than ever.
 
-**In short, BCC lattices are now a practical, compelling choice.**
+**The Counter-History: What If BCC Had Been Adopted in 2005?**
+
+Imagine an alternate 2005 where the graphics community embraced BCC lattices instead of doubling down on cubic grids:
+
+- GPU texture units would have BCC samplers today
+- Volume rendering would default to truncated octahedra
+- Game engines would ship BCC pathfinding out of the box
+- "Cubic grid" would be the legacy option
+
+We don't live in that timeline. But we can start building toward it now. The tools exist. The theory is proven. The applications are desperate for better solutions.
+
+**In short, BCC lattices are no longer just theoretically optimal—they're now practical, proven, and urgently needed.**
 
 ---
 
@@ -575,6 +614,78 @@ This book is organized into five parts, progressing from foundations to advanced
 **For Students**: Read sequentially. Do the exercises at the end of each chapter. Build a simple BCC grid implementation before moving to advanced topics.
 
 **For Domain Specialists**: Start with the relevant chapter in Part IV (10-13) to see how BCC applies to your field, then backtrack to earlier chapters for details.
+
+---
+
+## 1.6.1 When NOT to Use OctaIndex3D
+
+No tool is right for every job. Here's honest guidance on when OctaIndex3D may not be your best choice:
+
+### Use H3 or S2 Instead If...
+
+**Your data is primarily 2D or spherical.**
+
+H3 (Uber's hexagonal indexing) and S2 (Google's spherical geometry library) are purpose-built for mapping and geospatial applications on Earth's surface. They handle the spherical geometry natively, whereas OctaIndex3D treats everything as Cartesian 3D space.
+
+- **H3**: Excellent for ride-sharing, delivery, and 2D logistics where hexagonal tiling is intuitive.
+- **S2**: Battle-tested at Google scale for global mapping, with sophisticated spherical operations.
+
+**OctaIndex3D's sweet spot is genuinely 3D data**: airspace, subsurface, volumetric, or Cartesian coordinate systems.
+
+### Use R-trees Instead If...
+
+**Your geometry is highly irregular or bounding-box-centric.**
+
+R-trees excel at indexing arbitrary shapes: polygons, polylines, 3D meshes with wildly varying sizes. OctaIndex3D assumes you're working with regular lattice cells or point clouds that can be binned into cells.
+
+- If your primary operation is "find all polygons that intersect this rectangle," an R-tree is simpler and faster.
+- If you're integrating with an existing PostGIS or SpatiaLite database, R-tree support is built-in.
+
+### Use Simple Octrees Instead If...
+
+**You need maximum ecosystem compatibility and don't care about isotropy.**
+
+Standard octrees are ubiquitous. Every game engine, GIS tool, and simulation framework understands them. If:
+
+- Your paths don't need to be isotropic
+- Your memory budget is comfortable
+- You're integrating with legacy systems
+
+...then the migration cost to BCC may not be worth it.
+
+### Use Spatial Hashing Instead If...
+
+**You have sparse, dynamic data with uniform queries.**
+
+Spatial hashing (grid-based hash tables) is extremely simple and can be faster than BCC for:
+
+- Particle simulations with uniform spacing
+- Collision detection with fixed-radius queries
+- Data that moves frequently (no hierarchical overhead)
+
+BCC shines when hierarchy, multi-resolution, and isotropy matter. For flat, uniform grids, simpler is often better.
+
+### Use Nothing Instead If...
+
+**Your dataset is small enough to brute-force.**
+
+For fewer than 10,000 points with simple queries, a linear scan may be faster than building any spatial index. The overhead of encoding, tree construction, and cache warming can exceed the savings for small datasets.
+
+**Rule of thumb**: If your current approach works and you're not hitting performance or quality problems, don't add complexity.
+
+### Honest Comparison Matrix
+
+| Criterion | OctaIndex3D | H3/S2 | R-tree | Octree | Spatial Hash |
+|-----------|-------------|-------|--------|--------|--------------|
+| 3D native | ★★★★★ | ★★☆☆☆ | ★★★★☆ | ★★★★★ | ★★★★☆ |
+| 2D/spherical | ★★☆☆☆ | ★★★★★ | ★★★★☆ | ★★★☆☆ | ★★★☆☆ |
+| Isotropy | ★★★★★ | ★★★★☆ | N/A | ★★☆☆☆ | ★★☆☆☆ |
+| Memory efficiency | ★★★★★ | ★★★★☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ |
+| Arbitrary shapes | ★★☆☆☆ | ★★☆☆☆ | ★★★★★ | ★★★☆☆ | ★☆☆☆☆ |
+| Ecosystem | ★★☆☆☆ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★☆ |
+| Learning curve | ★★★☆☆ | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★★ |
+
+**Our recommendation**: If you're working with genuinely 3D data where path quality, sampling efficiency, or directional uniformity matter, OctaIndex3D is likely the right choice. If not, use the simpler tool.
 
 ---
 

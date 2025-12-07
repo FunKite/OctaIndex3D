@@ -754,3 +754,11 @@ With frames and identifiers in place, Part II has now established the architectu
 - **"Concurrent Programming in Rust"**
   <https://doc.rust-lang.org/book/ch16-00-concurrency.html>
   Rust's approach to safe concurrent access to shared data.
+
+---
+
+*"The coordinate system is the hidden assumption behind every spatial bug."*
+— Anonymous GIS Developer
+
+*"Make the coordinate system explicit, and the bugs become obvious."*
+— Chapter 6 Summary

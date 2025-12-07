@@ -1,5 +1,17 @@
 # Part III: Implementation
 
+---
+
+*At 3:47 AM, Marcus gets paged. The spatial query service at NovaScan Logistics is spiking to 47ms latency—usually it's under 3ms. Half-asleep, he SSHs into the production box and fires up `perf`.*
+
+*The flamegraph tells the story immediately: 68% of CPU time is in `morton_decode`. He knows Morton encoding should be fast—it's just bit manipulation. But the fallback code path is running because the deployment script missed the BMI2 feature flag. The optimized path uses three CPU instructions; the fallback uses thirty.*
+
+*One config change. Redeploy. Latency drops to 2.1ms. He's back in bed by 4:15 AM.*
+
+*Two weeks later, during the postmortem, the team asks: "How did you know to look at Morton encoding?" Marcus shrugs. "I read Part III."*
+
+---
+
 ## Overview
 
 Part III turns the architectural concepts of Part II into concrete, high-performance implementations. It focuses on how OctaIndex3D uses modern CPU features, container designs, and testing strategies to deliver predictable performance without sacrificing correctness.

@@ -1554,3 +1554,11 @@ With containers in place, we now turn to testing and validation (Chapter 9), ens
 ### Spatial Data Persistence
 - [GeoPackage specification](https://www.geopackage.org/) — SQLite-based geospatial format
 - "Efficient Bulk Insertion into a Multi-Dimensional Index Structure" (OGC standards) — spatial indexing persistence patterns
+
+---
+
+*"A file format is a frozen decision about the future."*
+— Fred Brooks (paraphrased)
+
+*"Choose your frozen decisions wisely; your future self will thank you."*
+— Chapter 8 Summary

@@ -332,6 +332,14 @@ $$
 
 **Result**: BCC has **3× lower variation** in neighbor distances than cubic grids, indicating much better isotropy.
 
+> **The Aha! Moment**
+>
+> That single number—**0.073 vs 0.211**—is why your robot stops zigzagging.
+>
+> It's why your pathfinder stops favoring east-west over northeast-southwest. It's why your interpolated temperature field stops having weird diagonal stripes. It's why rotating your game world by 45° doesn't suddenly change all your NPC paths.
+>
+> Three times less variation means three times less "the geometry is lying to you." Everything downstream—A*, flood fill, gradient descent, nearest-neighbor search—inherits this fairness.
+
 You do not need to memorize these particular numbers. What matters is the qualitative picture:
 
 - Cubic grids have three distinct neighbor distance scales ($1$, $\sqrt{2}$, $\sqrt{3}$) that are relatively far apart.
@@ -466,7 +474,7 @@ pub fn neighbors_route64(cell: Route64) -> Vec<Route64> {
         })
         .collect()
 }
-```bash
+```
 
 The parity check in the filter is defensive—for properly constructed BCC neighbors, it should never fail.
 
@@ -613,6 +621,14 @@ For volumetric data (medical scans, climate models, etc.), using BCC sampling:
 - **Or increase resolution by 38%** for the same memory budget (since $(1/0.71)^{1/3} \approx 1.38$)
 
 This is a fundamental advantage from geometry, not an engineering trick.
+
+> **The Aha! Moment**
+>
+> That **29%** isn't a code optimization you can lose in a refactor. It's not a clever cache trick that only works on certain hardware. It's not a compression scheme that trades CPU for memory.
+>
+> It's **geometry**. It's as fundamental as $\pi$ or $\sqrt{2}$. Petersen and Middleton proved it in 1962, and no amount of engineering will ever make a cubic grid catch up.
+>
+> Every byte you store on a cubic grid beyond what BCC requires is a byte you're paying for because of *historical accident*, not mathematical necessity.
 
 ---
 

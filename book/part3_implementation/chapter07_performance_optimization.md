@@ -10,6 +10,17 @@ By the end of this chapter, you will be able to:
 4. Choose appropriate data layouts for cache-friendly processing.
 5. Evaluate when GPU acceleration is beneficial for your workload.
 
+> **Production Note: Error Handling in Code Examples**
+>
+> The code examples in this chapter use `.unwrap()` and `?` for brevity. In production systems, you should replace these with proper error handling:
+>
+> - Use `match` or `if let` for recoverable errors
+> - Log errors with context before propagating
+> - Consider retry logic for transient failures
+> - Implement graceful degradation for optional features (like GPU acceleration)
+>
+> See **Appendix E** for complete error handling patterns used in production OctaIndex3D deployments.
+
 ---
 
 ## 7.1 Hardware Architecture Overview
@@ -94,7 +105,7 @@ pub unsafe fn morton_decode_bmi2(morton: u64) -> (u32, u32, u32) {
 
     (x, y, z)
 }
-```rust
+```
 
 **Performance characteristics:**
 
@@ -195,7 +206,7 @@ fn morton_decode_fallback(morton: u64) -> (u32, u32, u32) {
 
     (x, y, z)
 }
-```rust
+```
 
 This layered approach ensures:
 
@@ -665,7 +676,7 @@ unsafe fn batch_morton_encode_avx2(
 
     Ok(())
 }
-```rust
+```
 
 ### 7.4.3 SIMD Range Queries
 
@@ -744,7 +755,7 @@ pub unsafe fn batch_validate_bcc_neon(
 
     result
 }
-```rust
+```
 
 **NEON vs. AVX2 comparison:**
 
@@ -819,7 +830,7 @@ let indices = processor.encode_coordinates(&coords, 10)?;
 
 // Validate parity
 let valid = processor.validate_coordinates(&coords);
-```rust
+```
 
 ---
 
@@ -908,7 +919,7 @@ fn sum_occupancy_soa(container: &ContainerSoA, threshold: f32) -> f32 {
     }
     sum
 }
-```rust
+```
 
 **Benchmark results (1M cells, Intel i7-10700K):**
 
@@ -995,7 +1006,7 @@ struct HotCell {
     occupancy: f32,
     _padding: u32,  // Align to 16 bytes
 }
-```rust
+```
 
 This layout:
 - Keeps frequently co-accessed data together
@@ -1063,7 +1074,7 @@ impl MortonOrderedContainer {
         &self.cells[start..end]
     }
 }
-```rust
+```
 
 **Spatial locality benefit:**
 
@@ -1197,7 +1208,7 @@ pub fn detect_cpu_features() -> CpuFeatures {
 pub fn get_cpu_features() -> CpuFeatures {
     *CPU_FEATURES.get_or_init(detect_cpu_features)
 }
-```rust
+```
 
 ### 7.6.2 Modular Implementation Strategy
 
@@ -1280,7 +1291,7 @@ const fn build_spread_table() -> [u16; 256] {
     }
     table
 }
-```rust
+```
 
 **Performance on ARM Cortex-A78:**
 
@@ -1551,7 +1562,7 @@ impl GpuMortonEncoder {
         Ok(output)
     }
 }
-```text
+```
 
 ### 7.7.3 Performance Analysis
 
@@ -1694,7 +1705,7 @@ impl AdaptiveMortonEncoder {
         }
     }
 }
-```rust
+```
 
 ### 7.7.6 GPU Memory Management
 
@@ -1788,7 +1799,7 @@ impl Default for PerformanceGoals {
         }
     }
 }
-```rust
+```
 
 ### 7.8.2 Step 2: Establish Baseline
 
@@ -2121,6 +2132,72 @@ This workflow balances performance gains with maintainability and portability. T
 
 ---
 
+## 7.8.6 Anti-Patterns to Avoid
+
+Learning what *not* to do is often as valuable as learning what to do. Here are common performance anti-patterns we've observed in OctaIndex3D deployments:
+
+### Anti-Pattern 1: Pre-Optimizing Morton Encoding
+
+**The Mistake**: Spending weeks optimizing Morton encoding before profiling the actual application.
+
+**Why It Happens**: Morton encoding is mathematically interesting and has clear optimization opportunities (BMI2, lookup tables, SIMD). It *feels* productive.
+
+**The Reality**: In most applications, Morton encoding is less than 5% of total CPU time. Unless you're doing millions of encode/decode operations per second with no other work, you're optimizing the wrong thing.
+
+**The Fix**: Profile first. If Morton encoding isn't in your top 3 hotspots, move on.
+
+### Anti-Pattern 2: Using 26-Neighbor Cubic Grids "Because We Always Have"
+
+**The Mistake**: Keeping cubic grids because "it works" and migration seems risky.
+
+**Why It Happens**: Path dependency. Existing code, existing tests, existing mental models.
+
+**The Reality**: You're paying a permanent 29% memory tax and accepting 3× worse isotropy. Every day you delay migration, that debt compounds.
+
+**The Fix**: Start with a single contained subsystem. Measure before and after. Let the numbers make the case.
+
+### Anti-Pattern 3: Implementing BCC From Scratch
+
+**The Mistake**: Writing your own BCC lattice implementation instead of using OctaIndex3D.
+
+**Why It Happens**: "How hard can it be? It's just a parity check."
+
+**The Reality**: The parity check is the easy part. Correct Morton encoding with BCC, hierarchical refinement, frame transformations, SIMD optimization, and edge cases around coordinate boundaries are genuinely hard. We have 130+ tests for a reason.
+
+**The Fix**: Use the library. File issues for missing features. Contribute improvements upstream.
+
+### Anti-Pattern 4: Ignoring Memory Layout
+
+**The Mistake**: Using Array-of-Structs (AoS) layout for scan-heavy workloads.
+
+**Why It Happens**: AoS is natural—it's how you think about a "cell" conceptually.
+
+**The Reality**: Scanning one field across a million cells with AoS pollutes your cache with fields you don't need. Struct-of-Arrays (SoA) can be 2-4× faster for column-oriented access.
+
+**The Fix**: Profile your access patterns. If you're doing full scans, consider SoA. If you're doing random access, AoS is fine.
+
+### Anti-Pattern 5: GPU-Washing Small Workloads
+
+**The Mistake**: Moving everything to GPU because "GPUs are faster."
+
+**Why It Happens**: Marketing. Impressive benchmark numbers on embarrassingly parallel problems.
+
+**The Reality**: GPU memory transfer overhead is 1-10 μs minimum. For 1,000 coordinates, CPU AVX2 finishes before the GPU even starts. The break-even is ~100,000 coordinates for batch encoding.
+
+**The Fix**: Keep GPUs for genuinely large, parallel workloads. Use CPUs for interactive, latency-sensitive, or small-batch operations.
+
+### Anti-Pattern 6: Benchmarking in Debug Mode
+
+**The Mistake**: Running performance tests without `--release`.
+
+**Why It Happens**: Habit. Forgetting to switch modes. "It's just a quick test."
+
+**The Reality**: Debug mode can be 10-100× slower than release. Your "optimization" might just be noise in the debug overhead.
+
+**The Fix**: Always benchmark with `cargo bench` or `cargo run --release`. Set up CI to catch debug-mode benchmarks.
+
+---
+
 ## 7.9 Summary
 
 In this chapter, we explored how OctaIndex3D turns the theoretical and architectural foundations of earlier parts into high-performance implementations:
@@ -2181,6 +2258,10 @@ In this chapter, we explored how OctaIndex3D turns the theoretical and architect
 - **Incremental validation**: Each optimization is measured independently
 - **Platform awareness**: Different architectures require different approaches
 - **Complexity budget**: Stop when performance goals are met
+
+> **Quick Reference**: For a printable summary of BCC performance numbers, Morton encoding, and emergency fixes, see **Appendix I: BCC Quick Reference Card**.
+
+> **Troubleshooting**: If something isn't working as expected—slow Morton decodes, unexpected memory usage, GPU slower than CPU—see **Appendix J: Troubleshooting Guide** for diagnosis and solutions.
 
 The techniques in this chapter are applicable beyond OctaIndex3D to any performance-critical Rust codebase. The next chapter applies these performance principles to the design of concrete container formats and persistence mechanisms.
 
@@ -2290,3 +2371,11 @@ The techniques in this chapter are applicable beyond OctaIndex3D to any performa
 - **"Fast 3D Triangle-Box Overlap Testing"**
   Tomas Akenine-Möller, 2001
   SIMD techniques for spatial queries.
+
+---
+
+*"Premature optimization is the root of all evil."*
+— Donald Knuth
+
+*"But measured optimization is the root of all speed."*
+— Every performance engineer, ever

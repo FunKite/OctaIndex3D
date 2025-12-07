@@ -737,3 +737,11 @@ Together, these identifier types form the connective tissue between the architec
 - **"Geohash"**
   <https://en.wikipedia.org/wiki/Geohash>
   String-based hierarchical spatial index for comparison.
+
+---
+
+*"There are only two hard things in Computer Science: cache invalidation and naming things."*
+— Phil Karlton
+
+*"We solved the naming part. For cache invalidation, see Chapter 7."*
+— Chapter 5 Summary

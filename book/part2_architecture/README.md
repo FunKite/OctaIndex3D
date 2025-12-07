@@ -1,5 +1,17 @@
 # Part II: Architecture and Design
 
+---
+
+*At 2:17 PM on a Tuesday, Priya gets a Slack message from the robotics team: "The warehouse bot paths look wrong again." She sighs. She's seen this before—different coordinate frames, different assumptions, different bugs.*
+
+*She opens the codebase and finds the usual mess: raw floating-point coordinates passed between modules, no type safety between "robot frame" and "warehouse frame," and three different conventions for what "up" means. The bug isn't in the math—it's in the **architecture**. There's no single source of truth for "where things are."*
+
+*Over the next six hours, Priya sketches what a proper spatial architecture would look like: typed identifiers that can't be accidentally mixed, a frame registry that tracks coordinate systems, and containers that enforce the rules at the boundary rather than hoping every developer remembers them. By midnight, she has a design that would catch the warehouse bug at compile time.*
+
+*Part II is that design.*
+
+---
+
 ## Overview
 
 Part II bridges the gap between the mathematical foundations of Part I and the concrete implementation details of Part III. It explains how OctaIndex3D turns BCC lattice theory into a coherent, production-grade system with clear abstractions, robust type design, and a principled approach to coordinate reference systems.

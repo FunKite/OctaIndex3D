@@ -900,3 +900,11 @@ We invite you to:
 - Build applications we haven't imagined yet
 
 The future of spatial computing is waiting to be indexed.
+
+---
+
+*"The best way to predict the future is to create it."*
+— Peter Drucker
+
+*"The best way to index the future is with BCC."*
+— OctaIndex3D, Final Chapter

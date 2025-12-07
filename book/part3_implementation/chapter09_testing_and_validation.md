@@ -1210,3 +1210,11 @@ With Part III complete, we have traversed the full path from mathematical theory
 ### Spatial Index Testing
 - Conway, D.A. & Sloane, N.J.A., "Sphere Packings, Lattices and Groups" — includes validation strategies for lattice algorithms
 - Testing strategies from H3 and S2 libraries (open-source geospatial indexing systems)
+
+---
+
+*"Testing shows the presence, not the absence, of bugs."*
+— Edsger W. Dijkstra
+
+*"But property-based testing gets you closer to the absence than you'd think."*
+— Chapter 9 Summary

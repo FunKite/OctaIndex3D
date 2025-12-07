@@ -549,3 +549,11 @@ Together, these chapters complete the conceptual bridge from the theory of BCC l
 - **Fowler, M.** (2002). *Patterns of Enterprise Application Architecture*. Addison-Wesley.
   - Source of the "Ports and Adapters" (Hexagonal) architecture pattern.
 
+---
+
+*"Make illegal states unrepresentable."*
+— Yaron Minsky
+
+*"The type system is your first line of defense against spatial bugs."*
+— Chapter 4 Summary
+

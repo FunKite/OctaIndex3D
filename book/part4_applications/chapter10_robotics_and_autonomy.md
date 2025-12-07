@@ -1347,3 +1347,11 @@ In this chapter, we saw how OctaIndex3D applies to robotics and autonomous syste
 **The Vision Realized**: OctaIndex3D is now a complete autonomous 3D mapping system—from spatial indexing primitives to production-ready exploration!
 
 The next chapter turns to geospatial analysis, where similar principles apply at much larger spatial scales.
+
+---
+
+*"Robotics is the art of making machines that can fail gracefully in the real world."*
+— Rodney Brooks
+
+*"BCC lattices help: isotropic neighbors mean the failures are at least symmetric."*
+— Chapter 10 Summary
