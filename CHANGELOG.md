@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `criterion` from 0.7.0 to 0.8.1
 - Updated `bech32` from 0.11.0 to 0.11.1
 - Updated `zerocopy` from 0.8.28 to 0.8.31
+- Updated `cudarc` from 0.18.1 to 0.18.2
+- Updated GitHub Actions `actions/cache` from v4 to v5
 
 ## [0.5.1] - 2025-12-05
 
