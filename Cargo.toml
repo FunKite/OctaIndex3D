@@ -91,7 +91,7 @@ aligned-vec = { version = "0.6", optional = true }
 
 # Platform-specific GPU dependencies
 [target.'cfg(target_os = "macos")'.dependencies]
-metal = { version = "0.32", optional = true }
+metal = { version = "0.33", optional = true }
 
 [target.'cfg(not(target_os = "windows"))'.dependencies]
 wgpu = { version = "22.0", optional = true }
