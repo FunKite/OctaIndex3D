@@ -31,7 +31,7 @@ impl WgpuBackend {
         use pollster;
 
         // Initialize wgpu instance
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
             ..Default::default()
         });
@@ -42,7 +42,7 @@ impl WgpuBackend {
             compatible_surface: None,
             force_fallback_adapter: false,
         }))
-        .ok_or_else(|| Error::InvalidFormat("No suitable GPU adapter found".to_string()))?;
+        .map_err(|e| Error::InvalidFormat(format!("No suitable GPU adapter found: {}", e)))?;
 
         // Request device and queue
         // Note: SHADER_INT64 is required for u64 operations but not widely supported
@@ -53,9 +53,10 @@ impl WgpuBackend {
                 label: Some("OctaIndex3D Compute Device"),
                 required_features: features & wgpu::Features::SHADER_INT64,
                 required_limits: wgpu::Limits::default(),
+                experimental_features: wgpu::ExperimentalFeatures::default(),
                 memory_hints: Default::default(),
+                trace: wgpu::Trace::default(),
             },
-            None,
         ))
         .map_err(|e| {
             Error::InvalidFormat(format!(
@@ -76,7 +77,7 @@ impl WgpuBackend {
             label: Some("Neighbor Compute Pipeline"),
             layout: None,
             module: &shader,
-            entry_point: "batch_neighbors",
+            entry_point: Some("batch_neighbors"),
             compilation_options: Default::default(),
             cache: None,
         });
@@ -199,7 +200,12 @@ impl GpuBackend for WgpuBackend {
             sender.send(result).unwrap();
         });
 
-        self.device.poll(wgpu::Maintain::Wait);
+        self.device
+            .poll(wgpu::PollType::Wait {
+                submission_index: None,
+                timeout: None,
+            })
+            .map_err(|e| Error::InvalidFormat(format!("Failed to poll device: {}", e)))?;
 
         receiver
             .recv()

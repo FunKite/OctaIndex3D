@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Target release: 0.5.2
+
 ### Changed
 - Updated `criterion` from 0.7.0 to 0.8.1
 - Updated `bech32` from 0.11.0 to 0.11.1
 - Updated `zerocopy` from 0.8.28 to 0.8.31
 - Updated `cudarc` from 0.18.1 to 0.18.2
+- Updated `metal` from 0.32.0 to 0.33.0
+- Updated `wgpu` from 22.1.0 to 28.0.0
+- Updated `serde_json` from 1.0.145 to 1.0.146
+- Updated Rust toolchain from 1.91.1 to 1.92.0
 - Updated GitHub Actions `actions/cache` from v4 to v5
 
 ## [0.5.1] - 2025-12-05
