@@ -12,11 +12,15 @@ Target release: 0.5.2
 ### Changed
 - Updated `criterion` from 0.7.0 to 0.8.1
 - Updated `bech32` from 0.11.0 to 0.11.1
-- Updated `zerocopy` from 0.8.28 to 0.8.31
+- Updated `zerocopy` from 0.8.28 to 0.8.33
 - Updated `cudarc` from 0.18.1 to 0.18.2
 - Updated `metal` from 0.32.0 to 0.33.0
 - Updated `wgpu` from 22.1.0 to 28.0.0
-- Updated `serde_json` from 1.0.145 to 1.0.146
+- Updated `serde_json` from 1.0.145 to 1.0.149
+- Updated `clap` from 4.5.53 to 4.5.54
+- Updated `glam` from 0.30.9 to 0.30.10
+- Updated `rkyv` from 0.8.12 to 0.8.13
+- Updated `windows-sys` from 0.59.0 to 0.60.2
 - Updated Rust toolchain from 1.91.1 to 1.92.0
 - Updated GitHub Actions `actions/cache` from v4 to v5
 
