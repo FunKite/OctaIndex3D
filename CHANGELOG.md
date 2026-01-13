@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Target release: 0.5.2
+## [Unreleased]
+
+## [0.5.2] - 2026-01-13
 
 ### Changed
 - Updated `criterion` from 0.7.0 to 0.8.1
@@ -178,7 +180,8 @@ Target release: 0.5.2
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.2
 [0.5.1]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.1
 [0.5.0]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.0
 [0.4.4]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.4.4

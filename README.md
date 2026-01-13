@@ -17,7 +17,7 @@
 
 ## Table of Contents
 
-- [What's New in v0.5.1](#whats-new-in-v051)
+- [What's New in v0.5.2](#whats-new-in-v052)
 - [Overview](#overview)
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
@@ -35,13 +35,13 @@
 - [Contributing](#contributing)
 - [Research and Citation](#research-and-citation)
 
-## What's New in v0.5.1
+## What's New in v0.5.2
 
-This release adds major SIMD acceleration for batch spatial operations on Apple Silicon and Intel Xeon processors.
+This release refreshes core dependencies and tooling, including GPU backends and the Rust toolchain.
 
-- **ARM64 NEON intrinsics** - SIMD-accelerated distance calculations and bounding box queries for Apple Silicon
-- **AVX-512 support** - True 64-bit operations with 8-wide SIMD lanes for 2x throughput on Intel Xeon
-- **Cold path optimization** - Better instruction cache utilization with `#[cold]` and `#[inline]` hints
+- **GPU stacks updated** - `wgpu` 28, `metal` 0.33, `cudarc` 0.18.2
+- **Core deps refreshed** - `criterion`, `serde_json`, `glam`, `rkyv`, `zerocopy`, `bech32`
+- **Tooling bump** - Rust toolchain 1.92.0 and GitHub Actions cache v5
 
 See the full [Changelog](CHANGELOG.md) for release history.
 
