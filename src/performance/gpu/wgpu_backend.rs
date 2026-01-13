@@ -48,16 +48,14 @@ impl WgpuBackend {
         // Note: SHADER_INT64 is required for u64 operations but not widely supported
         // This will fail gracefully on GPUs without 64-bit integer support
         let features = adapter.features();
-        let (device, queue) = pollster::block_on(adapter.request_device(
-            &wgpu::DeviceDescriptor {
-                label: Some("OctaIndex3D Compute Device"),
-                required_features: features & wgpu::Features::SHADER_INT64,
-                required_limits: wgpu::Limits::default(),
-                experimental_features: wgpu::ExperimentalFeatures::default(),
-                memory_hints: Default::default(),
-                trace: wgpu::Trace::default(),
-            },
-        ))
+        let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
+            label: Some("OctaIndex3D Compute Device"),
+            required_features: features & wgpu::Features::SHADER_INT64,
+            required_limits: wgpu::Limits::default(),
+            experimental_features: wgpu::ExperimentalFeatures::default(),
+            memory_hints: Default::default(),
+            trace: wgpu::Trace::default(),
+        }))
         .map_err(|e| {
             Error::InvalidFormat(format!(
                 "Failed to create device (SHADER_INT64 may not be supported): {}",
