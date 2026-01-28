@@ -232,12 +232,10 @@ pub use cuda_impl::CudaRayCaster;
 
 #[cfg(test)]
 mod tests {
-    use super::GpuRayCaster;
-
     #[test]
     #[cfg(any(feature = "gpu-metal", feature = "gpu-cuda"))]
     fn test_gpu_ray_caster_creation() {
-        match GpuRayCaster::new() {
+        match super::GpuRayCaster::new() {
             Ok(caster) => {
                 println!("GPU Ray Caster backend: {}", caster.backend_name());
             }
