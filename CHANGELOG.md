@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Applied rustfmt to align formatting with CI expectations.
+- Updated `rkyv` from 0.8.13 to 0.8.14
+- Updated `thiserror` from 2.0.17 to 2.0.18
+- Updated `zerocopy` from 0.8.33 to 0.8.34
 
 ## [0.5.2] - 2026-01-13
 
