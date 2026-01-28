@@ -232,7 +232,7 @@ pub use cuda_impl::CudaRayCaster;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::GpuRayCaster;
 
     #[test]
     #[cfg(any(feature = "gpu-metal", feature = "gpu-cuda"))]
