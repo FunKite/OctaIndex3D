@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `rkyv` from 0.8.13 to 0.8.14
 - Updated `thiserror` from 2.0.17 to 2.0.18
 - Updated `zerocopy` from 0.8.33 to 0.8.34
+- Updated `getrandom` from 0.3.4 to 0.4.0 (PR #82).
+- Updated `cudarc` from 0.18.2 to 0.19.0 (PR #81).
+- Updated `glam` from 0.30.10 to 0.31.0 (PR #80).
+- Updated `bytemuck` from 1.24.0 to 1.25.0 (PR #79).
+- Updated `zerocopy` from 0.8.34 to 0.8.37 (PR #79).
+- Updated `clap` from 4.5.54 to 4.5.56 (PR #79).
 
 ## [0.5.2] - 2026-01-13
 
