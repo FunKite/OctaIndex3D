@@ -62,7 +62,7 @@ thiserror = "2.0"
 # Math
 num-traits = "0.2"
 ordered-float = "5.1"
-glam = { version = "0.30", optional = true }
+glam = { version = "0.31", optional = true }
 
 # CRC for container integrity
 crc32fast = "1.4"
