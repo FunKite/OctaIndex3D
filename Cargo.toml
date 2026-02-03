@@ -45,7 +45,7 @@ serde_cbor = { version = "0.11", optional = true }
 bech32 = "0.11"
 
 # Zero-copy support
-bytemuck = { version = "1.14", features = ["derive"] }
+bytemuck = { version = "1.25", features = ["derive"] }
 zerocopy = { version = "0.8", features = ["derive"], optional = true }
 rkyv = { version = "0.8", optional = true }
 
