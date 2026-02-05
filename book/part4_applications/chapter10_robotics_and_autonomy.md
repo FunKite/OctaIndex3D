@@ -1109,7 +1109,7 @@ This design gives you **flexibility**, **composability**, and **control**.
 Frontiers are the boundaries between known free space and unknown space—exactly where you want to explore next.
 
 ```rust
-use octaindex3d::exploration::FrontierDetectionConfig;
+use octaindex3d::layers::FrontierDetectionConfig;
 
 let config = FrontierDetectionConfig {
     min_cluster_size: 10,     // At least 10 voxels per frontier
@@ -1135,7 +1135,7 @@ for frontier in &frontiers {
 Not all viewpoints are equally valuable. Information gain quantifies how much unknown space you'd observe.
 
 ```rust
-use octaindex3d::exploration::InformationGainConfig;
+use octaindex3d::layers::InformationGainConfig;
 
 let ig_config = InformationGainConfig {
     sensor_range: 5.0,                      // 5m depth camera
