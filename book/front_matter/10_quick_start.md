@@ -100,25 +100,20 @@ If the program does not compile:
 OctaIndex3D now includes a complete autonomous 3D mapping stack. Here's a quick taste:
 
 ```rust
-use octaindex3d::occupancy::{OccupancyLayer, OccupancyConfig};
-use octaindex3d::exploration::{FrontierDetectionConfig, InformationGainConfig};
+use octaindex3d::layers::{
+    FrontierDetectionConfig, InformationGainConfig, OccupancyLayer,
+};
+use octaindex3d::Result;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<()> {
     // 1. Create an occupancy map
-    let config = OccupancyConfig {
-        resolution: 0.1,  // 10cm voxels
-        prob_hit: 0.7,
-        prob_miss: 0.4,
-        clamp_min: 0.12,
-        clamp_max: 0.97,
-    };
-
-    let mut layer = OccupancyLayer::new(config)?;
+    let voxel_size = 0.1; // 10cm voxels
+    let mut layer = OccupancyLayer::with_thresholds(0.7, 0.3, 0.97);
 
     // 2. Integrate a depth sensor measurement
     let sensor_pos = (0.0, 0.0, 0.0);
     let obstacle_pos = (5.0, 2.0, 1.0);
-    layer.integrate_ray(sensor_pos, obstacle_pos)?;
+    layer.integrate_ray(sensor_pos, obstacle_pos, voxel_size, 0.6, 0.7)?;
 
     // 3. Detect frontiers (boundaries between known and unknown space)
     let frontier_config = FrontierDetectionConfig {
