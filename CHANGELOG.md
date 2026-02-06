@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] (0.5.3)
+## [Unreleased]
+
+## [0.5.3] - 2026-02-06
 
 ### Changed
 - Applied rustfmt to align formatting with CI expectations.
@@ -201,7 +203,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.3
 [0.5.2]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.2
 [0.5.1]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.1
 [0.5.0]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.0

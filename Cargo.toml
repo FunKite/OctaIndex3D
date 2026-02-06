@@ -1,12 +1,15 @@
 [package]
 name = "octaindex3d"
-version = "0.5.2"
+version = "0.5.3"
 edition = "2021"
 rust-version = "1.77"
 authors = ["Michael A. McLarney"]
 description = "3D Spatial Indexing and Routing System based on BCC lattice with truncated octahedral cells"
 license = "MIT"
 repository = "https://github.com/FunKite/OctaIndex3D"
+homepage = "https://github.com/FunKite/OctaIndex3D"
+documentation = "https://docs.rs/octaindex3d"
+readme = "README.md"
 keywords = ["spatial", "3d", "indexing", "routing", "bcc-lattice"]
 categories = ["algorithms", "data-structures", "science"]
 build = "build.rs"
@@ -155,3 +158,7 @@ codegen-units = 1
 [profile.bench]
 opt-level = 3
 lto = true
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
