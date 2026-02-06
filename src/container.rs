@@ -7,6 +7,9 @@ use std::io::{Read, Write};
 
 const MAGIC: &[u8; 8] = b"OCTA3D\0\0";
 const FORMAT_VERSION: u8 = 1;
+const MAX_FRAME_COUNT: u32 = 100_000;
+const MAX_COMPRESSED_FRAME_BYTES: u32 = 64 * 1024 * 1024; // 64 MiB
+const MAX_UNCOMPRESSED_FRAME_BYTES: u32 = 256 * 1024 * 1024; // 256 MiB
 
 /// Frame metadata
 #[derive(Debug, Clone)]
@@ -52,11 +55,26 @@ impl<W: Write> ContainerWriter<W> {
 
     /// Write a frame of data
     pub fn write_frame(&mut self, data: &[u8]) -> Result<()> {
-        let uncompressed_len = data.len() as u32;
+        let uncompressed_len = u32::try_from(data.len())
+            .map_err(|_| Error::InvalidFormat("Frame is larger than u32 metadata allows".into()))?;
+        if uncompressed_len > MAX_UNCOMPRESSED_FRAME_BYTES {
+            return Err(Error::InvalidFormat(format!(
+                "Frame exceeds max uncompressed size ({} bytes)",
+                MAX_UNCOMPRESSED_FRAME_BYTES
+            )));
+        }
 
         // Compress data
         let compressed = self.compression.compress(data)?;
-        let compressed_len = compressed.len() as u32;
+        let compressed_len = u32::try_from(compressed.len()).map_err(|_| {
+            Error::InvalidFormat("Compressed frame is larger than u32 metadata allows".into())
+        })?;
+        if compressed_len > MAX_COMPRESSED_FRAME_BYTES {
+            return Err(Error::InvalidFormat(format!(
+                "Frame exceeds max compressed size ({} bytes)",
+                MAX_COMPRESSED_FRAME_BYTES
+            )));
+        }
 
         // Compute CRC32C of compressed data
         let mut hasher = Hasher::new();
@@ -82,7 +100,14 @@ impl<W: Write> ContainerWriter<W> {
     /// Finish writing and flush headers
     pub fn finish(mut self) -> Result<()> {
         let mut writer = self.writer.take().unwrap();
-        let frame_count = self.frames.len() as u32;
+        let frame_count = u32::try_from(self.frames.len())
+            .map_err(|_| Error::InvalidFormat("Too many frames for container format".into()))?;
+        if frame_count > MAX_FRAME_COUNT {
+            return Err(Error::InvalidFormat(format!(
+                "Too many frames (max {})",
+                MAX_FRAME_COUNT
+            )));
+        }
 
         // Write file header (16 bytes)
         writer.write_all(MAGIC)?;
@@ -151,6 +176,12 @@ impl<R: Read> ContainerReader<R> {
         let mut frame_count_buf = [0u8; 4];
         reader.read_exact(&mut frame_count_buf)?;
         let frame_count = u32::from_be_bytes(frame_count_buf);
+        if frame_count > MAX_FRAME_COUNT {
+            return Err(Error::InvalidFormat(format!(
+                "Frame count {} exceeds limit {}",
+                frame_count, MAX_FRAME_COUNT
+            )));
+        }
 
         let mut reserved_buf = [0u8; 2];
         reader.read_exact(&mut reserved_buf)?;
@@ -184,6 +215,19 @@ impl<R: Read> ContainerReader<R> {
                     frame_header[15],
                 ]),
             });
+            let frame_meta = frames.last().expect("just pushed");
+            if frame_meta.compressed_len > MAX_COMPRESSED_FRAME_BYTES {
+                return Err(Error::InvalidFormat(format!(
+                    "Compressed frame length {} exceeds limit {}",
+                    frame_meta.compressed_len, MAX_COMPRESSED_FRAME_BYTES
+                )));
+            }
+            if frame_meta.uncompressed_len > MAX_UNCOMPRESSED_FRAME_BYTES {
+                return Err(Error::InvalidFormat(format!(
+                    "Uncompressed frame length {} exceeds limit {}",
+                    frame_meta.uncompressed_len, MAX_UNCOMPRESSED_FRAME_BYTES
+                )));
+            }
         }
 
         Ok(Self {
@@ -201,6 +245,12 @@ impl<R: Read> ContainerReader<R> {
         }
 
         let frame_meta = &self.frames[self.current_frame as usize];
+        if frame_meta.compressed_len > MAX_COMPRESSED_FRAME_BYTES {
+            return Err(Error::InvalidFormat(format!(
+                "Compressed frame length {} exceeds limit {}",
+                frame_meta.compressed_len, MAX_COMPRESSED_FRAME_BYTES
+            )));
+        }
 
         // Read compressed data
         let mut compressed = vec![0u8; frame_meta.compressed_len as usize];
@@ -262,5 +312,44 @@ mod tests {
 
         let frame3 = reader.next_frame().unwrap();
         assert!(frame3.is_none());
+    }
+
+    #[test]
+    fn test_container_rejects_excessive_frame_count() {
+        let mut buffer = Vec::new();
+        buffer.extend_from_slice(MAGIC);
+        buffer.push(FORMAT_VERSION);
+        buffer.push(0); // flags
+        buffer.extend_from_slice(&(MAX_FRAME_COUNT + 1).to_be_bytes());
+        buffer.extend_from_slice(&[0, 0]); // reserved
+
+        let err = match ContainerReader::open(Cursor::new(buffer)) {
+            Ok(_) => panic!("expected invalid format error"),
+            Err(err) => err,
+        };
+        assert!(matches!(err, Error::InvalidFormat(_)));
+    }
+
+    #[test]
+    fn test_container_rejects_oversized_frame_header() {
+        let mut buffer = Vec::new();
+        buffer.extend_from_slice(MAGIC);
+        buffer.push(FORMAT_VERSION);
+        buffer.push(0); // flags
+        buffer.extend_from_slice(&1u32.to_be_bytes()); // frame count
+        buffer.extend_from_slice(&[0, 0]); // reserved
+
+        let mut header = [0u8; 16];
+        header[0] = 1; // codec_id
+        header[4..8].copy_from_slice(&1u32.to_be_bytes()); // uncompressed
+        header[8..12].copy_from_slice(&(MAX_COMPRESSED_FRAME_BYTES + 1).to_be_bytes());
+        header[12..16].copy_from_slice(&0u32.to_be_bytes());
+        buffer.extend_from_slice(&header);
+
+        let err = match ContainerReader::open(Cursor::new(buffer)) {
+            Ok(_) => panic!("expected invalid format error"),
+            Err(err) => err,
+        };
+        assert!(matches!(err, Error::InvalidFormat(_)));
     }
 }

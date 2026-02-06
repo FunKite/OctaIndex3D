@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `bytes` from 1.10.1 to 1.11.1 to address Dependabot alert #1 (PR #85).
 - Updated quick-start docs to use the crate `Result` alias (PR #85).
 - Updated robotics and autonomy docs for consistency (PR #85).
+- Hardened container parsing/writing with frame count and frame-size limits to reduce malformed-input memory exhaustion risk.
+- Made `Layer<f64>` aggregations NaN-safe by rejecting NaN inputs for numeric aggregation modes and using total ordering.
+- Clarified `AvoidBlockedCost` behavior as hard-obstacle traversal (blocked cells are impassable).
 
 ## [0.5.2] - 2026-01-13
 

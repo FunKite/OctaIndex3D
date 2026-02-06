@@ -95,6 +95,10 @@ impl<T> Layer<T> {
 }
 
 impl Layer<f64> {
+    fn has_nan(values: &[f64]) -> bool {
+        values.iter().any(|v| v.is_nan())
+    }
+
     /// Aggregate values from a set of cells
     pub fn aggregate(&self, cells: &[CellID], agg: Aggregation) -> Result<f64> {
         let values: Vec<f64> = cells
@@ -106,6 +110,11 @@ impl Layer<f64> {
         if values.is_empty() {
             return Err(Error::InvalidAggregation("No values to aggregate".into()));
         }
+        if agg != Aggregation::Count && Self::has_nan(&values) {
+            return Err(Error::InvalidAggregation(
+                "Cannot aggregate values containing NaN".into(),
+            ));
+        }
 
         match agg {
             Aggregation::Count => Ok(values.len() as f64),
@@ -114,16 +123,16 @@ impl Layer<f64> {
             Aggregation::Min => values
                 .iter()
                 .copied()
-                .min_by(|a, b| a.partial_cmp(b).unwrap())
+                .min_by(|a, b| a.total_cmp(b))
                 .ok_or_else(|| Error::InvalidAggregation("No minimum found".into())),
             Aggregation::Max => values
                 .iter()
                 .copied()
-                .max_by(|a, b| a.partial_cmp(b).unwrap())
+                .max_by(|a, b| a.total_cmp(b))
                 .ok_or_else(|| Error::InvalidAggregation("No maximum found".into())),
             Aggregation::Median => {
                 let mut sorted = values.clone();
-                sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+                sorted.sort_by(|a, b| a.total_cmp(b));
                 let mid = sorted.len() / 2;
                 if sorted.len() % 2 == 0 {
                     Ok((sorted[mid - 1] + sorted[mid]) / 2.0)
@@ -149,6 +158,11 @@ impl Layer<f64> {
 
         // Aggregate each parent group
         for (parent, values) in parent_groups {
+            if agg != Aggregation::Count && Self::has_nan(&values) {
+                return Err(Error::InvalidAggregation(
+                    "Cannot aggregate values containing NaN".into(),
+                ));
+            }
             let agg_value = match agg {
                 Aggregation::Count => values.len() as f64,
                 Aggregation::Sum => values.iter().sum(),
@@ -156,16 +170,16 @@ impl Layer<f64> {
                 Aggregation::Min => values
                     .iter()
                     .copied()
-                    .min_by(|a, b| a.partial_cmp(b).unwrap())
+                    .min_by(|a, b| a.total_cmp(b))
                     .unwrap(),
                 Aggregation::Max => values
                     .iter()
                     .copied()
-                    .max_by(|a, b| a.partial_cmp(b).unwrap())
+                    .max_by(|a, b| a.total_cmp(b))
                     .unwrap(),
                 Aggregation::Median => {
                     let mut sorted = values.clone();
-                    sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+                    sorted.sort_by(|a, b| a.total_cmp(b));
                     let mid = sorted.len() / 2;
                     if sorted.len() % 2 == 0 {
                         (sorted[mid - 1] + sorted[mid]) / 2.0
@@ -267,6 +281,31 @@ mod tests {
         assert_eq!(layer.aggregate(&cells, Aggregation::Mean).unwrap(), 20.0);
         assert_eq!(layer.aggregate(&cells, Aggregation::Min).unwrap(), 10.0);
         assert_eq!(layer.aggregate(&cells, Aggregation::Max).unwrap(), 30.0);
+    }
+
+    #[test]
+    fn test_aggregation_rejects_nan() {
+        let mut layer = Layer::new("test");
+        let cell1 = CellID::from_coords(0, 5, 0, 0, 0).unwrap();
+        let cell2 = CellID::from_coords(0, 5, 2, 2, 2).unwrap();
+        layer.set(cell1, f64::NAN);
+        layer.set(cell2, 10.0);
+        let cells = vec![cell1, cell2];
+
+        let err = layer.aggregate(&cells, Aggregation::Median).unwrap_err();
+        assert!(matches!(err, Error::InvalidAggregation(_)));
+    }
+
+    #[test]
+    fn test_rollup_rejects_nan() {
+        let mut layer = Layer::new("test");
+        let child1 = CellID::from_coords(0, 6, 4, 8, 12).unwrap();
+        let child2 = CellID::from_coords(0, 6, 6, 8, 12).unwrap();
+        layer.set(child1, f64::NAN);
+        layer.set(child2, 1.0);
+
+        let err = layer.rollup(Aggregation::Mean).unwrap_err();
+        assert!(matches!(err, Error::InvalidAggregation(_)));
     }
 
     #[test]

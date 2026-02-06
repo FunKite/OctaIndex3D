@@ -40,17 +40,14 @@ impl CostFn for EuclideanCost {
 pub struct AvoidBlockedCost {
     /// Cell flags layer for checking blocked status
     flags: Layer<CellFlags>,
-    /// Penalty factor for blocked cells
-    _blocked_penalty: f64,
 }
 
 impl AvoidBlockedCost {
-    /// Create new cost function that avoids blocked cells
-    pub fn new(flags: Layer<CellFlags>, blocked_penalty: f64) -> Self {
-        Self {
-            flags,
-            _blocked_penalty: blocked_penalty,
-        }
+    /// Create new cost function that treats blocked cells as impassable.
+    ///
+    /// The `blocked_penalty` argument is ignored and kept only for API compatibility.
+    pub fn new(flags: Layer<CellFlags>, _blocked_penalty: f64) -> Self {
+        Self { flags }
     }
 }
 
