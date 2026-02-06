@@ -18,8 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `bytemuck` from 1.24.0 to 1.25.0 (PR #79).
 - Updated `zerocopy` from 0.8.34 to 0.8.37 (PR #79).
 - Updated `clap` from 4.5.54 to 4.5.56 (PR #79).
-- Updated `bytes` from 1.10.1 to 1.11.1 (PR #83, Dependabot alert #1).
-- Updated quick-start docs to use the crate `Result` alias (PR #84).
+- Updated `bytes` from 1.10.1 to 1.11.1 to address Dependabot alert #1 (PR #85).
+- Updated quick-start docs to use the crate `Result` alias (PR #85).
+- Updated robotics and autonomy docs for consistency (PR #85).
 
 ## [0.5.2] - 2026-01-13
 
