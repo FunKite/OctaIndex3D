@@ -255,6 +255,9 @@ cargo build --release
 # Run tests
 cargo test
 
+# Safer local test path (offline + locked + advisory preflight)
+./scripts/safe_local_test.sh
+
 # Run benchmarks
 cargo bench
 

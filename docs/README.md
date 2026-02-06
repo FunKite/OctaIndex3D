@@ -38,6 +38,7 @@ If you use OctaIndex3D in your research, please cite:
 
 ### Development
 - [CODE_REVIEW_REPORT.md](CODE_REVIEW_REPORT.md) - Code quality analysis
+- [SAFE_LOCAL_TESTING.md](SAFE_LOCAL_TESTING.md) - Safer local test workflow for dependency and PR validation
 
 ### Migration Guides
 - [MIGRATION_v0.2_to_v0.3.md](MIGRATION_v0.2_to_v0.3.md) - Upgrading from legacy CellID API
