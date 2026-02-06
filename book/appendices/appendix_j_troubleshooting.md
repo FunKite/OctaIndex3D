@@ -196,18 +196,21 @@ One or both frames are not registered in the FrameRegistry.
 
 ### Diagnosis
 ```rust
-let registry = FrameRegistry::global();
-println!("Source frame registered: {}", registry.contains("my_frame"));
-println!("Target frame registered: {}", registry.contains("world"));
+let frames = octaindex3d::list_frames();
+let source_exists = frames.iter().any(|(id, _)| *id == 10);
+let target_exists = frames.iter().any(|(id, _)| *id == 0);
+println!("Source frame registered: {}", source_exists);
+println!("Target frame registered: {}", target_exists);
 ```
 
 ### Solution
 Register frames before use:
 
 ```rust
-let mut registry = FrameRegistry::global_mut();
-registry.register_frame(Frame::new("my_frame", origin, axes))?;
-registry.register_frame(Frame::new("world", ORIGIN, IDENTITY))?;
+use octaindex3d::{register_frame, FrameDescriptor};
+
+register_frame(10, FrameDescriptor::new("my_frame", "WGS-84", "custom frame", true, 1.0))?;
+register_frame(0, FrameDescriptor::new("ECEF", "WGS-84", "Earth-Centered Earth-Fixed", true, 1.0))?;
 ```
 
 ---
@@ -227,7 +230,7 @@ Container was saved with an older/newer format version.
 ```rust
 let header = ContainerHeader::read_from_file(path)?;
 println!("Container version: {}", header.version);
-println!("Library version: {}", octaindex3d::CONTAINER_VERSION);
+println!("Library version: {}", octaindex3d::VERSION);
 ```
 
 **Solution:**

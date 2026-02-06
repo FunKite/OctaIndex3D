@@ -92,7 +92,7 @@ At the data level, this is just:
 
 #### Code Example: Voxel Engine with LOD Management
 
-```rust
+```
 use octaindex3d::{Index64, Frame, Container};
 use std::collections::{HashMap, HashSet};
 
@@ -1285,7 +1285,7 @@ struct Quad {
       }
       hasher.finish()
   }
-```text
+```
 
 ## 13.9 Further Reading
 
@@ -1331,3 +1331,5 @@ In this chapter, we saw how OctaIndex3D applies to gaming and virtual worlds:
 - **Troubleshooting guide** for common interactive application issues
 
 With Part IV complete, we have explored a wide range of applications. Part V turns to advanced topics: distributed processing, machine learning integration, and future research directions.
+
+```

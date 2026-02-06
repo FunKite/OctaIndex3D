@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated robotics and autonomy docs for consistency (PR #85).
 - Improved book quick-start onboarding with safer local test workflow guidance.
 - Fixed Chapter 10 code-block fencing issues in the robotics/autonomy book chapter.
+- Added book API contract generation and automated book-quality CI checks (fence parity, stale module-path scan, example reference validation).
+- Reconciled key book sections with current crate API (quick start, robotics chapter GPU/temporal/compression/ROS2 snippets, troubleshooting/version notes).
+- Fixed additional book markdown fence issues in Chapters 8, 13, and 15.
 - Hardened container parsing/writing with frame count and frame-size limits to reduce malformed-input memory exhaustion risk.
 - Made `Layer<f64>` aggregations NaN-safe by rejecting NaN inputs for numeric aggregation modes and using total ordering.
 - Clarified `AvoidBlockedCost` behavior as hard-obstacle traversal (blocked cells are impassable).

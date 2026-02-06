@@ -1,5 +1,7 @@
 # Appendix H: Integration Examples
 
+> Status note: Several examples in this appendix are conceptual integration patterns. For compile-verified repo examples, use `/examples` and cross-check symbol names in `book/API_CONTRACT.md`.
+
 This appendix provides **end-to-end integration examples** showing how OctaIndex3D works with popular tools, libraries, and frameworks across different domains.
 
 Rather than exhaustive API coverage, these examples demonstrate practical integration patterns you can adapt to your projects. Each example includes working code, setup instructions, and common pitfalls.

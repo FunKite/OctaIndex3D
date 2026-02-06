@@ -4,7 +4,7 @@
 
 **Authors**: Michael A. McLarney, GPT-5.1 (OpenAI), and Claude (Anthropic)  
 **Edition**: First Edition, 2025  
-**Status**: Core Draft Complete (Parts I–V, Appendices A–E)
+**Status**: Core Draft Complete and Continuously Updated
 
 ---
 
@@ -37,7 +37,7 @@ For a chapter-by-chapter roadmap, progress notes, and remaining work estimates, 
 
 ## Current Status
 
-### ✅ All Core Content Complete (Parts I-V, Appendices A-H)
+### ✅ All Core Content Complete (Parts I-V, Appendices A-J)
 
 All 17 chapters and 8 appendices are complete and publication-ready. The book contains everything you need to:
 - Understand *why* BCC lattices matter in real systems
@@ -110,7 +110,7 @@ After working through Part I—skimming what you know, slowing down where it is 
 
 ---
 
-## Planned Content (Parts II-V)
+## Part Overview (Parts II-V)
 
 ### Part II: Architecture and Design (Chapters 4-6)
 - Chapter 4: OctaIndex3D System Architecture
@@ -205,6 +205,16 @@ After working through Part I—skimming what you know, slowing down where it is 
 2. Skim Chapter 2 for key advantages
 3. Focus on relevant Chapter 3 sections
 4. Jump to Part IV for domain-specific applications
+
+---
+
+## Documentation Quality Tiers
+
+- **Tier A (Compile-verified)**: Snippets and commands validated against the current repository/examples.
+- **Tier B (API-verified)**: Symbol names and module paths match current public exports.
+- **Tier C (Conceptual/Pseudocode)**: Design sketches and architecture patterns; not guaranteed to compile as-is.
+
+Use `book/API_CONTRACT.md` as the source of truth for current public API references.
 
 ---
 

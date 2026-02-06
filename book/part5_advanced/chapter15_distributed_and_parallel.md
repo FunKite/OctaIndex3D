@@ -362,7 +362,7 @@ Because OctaIndex3D's abstractions are **purely logical** (frames, identifiers, 
 
 ### 15.6.1 AWS Deployment Architecture
 
-```rust
+```
 use aws_sdk_s3::{Client as S3Client, primitives::ByteStream};
 use aws_sdk_dynamodb::Client as DynamoClient;
 use octaindex3d::{Index64, Container};
@@ -817,7 +817,7 @@ fn create_health_router(shard: Arc<ShardServer>) -> Router {
 ```rust
 - Use consistent hashing with virtual nodes
 
-### 14.8.2 Ghost Zone Synchronization Delays
+### 15.8.2 Ghost Zone Synchronization Delays
 
 **Problem**: Ghost zones lag behind owned data, causing stale reads.
 
@@ -835,7 +835,7 @@ fn create_health_router(shard: Arc<ShardServer>) -> Router {
   }
   ```
 
-### 14.8.3 Network Partition Tolerance
+### 15.8.3 Network Partition Tolerance
 
 **Problem**: Network splits cause inconsistency.
 
@@ -845,7 +845,7 @@ fn create_health_router(shard: Arc<ShardServer>) -> Router {
 - Provide conflict resolution strategies
 - Consider using Raft or Paxos for critical metadata
 
-## 14.9 Further Reading
+## 15.9 Further Reading
 
 ### Books
 
@@ -876,7 +876,7 @@ fn create_health_router(shard: Arc<ShardServer>) -> Router {
 
 ---
 
-## 14.10 Summary
+## 15.10 Summary
 
 In this chapter, we discussed distributed and parallel processing:
 
@@ -890,3 +890,5 @@ In this chapter, we discussed distributed and parallel processing:
 - High-level strategies for **fault tolerance and scalability**.
 
 The next chapter explores how these ideas interact with modern machine learning workflows.
+
+```

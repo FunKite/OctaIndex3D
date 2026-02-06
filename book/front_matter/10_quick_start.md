@@ -59,19 +59,16 @@ cd oi3d-hello
 Replace `src/main.rs` with:
 
 ```rust
-use octaindex3d::prelude::*;
+use octaindex3d::neighbors::neighbors_index64;
+use octaindex3d::{Index64, Result};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 1. Pick a coordinate at a given level of detail (LOD).
-    //    Here we use an arbitrary point near the origin.
+fn main() -> Result<()> {
+    // 1. Create an Index64 cell in frame 0, tier 0, at LOD 10.
     let lod = 10u8;
-    let p = BccCoord::new(2, 4, -6, lod)?;
+    let id = Index64::new(0, 0, lod, 100, 100, 100)?;
 
-    // 2. Convert it into an Index64 identifier for storage and querying.
-    let id = Index64::from_coord(p);
-
-    // 3. Fetch its 14 neighbors in the BCC lattice.
-    let neighbors = id.neighbors();
+    // 2. Fetch its BCC neighbors.
+    let neighbors = neighbors_index64(id);
 
     println!("Center cell:  {:?}", id);
     println!("LOD:          {}", lod);
@@ -89,9 +86,9 @@ cargo run
 
 You should see one identifier for the center cell and 14 neighbor identifiers. The exact numeric values are not important yet—the point is that:
 
-- You work with **typed coordinates** (`BccCoord`) rather than raw `(x, y, z)` triples
-- You get **hierarchical identifiers** (`Index64`) that encode level of detail
-- Neighbor queries are a single method call, not hand‑rolled index arithmetic
+- You work with **typed identifiers** (`Index64`) rather than hand-rolling bit encodings
+- You get **hierarchical IDs** that encode frame/tier/LOD information
+- Neighbor queries are a library call, not hand‑rolled index arithmetic
 
 If the program does not compile:
 

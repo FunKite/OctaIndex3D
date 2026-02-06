@@ -8,7 +8,8 @@ This appendix gathers self-contained, runnable examples that illustrate how to:
 - Integrate OctaIndex3D with external systems (e.g., GIS, ML frameworks)
 - Apply common patterns and avoid anti-patterns
 
-Each example is complete and can be run with minimal setup. Reference the corresponding chapters for deeper explanations.
+This appendix mixes runnable patterns and conceptual sketches. For compile-verified examples in this repo, use files under `/examples/` (for example `basic_usage.rs`, `occupancy_fusion.rs`, `resolution_demo.rs`, `mesh_reconstruction.rs`).
+Reference the corresponding chapters for deeper explanations.
 
 ---
 
@@ -16,7 +17,7 @@ Each example is complete and can be run with minimal setup. Reference the corres
 
 **Goal:** Create BCC indices, perform neighbor queries, and understand basic operations.
 
-**File:** `examples/e1_quick_start.rs`
+**Related runnable example:** `examples/basic_usage.rs`
 
 ```rust
 use octaindex3d::{Index64, BccCoord, FrameRegistry};
@@ -82,7 +83,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 **Run:**
 ```bash
-cargo run --example e1_quick_start
+cargo run --example basic_usage
 ```
 
 **See:** Chapter 1 (Introduction), Chapter 2 (Mathematical Foundations), Chapter 5 (Identifier Types)
@@ -93,7 +94,7 @@ cargo run --example e1_quick_start
 
 **Goal:** Create a container, insert spatial data, and perform range queries.
 
-**File:** `examples/e2_container_usage.rs`
+**Related runnable example:** `examples/occupancy_fusion.rs`
 
 ```rust
 use octaindex3d::{Index64, BccCoord, FrameRegistry, SequentialContainer};
@@ -193,7 +194,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 **Run:**
 ```bash
-cargo run --example e2_container_usage
+cargo run --example occupancy_fusion
 ```
 
 **See:** Chapter 8 (Container Formats), Chapter 3 (Hierarchical Structures)
@@ -204,7 +205,7 @@ cargo run --example e2_container_usage
 
 **Goal:** Create a multi-LOD grid and perform hierarchical refinement.
 
-**File:** `examples/e3_multi_resolution.rs`
+**Related runnable example:** `examples/resolution_demo.rs`
 
 ```rust
 use octaindex3d::{Index64, BccCoord, FrameRegistry};
@@ -296,7 +297,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 **Run:**
 ```bash
-cargo run --example e3_multi_resolution
+cargo run --example resolution_demo
 ```
 
 **See:** Chapter 3 (Hierarchical Structures), Chapter 10 (Robotics - Occupancy Grids)
@@ -307,7 +308,7 @@ cargo run --example e3_multi_resolution
 
 **Goal:** Transform points between different coordinate frames.
 
-**File:** `examples/e4_coordinate_transforms.rs`
+**Related runnable example:** `examples/verify_index64_hilbert64.rs`
 
 ```rust
 use octaindex3d::{Index64, FrameRegistry, BccCoord};
@@ -399,7 +400,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 **Run:**
 ```bash
-cargo run --example e4_coordinate_transforms
+cargo run --example verify_index64_hilbert64 --features hilbert
 ```
 
 **See:** Chapter 6 (Coordinate Systems), Chapter 10 (Robotics - ROS Integration)
@@ -410,7 +411,7 @@ cargo run --example e4_coordinate_transforms
 
 **Goal:** Use streaming containers for high-throughput sensor data logging.
 
-**File:** `examples/e5_streaming_container.rs`
+**Related runnable example:** `examples/mesh_reconstruction.rs`
 
 ```rust
 use octaindex3d::{Index64, BccCoord, FrameRegistry, StreamingContainer};
@@ -505,7 +506,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 **Run:**
 ```bash
-cargo run --example e5_streaming_container
+cargo run --example mesh_reconstruction
 ```
 
 **See:** Chapter 8 (Container Formats - Streaming), Chapter 10 (Robotics Applications)
@@ -516,7 +517,7 @@ cargo run --example e5_streaming_container
 
 **Goal:** Integrate with GIS workflows using WGS84 coordinates and GeoJSON.
 
-**File:** `examples/e6_gis_integration.rs`
+**Related runnable example:** `examples/advanced_occupancy.rs`
 
 ```rust
 use octaindex3d::{Index64, BccCoord, FrameRegistry};
@@ -647,7 +648,7 @@ fn ecef_to_wgs84(x: f64, y: f64, z: f64) -> (f64, f64, f64) {
 
 **Run:**
 ```bash
-cargo run --example e6_gis_integration
+cargo run --example advanced_occupancy
 ```
 
 **See:** Chapter 6 (Coordinate Systems - WGS84), Chapter 11 (Geospatial Analysis)
@@ -878,4 +879,3 @@ For additional examples and patterns:
 - **Performance Tuning:** Appendix G
 
 Each chapter in the main book includes dedicated examples. Refer to the chapter summaries for topic-specific code samples.
-

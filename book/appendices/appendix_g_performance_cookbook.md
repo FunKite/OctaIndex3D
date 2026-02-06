@@ -471,12 +471,13 @@ rustflags = ["-C", "target-feature=+neon"]
 
 **Example: Metal acceleration (macOS/iOS)**
 ```rust
-use octaindex3d::gpu::metal;
+use octaindex3d::performance::gpu::GpuBatchProcessor;
 
-// Batch encode on GPU
-let coords: Vec<(i32, i32, i32)> = /* ... */;
-let device = metal::Device::default();
-let encoded = metal::batch_encode(&device, &coords)?; // 10-50× faster for large batches
+let gpu = GpuBatchProcessor::new()?;
+if gpu.should_use_gpu(routes.len()) {
+    let neighbors = gpu.batch_neighbors(&routes)?;
+    println!("GPU neighbors: {}", neighbors.len());
+}
 ```
 
 ---

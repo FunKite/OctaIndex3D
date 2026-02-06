@@ -128,15 +128,12 @@ use octaindex3d::{
     // Identifiers
     Index64, Route64, Galactic128, Hilbert64,
 
-    // Containers
-    SequentialContainer, StreamingContainer,
-
     // Frames
-    Frame, FrameRegistry, Transform3D,
-
-    // Queries
-    RangeQuery, NeighborQuery, PathQuery,
+    FrameDescriptor, get_frame, list_frames, register_frame,
 };
+
+use octaindex3d::neighbors::{neighbors_index64, neighbors_route64};
+use octaindex3d::layers::{LayeredMap, OccupancyLayer, TSDFLayer, ESDFLayer};
 ```
 
 ---

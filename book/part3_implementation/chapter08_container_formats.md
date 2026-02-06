@@ -84,7 +84,7 @@ The v2 sequential container format is defined as follows:
 
 #### File Header (64 bytes)
 
-```rust
+```
 #[repr(C)]
 struct FileHeader {
     magic: [u8; 8],           // "BCCIDX2\0"
@@ -1562,3 +1562,5 @@ With containers in place, we now turn to testing and validation (Chapter 9), ens
 
 *"Choose your frozen decisions wisely; your future self will thank you."*
 — Chapter 8 Summary
+
+```

@@ -1251,18 +1251,11 @@ Using these primitives, you can implement:
 For real-time performance, use GPU acceleration:
 
 ```rust
-use octaindex3d::gpu::{GpuBackend, RayCastBatch};
+use octaindex3d::layers::gpu::GpuRayCaster;
 
-let gpu = GpuBackend::new()?; // Detects Metal or CUDA
-
-// Batch process thousands of rays in parallel
-let batch = RayCastBatch {
-    origins: viewpoint_candidates.iter().map(|v| v.position).collect(),
-    directions: viewpoint_candidates.iter().map(|v| v.direction).collect(),
-    max_range: 10.0,
-};
-
-let hits = gpu.ray_cast_batch(&occupancy_layer, &batch)?;
+let gpu = GpuRayCaster::new()?; // Selects best available backend
+let hits = gpu.cast_rays(&origins, &endpoints, voxel_size, 0.6, 0.7)?;
+gpu.apply_to_layer(&mut occupancy_layer, hits)?;
 // Process results in milliseconds instead of seconds
 ```
 
@@ -1271,18 +1264,19 @@ let hits = gpu.ray_cast_batch(&occupancy_layer, &batch)?;
 Handle moving obstacles with temporal decay:
 
 ```rust
-use octaindex3d::temporal::TemporalOccupancyLayer;
+use octaindex3d::layers::{TemporalConfig, TemporalOccupancyLayer};
 
-let mut temporal = TemporalOccupancyLayer::new(config)?;
+let config = TemporalConfig::default();
+let mut temporal = TemporalOccupancyLayer::with_config(config);
 
 // Observations decay over time
-temporal.set_decay_rate(0.95); // 5% decay per second
+temporal.update_occupancy(idx, true, 0.9);
 
 // Update with current sensor data
-temporal.integrate_scan(current_scan, timestamp);
+temporal.integrate_ray(sensor_pos, obstacle_pos, voxel_size, 0.6, 0.7);
 
 // Old observations gradually revert to "unknown"
-temporal.update_temporal(current_timestamp);
+temporal.prune_stale();
 ```
 
 ### 10.11.9 Memory-Efficient Compression
@@ -1290,15 +1284,16 @@ temporal.update_temporal(current_timestamp);
 For large maps, use RLE compression (89x ratio!):
 
 ```rust
-use octaindex3d::compressed::CompressedOccupancyLayer;
+use octaindex3d::layers::{CompressedOccupancyLayer, CompressionMethod};
 
-let compressed = CompressedOccupancyLayer::from_layer(&occupancy_layer)?;
+let mut compressed = CompressedOccupancyLayer::with_method(CompressionMethod::RLE);
+compressed.update_occupancy(idx, true, 0.9);
 
 // Same API, 89x less memory
-let frontiers = compressed.detect_frontiers(&config)?;
+let state = compressed.get_state(idx);
 
-// Decompress when needed
-let decompressed = compressed.to_layer()?;
+// Track compression effectiveness
+let ratio = compressed.compression_ratio();
 ```
 
 ### 10.11.10 ROS2 Integration
@@ -1306,19 +1301,20 @@ let decompressed = compressed.to_layer()?;
 Bridge to ROS2 for full robotics stack integration:
 
 ```rust
-use octaindex3d::ros2::OccupancyGridPublisher;
+use octaindex3d::layers::ros2::OccupancyGrid;
 
-let mut publisher = OccupancyGridPublisher::new("occupancy_grid")?;
-
-// Publish to ROS2
-publisher.publish(&occupancy_layer)?;
-
-// Subscribe to sensor data
-let subscriber = PointCloud2Subscriber::new("depth_camera")?;
-for msg in subscriber.iter() {
-    let scan = msg.to_occupancy_scan()?;
-    occupancy_layer.integrate_scan(scan)?;
-}
+let resolution = 0.1;
+let width = 256;
+let height = 256;
+let origin = (0.0, 0.0, 0.0);
+let ros_grid = OccupancyGrid::from_occupancy_layer(
+    &occupancy_layer,
+    resolution,
+    width,
+    height,
+    origin,
+    "map",
+)?;
 ```
 
 ## 10.12 Summary

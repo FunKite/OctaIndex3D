@@ -1,5 +1,7 @@
 # Appendix B: Complete API Reference
 
+> Status note: This appendix contains a mix of current API and conceptual future API. Validate symbols against `book/API_CONTRACT.md` before copying directly into production code.
+
 This appendix provides a high-level overview of the OctaIndex3D API surface. It is not a replacement for generated documentation, but serves as a conceptual map of the most important modules and types.
 
 Topics include:
@@ -490,4 +492,3 @@ For complete, auto-generated API documentation:
 - **Rust docs**: Run `cargo doc --open` in the OctaIndex3D repository
 - **Online docs**: https://docs.rs/octaindex3d
 - **Examples**: https://github.com/octaindex3d/octaindex3d/tree/main/examples
-

@@ -1,0 +1,21 @@
+name: Book Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  book-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Run book quality checks
+        run: |
+          chmod +x scripts/generate_book_api_contract.sh scripts/book_quality_check.sh
+          ./scripts/book_quality_check.sh

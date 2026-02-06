@@ -90,13 +90,10 @@ system_profiler SPDisplaysDataType | grep Metal
 **Usage:**
 
 ```rust
-use octaindex3d::gpu::MetalBackend;
+use octaindex3d::performance::gpu::GpuBatchProcessor;
 
-// Initialize Metal context
-let backend = MetalBackend::new()?;
-
-// Encode points on GPU
-let indices = backend.encode_batch(&points)?;
+let gpu = GpuBatchProcessor::new()?;
+println!("Using GPU backend: {}", gpu.backend_name());
 ```
 
 ### D.5.2 CUDA (NVIDIA)
@@ -138,13 +135,13 @@ export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 **Usage:**
 
 ```rust
-use octaindex3d::gpu::CudaBackend;
+use octaindex3d::performance::gpu::GpuBatchProcessor;
 
-// Initialize CUDA context with device 0
-let backend = CudaBackend::new(0)?;
-
-// Process large batches on GPU
-let indices = backend.encode_batch(&large_point_cloud)?;
+let gpu = GpuBatchProcessor::new()?;
+if gpu.should_use_gpu(routes.len()) {
+    let neighbors = gpu.batch_neighbors(&routes)?;
+    println!("computed {} neighbors", neighbors.len());
+}
 ```
 
 ### D.5.3 Vulkan (Cross-Platform)
@@ -176,13 +173,10 @@ vkcube --list-devices
 **Usage:**
 
 ```rust
-use octaindex3d::gpu::VulkanBackend;
+use octaindex3d::performance::gpu::GpuBatchProcessor;
 
-// Initialize Vulkan with first available device
-let backend = VulkanBackend::new()?;
-
-// Query neighbors on GPU
-let neighbors = backend.find_neighbors_batch(&queries, radius)?;
+let gpu = GpuBatchProcessor::new()?;
+let neighbors = gpu.batch_neighbors(&routes)?;
 ```
 
 ### D.5.4 GPU Feature Comparison
