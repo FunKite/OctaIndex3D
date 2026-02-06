@@ -17,7 +17,7 @@
 
 ## Table of Contents
 
-- [What's New in v0.5.2](#whats-new-in-v052)
+- [What's New in v0.5.3](#whats-new-in-v053)
 - [Overview](#overview)
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
@@ -35,13 +35,14 @@
 - [Contributing](#contributing)
 - [Research and Citation](#research-and-citation)
 
-## What's New in v0.5.2
+## What's New in v0.5.3
 
-This release refreshes core dependencies and tooling, including GPU backends and the Rust toolchain.
+This release focuses on reliability, security hardening, and documentation quality.
 
-- **GPU stacks updated** - `wgpu` 28, `metal` 0.33, `cudarc` 0.18.2
-- **Core deps refreshed** - `criterion`, `serde_json`, `glam`, `rkyv`, `zerocopy`, `bech32`
-- **Tooling bump** - Rust toolchain 1.92.0 and GitHub Actions cache v5
+- **Container hardening** - Added strict frame-count/frame-size bounds and safer parsing behavior for malformed input.
+- **Numerical robustness** - Made `Layer<f64>` aggregation NaN-safe and removed panic-prone ordering paths.
+- **Documentation quality push** - Improved quick start/book consistency and added automated book quality checks in CI.
+- **Release pipeline hardening** - CI/CD now enforces stricter publish/security gating for safer releases.
 
 See the full [Changelog](CHANGELOG.md) for release history.
 
