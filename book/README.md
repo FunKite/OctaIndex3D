@@ -236,7 +236,8 @@ After working through Part I—skimming what you know, slowing down where it is 
 ```bash
 git clone https://github.com/FunKite/OctaIndex3D
 cd OctaIndex3D
-cargo test   # Run test suite
+./scripts/safe_local_test.sh --skip-advisories  # Safer local test workflow
+cargo test   # Full test suite
 cargo bench  # Run benchmarks
 ```
 

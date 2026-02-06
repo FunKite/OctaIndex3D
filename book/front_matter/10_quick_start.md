@@ -37,6 +37,12 @@ Then fetch dependencies:
 cargo build
 ```
 
+If you are running examples from the OctaIndex3D repository itself (not a fresh `cargo new` project), prefer the safer local test path before broader changes:
+
+```bash
+./scripts/safe_local_test.sh
+```
+
 If you see build errors related to optional CPU features (BMI2, AVX2, NEON), disable them for now and come back to Appendix G (Performance Cookbook) later for tuning advice.
 
 ---

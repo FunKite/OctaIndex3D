@@ -103,7 +103,7 @@ impl LogOdds {
         (e / (1.0 + e)) as f32
     }
 }
-```rust
+```
 
 OctaIndex3D containers then store `LogOdds` keyed by `Index64` or `Hilbert64`:
 
@@ -202,7 +202,7 @@ fn integrate_scan(
         }
     }
 }
-```rust
+```
 
 The details of `project_range` and `traversed_cells` depend on your chosen API, but the structure is stable:
 
@@ -483,7 +483,7 @@ fn planning_step(world: &mut WorldState, goal: Pose3) {
     let fine_path = local_plan(&snapshot.fine, corridor, world.pose, goal);
     world.controller.follow(fine_path);
 }
-```rust
+```
 
 This separation of mapping and planning:
 
@@ -584,7 +584,7 @@ impl Default for UpdateSchedule {
         }
     }
 }
-```rust
+```
 
 **Adaptive Update Strategies**
 
@@ -646,7 +646,7 @@ fn integrate_lidar_scan(
         grid.batch_integrate_hits(&hits);
     }
 }
-```rust
+```
 
 **RGB-D Camera Integration**
 
@@ -729,7 +729,7 @@ impl MapValidator {
         Ok(())
     }
 }
-```rust
+```
 
 ### 10.7.2 Collision Safety Margins
 
@@ -834,7 +834,7 @@ impl DegradationPolicy {
         }
     }
 }
-```rust
+```
 
 ## 10.8 Integration with Existing Frameworks
 
@@ -924,7 +924,7 @@ impl CostmapInterface for BccCostmapAdapter {
     fn get_size_y(&self) -> u32 { self.size.1 }
     fn get_resolution(&self) -> f32 { self.resolution }
 }
-```rust
+```
 
 ## 10.9 Troubleshooting Common Issues
 
@@ -983,7 +983,7 @@ impl CostmapInterface for BccCostmapAdapter {
    # Use perf or similar tools
    perf record -g ./robot_node
    perf report
-```text
+```
 
 2. **Reduce LOD or radius:**
    ```rust
@@ -1060,7 +1060,7 @@ impl CostmapInterface for BccCostmapAdapter {
        let pos = index.to_position();
        pos.distance_to(center) <= max_radius
    }
-```rust
+```
 
 ## 10.10 Further Reading
 
