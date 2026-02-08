@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Added explicit `GITHUB_TOKEN` least-privilege permissions (`contents: read`) to the book-quality GitHub Actions workflow to resolve open CodeQL security alert #23.
+
 ## [0.5.3] - 2026-02-06
 
 ### Changed
