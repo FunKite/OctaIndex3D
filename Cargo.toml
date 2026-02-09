@@ -124,7 +124,7 @@ name = "v0_5_0_features"
 harness = false
 
 [dev-dependencies]
-proptest = "1.9"
+proptest = "1.10"
 criterion = { version = "0.8", features = ["html_reports"] }
 approx = "0.5"
 rand = "0.9"
