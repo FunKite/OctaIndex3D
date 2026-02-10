@@ -320,7 +320,7 @@ impl Maze {
     /// Generate a new maze using randomized Prim's algorithm
     fn generate(extent: (u32, u32, u32), seed: u64) -> Self {
         use rand::rngs::StdRng;
-        use rand::{Rng, SeedableRng};
+        use rand::{RngExt, SeedableRng};
 
         let mut rng = StdRng::seed_from_u64(seed);
         let mut carved = HashSet::new();

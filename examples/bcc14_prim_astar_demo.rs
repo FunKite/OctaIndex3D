@@ -16,7 +16,7 @@
 //! - Beautiful formatted output with progress indicators
 
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 use std::time::Instant;
