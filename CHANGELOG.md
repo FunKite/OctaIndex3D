@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Added explicit `GITHUB_TOKEN` least-privilege permissions (`contents: read`) to the book-quality GitHub Actions workflow to resolve open CodeQL security alert #23.
+- Updated GitHub Actions `actions/checkout` from v4 to v6 (PR #87).
+- Updated `rand` from 0.9 to 0.10 (PR #89).
+- Updated `proptest` from 1.9 to 1.10 (PR #88).
+- Updated `clap` from 4.5.56 to 4.5.57 (PR #88).
+- Updated `criterion` from 0.8.1 to 0.8.2 (PR #88).
+- Updated `cudarc` from 0.19.0 to 0.19.2 (PR #88).
+- Updated `getrandom` from 0.4.0 to 0.4.1 (PR #88).
+- Updated `zerocopy` from 0.8.37 to 0.8.39 (PR #88).
 
 ## [0.5.3] - 2026-02-06
 
