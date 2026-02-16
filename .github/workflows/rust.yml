@@ -217,6 +217,8 @@ jobs:
 
       - name: Install Rust 1.77
         uses: dtolnay/rust-toolchain@0ed6b4757d4e63d7920abe758134858e95c8215f
+        with:
+          toolchain: 1.77.0
 
       - name: Check with MSRV
         run: cargo check --all-features
