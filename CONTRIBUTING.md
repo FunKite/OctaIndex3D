@@ -100,9 +100,10 @@ We actively welcome your pull requests! See [Pull Request Process](#pull-request
 
 ## Pull Request Process
 
-1. **Create a feature branch** from `main`:
+1. **Create a short-lived feature branch** from the latest upstream `main`:
    ```bash
-   git checkout -b feature/your-feature-name
+   git fetch upstream main
+   git checkout -b feature/your-feature-name upstream/main
    ```
 
 2. **Make your changes**:
@@ -147,6 +148,7 @@ We actively welcome your pull requests! See [Pull Request Process](#pull-request
    - At least one maintainer approval
    - No unresolved review comments
    - Branch up to date with main
+   - Merge via pull request only (no direct pushes to `main`)
 
 ## Coding Standards
 
