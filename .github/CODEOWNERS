@@ -1,0 +1,9 @@
+# Default ownership for repository changes
+* @FunKite
+
+# Security-sensitive paths requiring explicit owner review
+/.github/workflows/ @FunKite
+/scripts/ @FunKite
+/Cargo.toml @FunKite
+/Cargo.lock @FunKite
+/CHANGELOG.md @FunKite

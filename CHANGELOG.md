@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Added explicit `GITHUB_TOKEN` least-privilege permissions (`contents: read`) to the book-quality GitHub Actions workflow to resolve open CodeQL security alert #23.
+- Updated GitHub Actions workflow action references to full commit SHAs across CI/release/security workflows to support strict Actions SHA pinning and reduce supply-chain risk.
+- Added `.github/CODEOWNERS` ownership rules for workflow, script, lockfile, and release-sensitive paths.
+- Renamed duplicate CI check contexts to unique names (`Rust Security Audit`, `Security Workflow Audit`) to avoid branch-protection ambiguity.
+- Updated repository workflow guidance to require short-lived branches from `origin/main` and PR-based merges.
+- Restored explicit MSRV toolchain input (`1.77.0`) in Rust CI after action SHA pinning to prevent implicit channel drift.
+- Updated `glam` from 0.31.0 to 0.32.0 (PR #92).
+- Updated `clap` from 4.5.57 to 4.5.58 (PR #91).
+- Updated `rkyv` from 0.8.14 to 0.8.15 (PR #91).
 - Updated GitHub Actions `actions/checkout` from v4 to v6 (PR #87).
 - Updated `rand` from 0.9 to 0.10 (PR #89).
 - Updated `proptest` from 1.9 to 1.10 (PR #88).
