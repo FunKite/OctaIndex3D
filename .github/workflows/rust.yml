@@ -216,7 +216,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install Rust 1.77
-        uses: dtolnay/rust-toolchain@0ed6b4757d4e63d7920abe758134858e95c8215f
+        uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7
         with:
           toolchain: 1.77.0
 
