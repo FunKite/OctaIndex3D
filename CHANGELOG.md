@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Updated `cudarc` from 0.19.2 to 0.19.3 and `zerocopy` from 0.8.39 to 0.8.40 (PR #96).
 - Added explicit `GITHUB_TOKEN` least-privilege permissions (`contents: read`) to the book-quality GitHub Actions workflow to resolve open CodeQL security alert #23.
 - Updated GitHub Actions workflow action references to full commit SHAs across CI/release/security workflows to support strict Actions SHA pinning and reduce supply-chain risk.
 - Added `.github/CODEOWNERS` ownership rules for workflow, script, lockfile, and release-sensitive paths.
