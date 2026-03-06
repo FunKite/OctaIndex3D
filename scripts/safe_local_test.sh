@@ -6,6 +6,22 @@ SKIP_SLOW=1
 OFFLINE=1
 RUN_ADVISORIES=1
 
+advisory_failure_is_non_blocking() {
+  local log_file="$1"
+
+  if grep -Fq "unsupported CVSS version: 4.0" "${log_file}"; then
+    echo "Warning: advisory check skipped because the local cargo-deny cannot parse CVSS 4.0 metadata." >&2
+    return 0
+  fi
+
+  if grep -Fq "failed to acquire advisory database lock" "${log_file}"; then
+    echo "Warning: advisory check skipped because the local advisory database path is not writable." >&2
+    return 0
+  fi
+
+  return 1
+}
+
 usage() {
   cat <<'EOF'
 Safer local test runner for OctaIndex3D.
@@ -86,13 +102,19 @@ fi
 if [[ ${RUN_ADVISORIES} -eq 1 ]]; then
   if command -v cargo-deny >/dev/null 2>&1; then
     echo "==> Security check: cargo deny advisories"
-    if ! cargo deny check advisories; then
+    advisory_log="$(mktemp)"
+    if ! cargo deny check advisories >"${advisory_log}" 2>&1; then
+      cat "${advisory_log}" >&2
       if [[ ${OFFLINE} -eq 1 ]]; then
         echo "Warning: advisory check failed in offline mode. Re-run with --allow-network to refresh index." >&2
-      else
+      elif ! advisory_failure_is_non_blocking "${advisory_log}"; then
+        rm -f "${advisory_log}"
         exit 1
       fi
+    else
+      cat "${advisory_log}"
     fi
+    rm -f "${advisory_log}"
   else
     echo "Skipping advisories check (cargo-deny not installed)."
   fi
