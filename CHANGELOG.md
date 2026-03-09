@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Updated `zerocopy` from 0.8.40 to 0.8.42, `glam` from 0.32.0 to 0.32.1, and `getrandom` from 0.4.1 to 0.4.2 (PR #97).
 - Hardened `scripts/safe_local_test.sh` to warn and continue when local `cargo-deny` advisory checks fail due to unsupported CVSS 4.0 metadata or an unwritable advisory-db lock path.
 - Updated `cudarc` from 0.19.2 to 0.19.3 and `zerocopy` from 0.8.39 to 0.8.40 (PR #96).
 - Added explicit `GITHUB_TOKEN` least-privilege permissions (`contents: read`) to the book-quality GitHub Actions workflow to resolve open CodeQL security alert #23.
