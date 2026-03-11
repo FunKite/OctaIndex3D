@@ -12,13 +12,12 @@ const ROUTE64_COORD_MAX: i32 = (1 << 19) - 1;
 fn append_neighbor_if_valid(
     result: &mut Vec<Route64>,
     tier: u8,
-    x: i32,
-    y: i32,
-    z: i32,
-    dx: i32,
-    dy: i32,
-    dz: i32,
+    origin: (i32, i32, i32),
+    offset: (i32, i32, i32),
 ) {
+    let (x, y, z) = origin;
+    let (dx, dy, dz) = offset;
+
     let Some(nx) = x.checked_add(dx) else {
         return;
     };
@@ -47,21 +46,22 @@ pub(crate) fn append_neighbors_route64_fast(route: Route64, result: &mut Vec<Rou
     let y = route.y();
     let z = route.z();
     let tier = route.scale_tier();
+    let origin = (x, y, z);
 
-    append_neighbor_if_valid(result, tier, x, y, z, 1, 1, 1);
-    append_neighbor_if_valid(result, tier, x, y, z, 1, 1, -1);
-    append_neighbor_if_valid(result, tier, x, y, z, 1, -1, 1);
-    append_neighbor_if_valid(result, tier, x, y, z, 1, -1, -1);
-    append_neighbor_if_valid(result, tier, x, y, z, -1, 1, 1);
-    append_neighbor_if_valid(result, tier, x, y, z, -1, 1, -1);
-    append_neighbor_if_valid(result, tier, x, y, z, -1, -1, 1);
-    append_neighbor_if_valid(result, tier, x, y, z, -1, -1, -1);
-    append_neighbor_if_valid(result, tier, x, y, z, 2, 0, 0);
-    append_neighbor_if_valid(result, tier, x, y, z, -2, 0, 0);
-    append_neighbor_if_valid(result, tier, x, y, z, 0, 2, 0);
-    append_neighbor_if_valid(result, tier, x, y, z, 0, -2, 0);
-    append_neighbor_if_valid(result, tier, x, y, z, 0, 0, 2);
-    append_neighbor_if_valid(result, tier, x, y, z, 0, 0, -2);
+    append_neighbor_if_valid(result, tier, origin, (1, 1, 1));
+    append_neighbor_if_valid(result, tier, origin, (1, 1, -1));
+    append_neighbor_if_valid(result, tier, origin, (1, -1, 1));
+    append_neighbor_if_valid(result, tier, origin, (1, -1, -1));
+    append_neighbor_if_valid(result, tier, origin, (-1, 1, 1));
+    append_neighbor_if_valid(result, tier, origin, (-1, 1, -1));
+    append_neighbor_if_valid(result, tier, origin, (-1, -1, 1));
+    append_neighbor_if_valid(result, tier, origin, (-1, -1, -1));
+    append_neighbor_if_valid(result, tier, origin, (2, 0, 0));
+    append_neighbor_if_valid(result, tier, origin, (-2, 0, 0));
+    append_neighbor_if_valid(result, tier, origin, (0, 2, 0));
+    append_neighbor_if_valid(result, tier, origin, (0, -2, 0));
+    append_neighbor_if_valid(result, tier, origin, (0, 0, 2));
+    append_neighbor_if_valid(result, tier, origin, (0, 0, -2));
 }
 
 /// Fast neighbor calculation with manual loop unrolling
