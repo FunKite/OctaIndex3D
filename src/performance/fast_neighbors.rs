@@ -5,59 +5,80 @@
 
 use crate::Route64;
 
+const ROUTE64_COORD_MIN: i32 = -(1 << 19);
+const ROUTE64_COORD_MAX: i32 = (1 << 19) - 1;
+
+#[inline(always)]
+fn append_neighbor_if_valid(
+    result: &mut Vec<Route64>,
+    tier: u8,
+    origin: (i32, i32, i32),
+    offset: (i32, i32, i32),
+) {
+    let (x, y, z) = origin;
+    let (dx, dy, dz) = offset;
+
+    let Some(nx) = x.checked_add(dx) else {
+        return;
+    };
+    let Some(ny) = y.checked_add(dy) else {
+        return;
+    };
+    let Some(nz) = z.checked_add(dz) else {
+        return;
+    };
+
+    if !(ROUTE64_COORD_MIN..=ROUTE64_COORD_MAX).contains(&nx)
+        || !(ROUTE64_COORD_MIN..=ROUTE64_COORD_MAX).contains(&ny)
+        || !(ROUTE64_COORD_MIN..=ROUTE64_COORD_MAX).contains(&nz)
+    {
+        return;
+    }
+
+    // Safety: the source route is valid and BCC neighbor offsets preserve parity.
+    unsafe {
+        result.push(Route64::new_unchecked(tier, nx, ny, nz));
+    }
+}
+
+pub(crate) fn append_neighbors_route64_fast(route: Route64, result: &mut Vec<Route64>) {
+    let x = route.x();
+    let y = route.y();
+    let z = route.z();
+    let tier = route.scale_tier();
+    let origin = (x, y, z);
+
+    append_neighbor_if_valid(result, tier, origin, (1, 1, 1));
+    append_neighbor_if_valid(result, tier, origin, (1, 1, -1));
+    append_neighbor_if_valid(result, tier, origin, (1, -1, 1));
+    append_neighbor_if_valid(result, tier, origin, (1, -1, -1));
+    append_neighbor_if_valid(result, tier, origin, (-1, 1, 1));
+    append_neighbor_if_valid(result, tier, origin, (-1, 1, -1));
+    append_neighbor_if_valid(result, tier, origin, (-1, -1, 1));
+    append_neighbor_if_valid(result, tier, origin, (-1, -1, -1));
+    append_neighbor_if_valid(result, tier, origin, (2, 0, 0));
+    append_neighbor_if_valid(result, tier, origin, (-2, 0, 0));
+    append_neighbor_if_valid(result, tier, origin, (0, 2, 0));
+    append_neighbor_if_valid(result, tier, origin, (0, -2, 0));
+    append_neighbor_if_valid(result, tier, origin, (0, 0, 2));
+    append_neighbor_if_valid(result, tier, origin, (0, 0, -2));
+}
+
 /// Fast neighbor calculation with manual loop unrolling
 ///
 /// This version unrolls the neighbor loop and uses inline assembly hints
 /// for better instruction scheduling on modern CPUs.
 ///
 /// # Safety
-/// This function uses unsafe code (`new_unchecked`) for performance. The following
-/// invariants are upheld by the BCC lattice neighbor offsets:
-/// - All neighbor offsets preserve parity (±1 flips parity, ±2 preserves it)
-/// - Caller must ensure input coordinates are not near overflow boundaries
-///   (at least ±2 away from i32::MIN and i32::MAX for Route64's 20-bit range)
+/// This function uses unsafe code (`new_unchecked`) internally for performance,
+/// but preserves `Route64` range semantics by filtering neighbors that would
+/// leave the signed 20-bit coordinate domain.
 #[must_use]
 #[inline(always)]
-pub fn neighbors_route64_fast(route: Route64) -> [Route64; 14] {
-    let x = route.x();
-    let y = route.y();
-    let z = route.z();
-    let tier = route.scale_tier();
-
-    // Debug assertions catch overflow issues in development builds
-    #[cfg(debug_assertions)]
-    {
-        debug_assert!(x.checked_add(2).is_some(), "X coordinate overflow");
-        debug_assert!(x.checked_sub(2).is_some(), "X coordinate underflow");
-        debug_assert!(y.checked_add(2).is_some(), "Y coordinate overflow");
-        debug_assert!(y.checked_sub(2).is_some(), "Y coordinate underflow");
-        debug_assert!(z.checked_add(2).is_some(), "Z coordinate overflow");
-        debug_assert!(z.checked_sub(2).is_some(), "Z coordinate underflow");
-    }
-
-    // Manual unrolling for better instruction pipelining
-    // Safety: BCC neighbor offsets always maintain parity and coordinate bounds
-    // are checked in debug builds above
-    unsafe {
-        [
-            // Diagonal neighbors (8) - parity flipping
-            Route64::new_unchecked(tier, x + 1, y + 1, z + 1),
-            Route64::new_unchecked(tier, x + 1, y + 1, z - 1),
-            Route64::new_unchecked(tier, x + 1, y - 1, z + 1),
-            Route64::new_unchecked(tier, x + 1, y - 1, z - 1),
-            Route64::new_unchecked(tier, x - 1, y + 1, z + 1),
-            Route64::new_unchecked(tier, x - 1, y + 1, z - 1),
-            Route64::new_unchecked(tier, x - 1, y - 1, z + 1),
-            Route64::new_unchecked(tier, x - 1, y - 1, z - 1),
-            // Axis-aligned neighbors (6) - parity preserving
-            Route64::new_unchecked(tier, x + 2, y, z),
-            Route64::new_unchecked(tier, x - 2, y, z),
-            Route64::new_unchecked(tier, x, y + 2, z),
-            Route64::new_unchecked(tier, x, y - 2, z),
-            Route64::new_unchecked(tier, x, y, z + 2),
-            Route64::new_unchecked(tier, x, y, z - 2),
-        ]
-    }
+pub fn neighbors_route64_fast(route: Route64) -> Vec<Route64> {
+    let mut result = Vec::with_capacity(14);
+    append_neighbors_route64_fast(route, &mut result);
+    result
 }
 
 /// Batch neighbor calculation with cache-optimized memory access
@@ -80,15 +101,14 @@ pub fn batch_neighbors_fast(routes: &[Route64]) -> Vec<Route64> {
         }
 
         // Calculate neighbors for current route
-        let neighbors = neighbors_route64_fast(routes[i]);
+        let before = result.len();
+        append_neighbors_route64_fast(routes[i], &mut result);
 
         // Reserve space and prefetch write location
-        if result.len() + 14 <= result.capacity() {
-            let write_ptr = unsafe { result.as_mut_ptr().add(result.len()) };
+        if before + 14 <= result.capacity() {
+            let write_ptr = unsafe { result.as_mut_ptr().add(before) };
             prefetch_write(write_ptr);
         }
-
-        result.extend_from_slice(&neighbors);
     }
 
     result
@@ -99,7 +119,7 @@ pub fn batch_neighbors_fast(routes: &[Route64]) -> Vec<Route64> {
 pub fn batch_neighbors_fast(routes: &[Route64]) -> Vec<Route64> {
     let mut result = Vec::with_capacity(routes.len() * 14);
     for &route in routes {
-        result.extend_from_slice(&neighbors_route64_fast(route));
+        append_neighbors_route64_fast(route, &mut result);
     }
     result
 }
@@ -112,7 +132,7 @@ pub fn batch_neighbors_small<const N: usize>(routes: &[Route64; N]) -> Vec<Route
     let mut result = Vec::with_capacity(N * 14);
 
     for &route in routes {
-        result.extend_from_slice(&neighbors_route64_fast(route));
+        append_neighbors_route64_fast(route, &mut result);
     }
 
     result
@@ -129,7 +149,7 @@ pub fn batch_neighbors_medium(routes: &[Route64]) -> Vec<Route64> {
 
     for chunk in routes.chunks(BLOCK_SIZE) {
         for &route in chunk {
-            result.extend_from_slice(&neighbors_route64_fast(route));
+            append_neighbors_route64_fast(route, &mut result);
         }
     }
 
@@ -151,7 +171,7 @@ pub fn batch_neighbors_large(routes: &[Route64]) -> Vec<Route64> {
         .flat_map(|chunk| {
             let mut local_result = Vec::with_capacity(chunk.len() * 14);
             for &route in chunk {
-                local_result.extend_from_slice(&neighbors_route64_fast(route));
+                append_neighbors_route64_fast(route, &mut local_result);
             }
             local_result
         })
@@ -240,6 +260,22 @@ mod tests {
             assert!(neighbor.y() >= -2 && neighbor.y() <= 2);
             assert!(neighbor.z() >= -2 && neighbor.z() <= 2);
         }
+    }
+
+    #[test]
+    fn test_fast_neighbors_respect_route64_bounds() {
+        let route = Route64::new(0, 524286, 524286, 524286).unwrap();
+        let neighbors = neighbors_route64_fast(route);
+
+        assert_eq!(neighbors.len(), 11);
+        assert!(neighbors
+            .iter()
+            .all(|neighbor| neighbor.x() >= ROUTE64_COORD_MIN
+                && neighbor.x() <= ROUTE64_COORD_MAX
+                && neighbor.y() >= ROUTE64_COORD_MIN
+                && neighbor.y() <= ROUTE64_COORD_MAX
+                && neighbor.z() >= ROUTE64_COORD_MIN
+                && neighbor.z() <= ROUTE64_COORD_MAX));
     }
 
     #[test]

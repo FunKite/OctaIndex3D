@@ -7,7 +7,7 @@ use octaindex3d::{BatchIndexBuilder, BatchNeighborCalculator, Route64};
 use octaindex3d::{ParallelBatchIndexBuilder, ParallelBatchNeighborCalculator};
 
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use std::hint::black_box;
 
 // Generate test routes with proper parity

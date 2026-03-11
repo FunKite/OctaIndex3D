@@ -139,8 +139,8 @@ impl AlignedBatchProcessor {
 
         for &route in routes {
             let neighbors = crate::performance::fast_neighbors::neighbors_route64_fast(route);
-            for neighbor in &neighbors {
-                result.push(*neighbor);
+            for neighbor in neighbors {
+                result.push(neighbor);
             }
         }
 

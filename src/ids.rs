@@ -160,9 +160,30 @@ impl Galactic128 {
         }
         let mut bytes = [0u8; 16];
         bytes.copy_from_slice(&data);
-        Ok(Self {
-            value: u128::from_be_bytes(bytes),
-        })
+        Self::from_value(u128::from_be_bytes(bytes))
+    }
+
+    /// Create Galactic128 from a raw value after validating embedded fields.
+    pub fn from_value(value: u128) -> Result<Self> {
+        let galactic = Self { value };
+        let attr_int = ((value >> 100) & 0xF) as u8;
+        if attr_int != 1 {
+            return Err(Error::DecodingError(format!(
+                "Invalid Galactic128 version nibble: expected 1, got {}",
+                attr_int
+            )));
+        }
+
+        Self::new(
+            galactic.frame_id(),
+            galactic.scale_mant(),
+            galactic.scale_tier(),
+            galactic.lod(),
+            galactic.attr_usr(),
+            galactic.x(),
+            galactic.y(),
+            galactic.z(),
+        )
     }
 
     /// Get raw value
@@ -323,9 +344,23 @@ impl Index64 {
         }
         let mut bytes = [0u8; 8];
         bytes.copy_from_slice(&data);
-        Ok(Self {
-            value: u64::from_be_bytes(bytes),
-        })
+        Self::from_value(u64::from_be_bytes(bytes))
+    }
+
+    /// Create Index64 from a raw value after validating the header and payload.
+    pub fn from_value(value: u64) -> Result<Self> {
+        let header = (value >> 62) & 0x3;
+        if header != Self::HDR {
+            return Err(Error::DecodingError(format!(
+                "Invalid Index64 header: expected 0x{:02x}, got 0x{:02x}",
+                Self::HDR,
+                header
+            )));
+        }
+
+        let index = Self { value };
+        let (x, y, z) = index.decode_coords();
+        Self::new(index.frame_id(), index.scale_tier(), index.lod(), x, y, z)
     }
 
     /// Get raw value
@@ -469,9 +504,7 @@ impl Route64 {
         }
         let mut bytes = [0u8; 8];
         bytes.copy_from_slice(&data);
-        Ok(Self {
-            value: u64::from_be_bytes(bytes),
-        })
+        Self::from_value(u64::from_be_bytes(bytes))
     }
 
     /// Get raw value
@@ -639,5 +672,20 @@ mod tests {
         let encoded = r.to_bech32m().unwrap();
         let decoded = Route64::from_bech32m(&encoded).unwrap();
         assert_eq!(r, decoded);
+    }
+
+    #[test]
+    fn test_bech32m_rejects_invalid_raw_payloads() {
+        let invalid_galactic =
+            bech32::encode::<Bech32m>(Hrp::parse(HRP_GALACTIC).unwrap(), &[0; 16]).unwrap();
+        assert!(Galactic128::from_bech32m(&invalid_galactic).is_err());
+
+        let invalid_index =
+            bech32::encode::<Bech32m>(Hrp::parse(HRP_INDEX).unwrap(), &[0; 8]).unwrap();
+        assert!(Index64::from_bech32m(&invalid_index).is_err());
+
+        let invalid_route =
+            bech32::encode::<Bech32m>(Hrp::parse(HRP_ROUTE).unwrap(), &[0; 8]).unwrap();
+        assert!(Route64::from_bech32m(&invalid_route).is_err());
     }
 }

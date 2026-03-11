@@ -68,8 +68,13 @@ inline ulong encode_route64(int tier, int3 coords) {
 kernel void batch_neighbors(
     device const ulong* input_routes [[buffer(0)]],
     device ulong* output_routes [[buffer(1)]],
+    device const uint* input_count [[buffer(2)]],
     uint gid [[thread_position_in_grid]])
 {
+    if (gid >= *input_count) {
+        return;
+    }
+
     // Each thread processes one input route and generates 14 neighbors
     ulong route_value = input_routes[gid];
 

@@ -86,6 +86,10 @@ impl GpuBackend for CudaBackend {
     }
 
     fn batch_neighbors(&self, routes: &[Route64]) -> Result<Vec<Route64>> {
+        if routes.is_empty() {
+            return Ok(Vec::new());
+        }
+
         // TODO: Implement actual CUDA kernel execution
         // For now, fall back to CPU implementation
         // This requires compiling the PTX kernel and using cudarc's launch API
@@ -95,8 +99,8 @@ impl GpuBackend for CudaBackend {
 
         for &route in routes {
             let neighbors = crate::performance::fast_neighbors::neighbors_route64_fast(route);
-            for neighbor in &neighbors {
-                results.push(*neighbor);
+            for neighbor in neighbors {
+                results.push(neighbor);
             }
         }
 

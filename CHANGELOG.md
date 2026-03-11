@@ -29,6 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `getrandom` from 0.4.0 to 0.4.1 (PR #88).
 - Updated `zerocopy` from 0.8.37 to 0.8.39 (PR #88).
 
+### Fixed
+- Restored Route64 boundary safety in fast neighbor kernels and GPU CPU fallbacks by filtering neighbors that would leave the signed 20-bit domain.
+- Hardened Bech32 ID decoding to validate raw payload invariants before constructing `Galactic128`, `Index64`, or `Route64`.
+- Added Metal input-count bounds checks in both host dispatch setup and the compute shader to prevent out-of-bounds partial-workgroup reads.
+- Switched the interactive CLI maze game to RAII raw-mode cleanup and fallible key reads so terminal state is restored on early exits.
+- Updated GPU CI to execute backend tests instead of compile-only `--no-run` coverage.
+
 ## [0.5.3] - 2026-02-06
 
 ### Changed

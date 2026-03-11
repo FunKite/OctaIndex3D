@@ -236,7 +236,12 @@ fn profile_neighbor_operations() {
     let mut total = 0u64;
     for _ in 0..10_000_000 {
         let neighbors = neighbors_route64_fast(single);
-        total = total.wrapping_add(neighbors[0].value());
+        total = total.wrapping_add(
+            neighbors
+                .iter()
+                .map(|neighbor| neighbor.value())
+                .sum::<u64>(),
+        );
     }
     let elapsed = start.elapsed();
     println!(

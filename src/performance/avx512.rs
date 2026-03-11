@@ -46,10 +46,10 @@ pub fn has_avx512cd() -> bool {
 /// This is significantly faster than scalar processing.
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx512f")]
-pub unsafe fn batch_neighbors_avx512_8(routes: &[Route64; 8]) -> [Route64; 112] {
+unsafe fn batch_neighbors_avx512_8(routes: &[Route64; 8]) -> Vec<Route64> {
     use std::arch::x86_64::*;
 
-    let mut result = [Route64::new(0, 0, 0, 0).unwrap(); 112];
+    let mut result = Vec::with_capacity(112);
 
     // Load 8 route values into AVX-512 register
     let _route_values = _mm512_loadu_si512(routes.as_ptr() as *const __m512i);
@@ -61,30 +61,7 @@ pub unsafe fn batch_neighbors_avx512_8(routes: &[Route64; 8]) -> [Route64; 112] 
     // For now, process serially but with AVX-512 optimized operations
     for i in 0..8 {
         let route = routes[i];
-        let x = route.x();
-        let y = route.y();
-        let z = route.z();
-        let tier = route.scale_tier();
-
-        let base = i * 14;
-
-        // Diagonal neighbors (8)
-        result[base + 0] = Route64::new_unchecked(tier, x + 1, y + 1, z + 1);
-        result[base + 1] = Route64::new_unchecked(tier, x + 1, y + 1, z - 1);
-        result[base + 2] = Route64::new_unchecked(tier, x + 1, y - 1, z + 1);
-        result[base + 3] = Route64::new_unchecked(tier, x + 1, y - 1, z - 1);
-        result[base + 4] = Route64::new_unchecked(tier, x - 1, y + 1, z + 1);
-        result[base + 5] = Route64::new_unchecked(tier, x - 1, y + 1, z - 1);
-        result[base + 6] = Route64::new_unchecked(tier, x - 1, y - 1, z + 1);
-        result[base + 7] = Route64::new_unchecked(tier, x - 1, y - 1, z - 1);
-
-        // Axis-aligned neighbors (6)
-        result[base + 8] = Route64::new_unchecked(tier, x + 2, y, z);
-        result[base + 9] = Route64::new_unchecked(tier, x - 2, y, z);
-        result[base + 10] = Route64::new_unchecked(tier, x, y + 2, z);
-        result[base + 11] = Route64::new_unchecked(tier, x, y - 2, z);
-        result[base + 12] = Route64::new_unchecked(tier, x, y, z + 2);
-        result[base + 13] = Route64::new_unchecked(tier, x, y, z - 2);
+        crate::performance::fast_neighbors::append_neighbors_route64_fast(route, &mut result);
     }
 
     result
@@ -114,14 +91,15 @@ pub fn batch_neighbors_avx512(routes: &[Route64]) -> Vec<Route64> {
             chunk.copy_from_slice(&routes[chunk_start..chunk_start + 8]);
 
             let neighbors = batch_neighbors_avx512_8(&chunk);
-            result.extend_from_slice(&neighbors);
+            result.extend(neighbors);
         }
 
         // Handle remainder with scalar code
         for i in (chunks * 8)..routes.len() {
-            result.extend_from_slice(&crate::performance::fast_neighbors::neighbors_route64_fast(
+            crate::performance::fast_neighbors::append_neighbors_route64_fast(
                 routes[i],
-            ));
+                &mut result,
+            );
         }
     }
 
