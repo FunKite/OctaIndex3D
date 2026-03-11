@@ -98,8 +98,11 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7
 
-      - name: Run ${{ matrix.feature }} backend tests
-        run: cargo test --verbose --features ${{ matrix.feature }} performance::gpu:: -- --nocapture
+      - name: Run GPU backend tests
+        env:
+          GPU_FEATURE: ${{ matrix.feature }}
+        run: |
+          cargo test --verbose --features "$GPU_FEATURE" performance::gpu:: -- --nocapture
 
       - name: Build ${{ matrix.feature }} feature
         run: cargo build --verbose --features ${{ matrix.feature }}
