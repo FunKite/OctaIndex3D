@@ -73,8 +73,14 @@ impl GpuBackend for MetalBackend {
     }
 
     fn batch_neighbors(&self, routes: &[Route64]) -> Result<Vec<Route64>> {
+        if routes.is_empty() {
+            return Ok(Vec::new());
+        }
+
         let input_count = routes.len();
         let output_count = input_count * 14; // 14 neighbors per route
+        let input_count_u32 = u32::try_from(input_count)
+            .map_err(|_| Error::OutOfRange("GPU batch too large for Metal dispatch".to_string()))?;
 
         // Convert routes to u64 for GPU processing
         let input_data: Vec<u64> = routes.iter().map(|r| r.value()).collect();
@@ -90,6 +96,11 @@ impl GpuBackend for MetalBackend {
             (output_count * std::mem::size_of::<u64>()) as u64,
             MTLResourceOptions::StorageModeShared,
         );
+        let input_count_buffer = self.device.new_buffer_with_data(
+            (&input_count_u32 as *const u32).cast(),
+            std::mem::size_of::<u32>() as u64,
+            MTLResourceOptions::StorageModeShared,
+        );
 
         // Create command buffer and encoder
         let command_buffer = self.command_queue.new_command_buffer();
@@ -99,6 +110,7 @@ impl GpuBackend for MetalBackend {
         encoder.set_compute_pipeline_state(&self.neighbor_pipeline);
         encoder.set_buffer(0, Some(&input_buffer), 0);
         encoder.set_buffer(1, Some(&output_buffer), 0);
+        encoder.set_buffer(2, Some(&input_count_buffer), 0);
 
         // Calculate thread group sizes
         let thread_group_size = MTLSize {

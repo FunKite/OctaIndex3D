@@ -34,6 +34,34 @@ fn clear_screen() {
     let _ = stdout.execute(cursor::MoveTo(0, 0));
 }
 
+struct RawModeGuard;
+
+impl RawModeGuard {
+    fn new() -> Result<Self> {
+        terminal::enable_raw_mode()?;
+        Ok(Self)
+    }
+}
+
+impl Drop for RawModeGuard {
+    fn drop(&mut self) {
+        let _ = terminal::disable_raw_mode();
+    }
+}
+
+fn read_key_event() -> Result<KeyEvent> {
+    loop {
+        if let Event::Key(key_event) = event::read()? {
+            return Ok(key_event);
+        }
+    }
+}
+
+fn wait_for_any_key() -> Result<()> {
+    let _ = read_key_event()?;
+    Ok(())
+}
+
 // ============================================================================
 // CLI Structure
 // ============================================================================
@@ -694,11 +722,10 @@ impl GameState {
     }
 }
 
-fn play_game(custom_size: Option<u32>, seed: u64) {
+fn play_game(custom_size: Option<u32>, seed: u64) -> Result<()> {
     use std::io::{stdout, Write};
 
-    // Enable raw mode for single-key input
-    terminal::enable_raw_mode().expect("Failed to enable raw mode");
+    let _raw_mode_guard = RawModeGuard::new()?;
 
     // Load competitive stats
     let mut stats = CompetitiveStats::load();
@@ -728,11 +755,7 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
         let _ = stdout().flush();
 
         // Wait for key to start
-        loop {
-            if let Event::Key(_) = event::read().expect("Failed to read event") {
-                break;
-            }
-        }
+        wait_for_any_key()?;
 
         let mut game = GameState::new(maze, current_level);
 
@@ -742,230 +765,233 @@ fn play_game(custom_size: Option<u32>, seed: u64) {
             game.display_status();
 
             // Read single key
-            if let Event::Key(KeyEvent { code, .. }) = event::read().expect("Failed to read event")
-            {
-                match code {
-                    KeyCode::Char('q') => {
-                        clear_screen();
-                        print!("\r\nThanks for playing!\r\n");
-                        print!("Final stats:\r\n");
-                        print!("  Level reached: {}\r\n", current_level);
-                        print!(
-                            "  Total time: {:.1}s\r\n",
-                            game.start_time.elapsed().as_secs_f64()
-                        );
-                        let _ = stdout().flush();
-                        break 'game_loop;
-                    }
-                    KeyCode::Char('h') => {
-                        // Show hint and increment counter
-                        game.hints_used += 1;
-                        clear_screen();
-                        game.display_status();
-                        print!("\r\n💡 Computing optimal path...\r\n");
-                        if let Some((path, nodes_visited)) =
-                            astar_pathfind(&game.maze, game.current_pos, game.maze.goal)
-                        {
-                            print!("Optimal path has {} moves\r\n", path.len() - 1);
-                            print!("A* nodes explored: {}\r\n", nodes_visited);
-                            if path.len() > 1 {
-                                let next = path[1];
-                                let dx = next.0 - game.current_pos.0;
-                                let dy = next.1 - game.current_pos.1;
-                                let dz = next.2 - game.current_pos.2;
-                                let hint_key = match (dx, dy, dz) {
-                                    (0, 2, 0) => 'n',
-                                    (0, -2, 0) => 's',
-                                    (2, 0, 0) => 'e',
-                                    (-2, 0, 0) => 'w',
-                                    (0, 0, 2) => 'u',
-                                    (0, 0, -2) => 'd',
-                                    (1, 1, 1) => '1',
-                                    (1, 1, -1) => '2',
-                                    (-1, 1, 1) => '3',
-                                    (-1, 1, -1) => '4',
-                                    (1, -1, 1) => '5',
-                                    (1, -1, -1) => '6',
-                                    (-1, -1, 1) => '7',
-                                    (-1, -1, -1) => '8',
-                                    _ => '?',
-                                };
-                                print!("Next optimal move: press [{}]\r\n", hint_key);
-                            }
-                        } else {
-                            print!("No path found!\r\n");
+            let KeyEvent { code, .. } = read_key_event()?;
+            match code {
+                KeyCode::Char('q') => {
+                    clear_screen();
+                    print!("\r\nThanks for playing!\r\n");
+                    print!("Final stats:\r\n");
+                    print!("  Level reached: {}\r\n", current_level);
+                    print!(
+                        "  Total time: {:.1}s\r\n",
+                        game.start_time.elapsed().as_secs_f64()
+                    );
+                    let _ = stdout().flush();
+                    break 'game_loop;
+                }
+                KeyCode::Char('h') => {
+                    // Show hint and increment counter
+                    game.hints_used += 1;
+                    clear_screen();
+                    game.display_status();
+                    print!("\r\n💡 Computing optimal path...\r\n");
+                    if let Some((path, nodes_visited)) =
+                        astar_pathfind(&game.maze, game.current_pos, game.maze.goal)
+                    {
+                        print!("Optimal path has {} moves\r\n", path.len() - 1);
+                        print!("A* nodes explored: {}\r\n", nodes_visited);
+                        if path.len() > 1 {
+                            let next = path[1];
+                            let dx = next.0 - game.current_pos.0;
+                            let dy = next.1 - game.current_pos.1;
+                            let dz = next.2 - game.current_pos.2;
+                            let hint_key = match (dx, dy, dz) {
+                                (0, 2, 0) => 'n',
+                                (0, -2, 0) => 's',
+                                (2, 0, 0) => 'e',
+                                (-2, 0, 0) => 'w',
+                                (0, 0, 2) => 'u',
+                                (0, 0, -2) => 'd',
+                                (1, 1, 1) => '1',
+                                (1, 1, -1) => '2',
+                                (-1, 1, 1) => '3',
+                                (-1, 1, -1) => '4',
+                                (1, -1, 1) => '5',
+                                (1, -1, -1) => '6',
+                                (-1, -1, 1) => '7',
+                                (-1, -1, -1) => '8',
+                                _ => '?',
+                            };
+                            print!("Next optimal move: press [{}]\r\n", hint_key);
                         }
-                        print!("\r\nPress any key to continue...\r\n");
-                        let _ = stdout().flush();
-                        event::read().expect("Failed to read event");
+                    } else {
+                        print!("No path found!\r\n");
                     }
-                    KeyCode::Char(c) => {
-                        match game.make_move(c) {
-                            Ok(reached_goal) => {
-                                if reached_goal {
-                                    // Level complete!
-                                    clear_screen();
-                                    let elapsed = game.start_time.elapsed().as_secs_f64();
-                                    print!("\r\n🎉 LEVEL {} COMPLETE!\r\n", current_level);
-                                    print!("═══════════════════════════════════════\r\n");
-                                    print!("Total moves: {}\r\n", game.move_history.len() - 1);
-                                    print!("Time taken: {:.1}s\r\n", elapsed);
-                                    print!(
-                                        "Nodes visited: {}/{}\r\n",
-                                        game.visited.len(),
-                                        game.maze.carved.len()
-                                    );
-                                    print!("Hints used: {}\r\n", game.hints_used);
+                    print!("\r\nPress any key to continue...\r\n");
+                    let _ = stdout().flush();
+                    wait_for_any_key()?;
+                }
+                KeyCode::Char(c) => {
+                    match game.make_move(c) {
+                        Ok(reached_goal) => {
+                            if reached_goal {
+                                // Level complete!
+                                clear_screen();
+                                let elapsed = game.start_time.elapsed().as_secs_f64();
+                                print!("\r\n🎉 LEVEL {} COMPLETE!\r\n", current_level);
+                                print!("═══════════════════════════════════════\r\n");
+                                print!("Total moves: {}\r\n", game.move_history.len() - 1);
+                                print!("Time taken: {:.1}s\r\n", elapsed);
+                                print!(
+                                    "Nodes visited: {}/{}\r\n",
+                                    game.visited.len(),
+                                    game.maze.carved.len()
+                                );
+                                print!("Hints used: {}\r\n", game.hints_used);
 
-                                    // Run A* for comparison
-                                    print!("\r\n🤖 Computing optimal solution...\r\n");
-                                    if let Some((optimal_path, astar_nodes_visited)) =
-                                        astar_pathfind(&game.maze, game.maze.start, game.maze.goal)
-                                    {
-                                        let optimal_moves = optimal_path.len() - 1;
-                                        let player_moves = game.move_history.len() - 1;
-                                        let player_visited = game.visited.len();
+                                // Run A* for comparison
+                                print!("\r\n🤖 Computing optimal solution...\r\n");
+                                if let Some((optimal_path, astar_nodes_visited)) =
+                                    astar_pathfind(&game.maze, game.maze.start, game.maze.goal)
+                                {
+                                    let optimal_moves = optimal_path.len() - 1;
+                                    let player_moves = game.move_history.len() - 1;
+                                    let player_visited = game.visited.len();
 
-                                        print!("\r\n📊 Performance Comparison:\r\n");
-                                        print!("───────────────────────────────────────\r\n");
+                                    print!("\r\n📊 Performance Comparison:\r\n");
+                                    print!("───────────────────────────────────────\r\n");
 
-                                        // Path efficiency comparison (still showing moves for reference)
-                                        let move_efficiency =
-                                            (optimal_moves as f64) / (player_moves as f64) * 100.0;
-                                        let move_diff = player_moves as i32 - optimal_moves as i32;
+                                    // Path efficiency comparison (still showing moves for reference)
+                                    let move_efficiency =
+                                        (optimal_moves as f64) / (player_moves as f64) * 100.0;
+                                    let move_diff = player_moves as i32 - optimal_moves as i32;
 
-                                        if optimal_moves == player_moves {
-                                            print!("🎯 Optimal path was {} moves, your path was {} moves (100% efficiency - PERFECT!)\r\n",
+                                    if optimal_moves == player_moves {
+                                        print!("🎯 Optimal path was {} moves, your path was {} moves (100% efficiency - PERFECT!)\r\n",
                                                 optimal_moves, player_moves);
-                                        } else {
-                                            let pct_more = ((player_moves as f64
-                                                / optimal_moves as f64)
-                                                - 1.0)
+                                    } else {
+                                        let pct_more =
+                                            ((player_moves as f64 / optimal_moves as f64) - 1.0)
                                                 * 100.0;
-                                            print!("🎯 Optimal path was {} moves, your path was {} moves ({:.0}% efficiency)\r\n",
+                                        print!("🎯 Optimal path was {} moves, your path was {} moves ({:.0}% efficiency)\r\n",
                                                 optimal_moves, player_moves, move_efficiency);
-                                            print!("   └─ You used {} extra move{} ({:.0}% more than optimal)\r\n",
+                                        print!("   └─ You used {} extra move{} ({:.0}% more than optimal)\r\n",
                                                 move_diff, if move_diff == 1 { "" } else { "s" }, pct_more);
-                                        }
-
-                                        // Nodes explored efficiency (primary metric)
-                                        let nodes_efficiency = (astar_nodes_visited as f64)
-                                            / (player_visited as f64)
-                                            * 100.0;
-
-                                        // Exploration efficiency comparison
-                                        print!("\r\n🔍 Exploration Comparison:\r\n");
-                                        #[allow(clippy::comparison_chain)]
-                                        if player_visited < astar_nodes_visited {
-                                            let pct_fewer = ((astar_nodes_visited as f64
-                                                / player_visited as f64)
-                                                - 1.0)
-                                                * 100.0;
-                                            print!("   A* explored {} nodes, you explored {} nodes\r\n",
-                                                astar_nodes_visited, player_visited);
-                                            print!("   └─ You explored {} fewer nodes ({:.0}% fewer than A*)!\r\n",
-                                                astar_nodes_visited - player_visited, pct_fewer);
-                                        } else if player_visited == astar_nodes_visited {
-                                            print!("   A* explored {} nodes, you explored {} nodes (same as A*!)\r\n",
-                                                astar_nodes_visited, player_visited);
-                                        } else {
-                                            let pct_more = ((player_visited as f64
-                                                / astar_nodes_visited as f64)
-                                                - 1.0)
-                                                * 100.0;
-                                            print!("   A* explored {} nodes, you explored {} nodes\r\n",
-                                                astar_nodes_visited, player_visited);
-                                            print!("   └─ You explored {} more nodes ({:.0}% more than A*)\r\n",
-                                                player_visited - astar_nodes_visited, pct_more);
-                                        }
-
-                                        // Competitive result (based on nodes explored)
-                                        print!("\r\n🎮 COMPETITIVE RESULT (Fewest Nodes Explored Wins):\r\n");
-                                        print!("───────────────────────────────────────\r\n");
-                                        #[allow(clippy::comparison_chain)]
-                                        if player_visited < astar_nodes_visited {
-                                            let nodes_saved = astar_nodes_visited - player_visited;
-                                            print!("🏆 YOU WIN! You explored {} fewer nodes than A*!\r\n", nodes_saved);
-                                            stats.update(player_visited, astar_nodes_visited);
-                                        } else if player_visited == astar_nodes_visited {
-                                            print!("🤝 TIE! You explored the same number of nodes as A*!\r\n");
-                                            stats.update(player_visited, astar_nodes_visited);
-                                        } else {
-                                            let extra_nodes = player_visited - astar_nodes_visited;
-                                            print!("🤖 A* WINS. You explored {} more nodes than A*.\r\n", extra_nodes);
-                                            stats.update(player_visited, astar_nodes_visited);
-                                        }
-
-                                        // Display updated stats
-                                        print!("\r\n📈 YOUR LIFETIME STATS:\r\n");
-                                        print!(
-                                            "   Wins: {} | Ties: {} | Losses: {}\r\n",
-                                            stats.wins, stats.ties, stats.losses
-                                        );
-                                        print!("   Win Rate: {:.1}%\r\n", stats.win_rate());
-                                        print!(
-                                            "   Avg Efficiency: {:.1}%\r\n",
-                                            stats.average_efficiency()
-                                        );
-
-                                        if player_visited == astar_nodes_visited {
-                                            print!("\r\n🏆 PERFECT! You explored exactly as many nodes as A*!\r\n");
-                                        } else if nodes_efficiency >= 95.0 {
-                                            print!("\r\n🏆 Nearly perfect! You explored only slightly more nodes than A*!\r\n");
-                                        } else if nodes_efficiency >= 80.0 {
-                                            print!("\r\n⭐ Great job! You were efficient in your exploration!\r\n");
-                                        } else if nodes_efficiency >= 60.0 {
-                                            print!("\r\n👍 Good effort! There's room for improvement in your exploration.\r\n");
-                                        } else {
-                                            print!("\r\n💪 Keep practicing! Try the hint command to explore more efficiently.\r\n");
-                                        }
                                     }
 
-                                    if use_progressive {
-                                        print!("\r\n🎯 Ready for Level {}?\r\n", current_level + 1);
-                                        print!("Press [Enter] to continue or [q] to quit...\r\n");
-                                        let _ = stdout().flush();
+                                    // Nodes explored efficiency (primary metric)
+                                    let nodes_efficiency = (astar_nodes_visited as f64)
+                                        / (player_visited as f64)
+                                        * 100.0;
 
-                                        // Wait for decision
-                                        loop {
-                                            if let Event::Key(KeyEvent { code, .. }) =
-                                                event::read().expect("Failed to read event")
-                                            {
-                                                match code {
-                                                    KeyCode::Enter => {
-                                                        current_level += 1;
-                                                        current_size += 1;
-                                                        break 'level_loop; // Go to next level
-                                                    }
-                                                    KeyCode::Char('q') => {
-                                                        break 'game_loop; // Quit game
-                                                    }
-                                                    _ => {}
-                                                }
-                                            }
-                                        }
+                                    // Exploration efficiency comparison
+                                    print!("\r\n🔍 Exploration Comparison:\r\n");
+                                    #[allow(clippy::comparison_chain)]
+                                    if player_visited < astar_nodes_visited {
+                                        let pct_fewer = ((astar_nodes_visited as f64
+                                            / player_visited as f64)
+                                            - 1.0)
+                                            * 100.0;
+                                        print!(
+                                            "   A* explored {} nodes, you explored {} nodes\r\n",
+                                            astar_nodes_visited, player_visited
+                                        );
+                                        print!("   └─ You explored {} fewer nodes ({:.0}% fewer than A*)!\r\n",
+                                                astar_nodes_visited - player_visited, pct_fewer);
+                                    } else if player_visited == astar_nodes_visited {
+                                        print!("   A* explored {} nodes, you explored {} nodes (same as A*!)\r\n",
+                                                astar_nodes_visited, player_visited);
                                     } else {
-                                        print!("\r\nPress any key to exit...\r\n");
-                                        let _ = stdout().flush();
-                                        event::read().expect("Failed to read event");
-                                        break 'game_loop;
+                                        let pct_more = ((player_visited as f64
+                                            / astar_nodes_visited as f64)
+                                            - 1.0)
+                                            * 100.0;
+                                        print!(
+                                            "   A* explored {} nodes, you explored {} nodes\r\n",
+                                            astar_nodes_visited, player_visited
+                                        );
+                                        print!("   └─ You explored {} more nodes ({:.0}% more than A*)\r\n",
+                                                player_visited - astar_nodes_visited, pct_more);
+                                    }
+
+                                    // Competitive result (based on nodes explored)
+                                    print!("\r\n🎮 COMPETITIVE RESULT (Fewest Nodes Explored Wins):\r\n");
+                                    print!("───────────────────────────────────────\r\n");
+                                    #[allow(clippy::comparison_chain)]
+                                    if player_visited < astar_nodes_visited {
+                                        let nodes_saved = astar_nodes_visited - player_visited;
+                                        print!(
+                                            "🏆 YOU WIN! You explored {} fewer nodes than A*!\r\n",
+                                            nodes_saved
+                                        );
+                                        stats.update(player_visited, astar_nodes_visited);
+                                    } else if player_visited == astar_nodes_visited {
+                                        print!("🤝 TIE! You explored the same number of nodes as A*!\r\n");
+                                        stats.update(player_visited, astar_nodes_visited);
+                                    } else {
+                                        let extra_nodes = player_visited - astar_nodes_visited;
+                                        print!(
+                                            "🤖 A* WINS. You explored {} more nodes than A*.\r\n",
+                                            extra_nodes
+                                        );
+                                        stats.update(player_visited, astar_nodes_visited);
+                                    }
+
+                                    // Display updated stats
+                                    print!("\r\n📈 YOUR LIFETIME STATS:\r\n");
+                                    print!(
+                                        "   Wins: {} | Ties: {} | Losses: {}\r\n",
+                                        stats.wins, stats.ties, stats.losses
+                                    );
+                                    print!("   Win Rate: {:.1}%\r\n", stats.win_rate());
+                                    print!(
+                                        "   Avg Efficiency: {:.1}%\r\n",
+                                        stats.average_efficiency()
+                                    );
+
+                                    if player_visited == astar_nodes_visited {
+                                        print!("\r\n🏆 PERFECT! You explored exactly as many nodes as A*!\r\n");
+                                    } else if nodes_efficiency >= 95.0 {
+                                        print!("\r\n🏆 Nearly perfect! You explored only slightly more nodes than A*!\r\n");
+                                    } else if nodes_efficiency >= 80.0 {
+                                        print!("\r\n⭐ Great job! You were efficient in your exploration!\r\n");
+                                    } else if nodes_efficiency >= 60.0 {
+                                        print!("\r\n👍 Good effort! There's room for improvement in your exploration.\r\n");
+                                    } else {
+                                        print!("\r\n💪 Keep practicing! Try the hint command to explore more efficiently.\r\n");
                                     }
                                 }
-                            }
-                            Err(_e) => {
-                                // Invalid move - just redraw (error will be silent in single-key mode)
+
+                                if use_progressive {
+                                    print!("\r\n🎯 Ready for Level {}?\r\n", current_level + 1);
+                                    print!("Press [Enter] to continue or [q] to quit...\r\n");
+                                    let _ = stdout().flush();
+
+                                    // Wait for decision
+                                    loop {
+                                        let KeyEvent { code, .. } = read_key_event()?;
+                                        match code {
+                                            KeyCode::Enter => {
+                                                current_level += 1;
+                                                current_size += 1;
+                                                break 'level_loop; // Go to next level
+                                            }
+                                            KeyCode::Char('q') => {
+                                                break 'game_loop; // Quit game
+                                            }
+                                            _ => {}
+                                        }
+                                    }
+                                } else {
+                                    print!("\r\nPress any key to exit...\r\n");
+                                    let _ = stdout().flush();
+                                    wait_for_any_key()?;
+                                    break 'game_loop;
+                                }
                             }
                         }
+                        Err(_e) => {
+                            // Invalid move - just redraw (error will be silent in single-key mode)
+                        }
                     }
-                    _ => {} // Ignore other keys
                 }
+                _ => {} // Ignore other keys
             }
         }
     }
 
-    // Disable raw mode before exiting
-    terminal::disable_raw_mode().expect("Failed to disable raw mode");
     println!();
+    Ok(())
 }
 
 // ============================================================================
@@ -1271,7 +1297,7 @@ fn main() -> Result<()> {
                     .unwrap_or(42)
             });
 
-            play_game(custom_size, actual_seed);
+            play_game(custom_size, actual_seed)?;
         }
 
         Commands::Stats => {

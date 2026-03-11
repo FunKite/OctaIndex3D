@@ -146,7 +146,7 @@ fn bench_neighbor_kernels(c: &mut Criterion) {
                 b.iter(|| {
                     let mut result = Vec::with_capacity(routes.len() * 14);
                     for &route in routes {
-                        result.extend_from_slice(&neighbors_route64_fast(black_box(route)));
+                        result.extend(neighbors_route64_fast(black_box(route)));
                     }
                     black_box(result)
                 });
@@ -197,7 +197,7 @@ fn bench_cache_optimization(c: &mut Criterion) {
                 b.iter(|| {
                     let mut result = Vec::with_capacity(routes.len() * 14);
                     for &route in routes {
-                        result.extend_from_slice(&neighbors_route64_fast(black_box(route)));
+                        result.extend(neighbors_route64_fast(black_box(route)));
                     }
                     black_box(result)
                 });
