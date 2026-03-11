@@ -9,7 +9,7 @@ use octaindex3d::morton;
 
 use octaindex3d::Route64;
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use std::hint::black_box;
 
 #[cfg(target_arch = "x86_64")]

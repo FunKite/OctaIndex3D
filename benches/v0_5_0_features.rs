@@ -20,7 +20,7 @@ use octaindex3d::layers::{
 };
 use octaindex3d::Index64;
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use std::hint::black_box;
 
 // ============================================================================

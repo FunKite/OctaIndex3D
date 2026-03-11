@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use octaindex3d::{lattice, morton, neighbors, Galactic128, Index64, Route64};
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use std::hint::black_box;
 
 // Benchmark Morton encoding/decoding
@@ -199,7 +199,7 @@ fn bench_batch_index_creation(c: &mut Criterion) {
         group.bench_with_input(
             BenchmarkId::new("index64_batch", size),
             &coords,
-            |b, coords| {
+            |b, coords: &Vec<(u16, u16, u16)>| {
                 b.iter(|| {
                     let mut results = Vec::with_capacity(coords.len());
                     for &(x, y, z) in coords {
