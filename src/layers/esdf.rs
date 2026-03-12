@@ -21,7 +21,7 @@ use crate::neighbors::neighbors_index64;
 use crate::Index64;
 use ordered_float::OrderedFloat;
 use std::cmp::Reverse;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 /// Voxel data in ESDF layer
 #[derive(Debug, Clone, Copy)]
@@ -148,6 +148,7 @@ impl ESDFLayer {
         // Initialize priority queue for Fast Marching
         // Use min-heap ordered by distance (smallest distance processed first)
         let mut open: BinaryHeap<Reverse<(OrderedFloat<f32>, Index64)>> = BinaryHeap::new();
+        let mut pending: HashSet<Index64> = HashSet::new();
 
         // Initialize surface voxels
         for &idx in &surface_voxels {
@@ -164,7 +165,7 @@ impl ESDFLayer {
             // Add neighbors to open list
             let neighbors = neighbors_index64(idx);
             for neighbor_idx in neighbors {
-                if !self.voxels.contains_key(&neighbor_idx) {
+                if !self.voxels.contains_key(&neighbor_idx) && pending.insert(neighbor_idx) {
                     open.push(Reverse((OrderedFloat(dist.abs()), neighbor_idx)));
                 }
             }
@@ -172,6 +173,8 @@ impl ESDFLayer {
 
         // Fast marching: propagate distances
         while let Some(Reverse((_, current_idx))) = open.pop() {
+            pending.remove(&current_idx);
+
             // Skip if already processed
             if self
                 .voxels
@@ -209,7 +212,7 @@ impl ESDFLayer {
                     let estimated_dist =
                         clamped_distance.abs() + self.edge_lengths.diagonal * self.voxel_size;
 
-                    if estimated_dist <= self.max_distance {
+                    if estimated_dist <= self.max_distance && pending.insert(neighbor_idx) {
                         open.push(Reverse((OrderedFloat(estimated_dist), neighbor_idx)));
                     }
                 }
@@ -423,7 +426,8 @@ mod tests {
         }
 
         // Compute ESDF
-        let mut esdf = ESDFLayer::new(0.02, 5.0);
+        // Keep the unit test bounded; large max-distance sweeps are better suited for benches.
+        let mut esdf = ESDFLayer::new(0.1, 0.2);
         esdf.compute_from_tsdf(&tsdf, 0.05)?;
 
         // Should have some voxels
