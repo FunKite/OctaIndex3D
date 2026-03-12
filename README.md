@@ -17,7 +17,7 @@
 
 ## Table of Contents
 
-- [What's New in v0.5.3](#whats-new-in-v053)
+- [What's New in v0.5.4](#whats-new-in-v054)
 - [Overview](#overview)
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
@@ -35,14 +35,14 @@
 - [Contributing](#contributing)
 - [Research and Citation](#research-and-citation)
 
-## What's New in v0.5.3
+## What's New in v0.5.4
 
-This release focuses on reliability, security hardening, and documentation quality.
+This release focuses on patch-level dependency updates, security hardening, and safer release operations.
 
-- **Container hardening** - Added strict frame-count/frame-size bounds and safer parsing behavior for malformed input.
-- **Numerical robustness** - Made `Layer<f64>` aggregation NaN-safe and removed panic-prone ordering paths.
-- **Documentation quality push** - Improved quick start/book consistency and added automated book quality checks in CI.
-- **Release pipeline hardening** - CI/CD now enforces stricter publish/security gating for safer releases.
+- **Dependency refresh** - Updated `glam`, `rand`, `proptest`, `criterion`, `clap`, `rkyv`, `cudarc`, `zerocopy`, and `getrandom` across runtime and test surfaces.
+- **Security and robustness fixes** - Restored Route64 boundary filtering, hardened Bech32 payload validation, added Metal bounds checks, and made CLI raw-mode cleanup reliable on early exit.
+- **CI and repository hardening** - Pinned GitHub Actions SHAs, added `CODEOWNERS`, clarified unique security check contexts, and tightened workflow permissions.
+- **Release process correction** - The repo release flow now expects `cargo publish --dry-run` and real `cargo publish` to complete before the `v0.5.4` tag is pushed.
 
 See the full [Changelog](CHANGELOG.md) for release history.
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-03-12
+
 ### Changed
 - Updated `zerocopy` from 0.8.40 to 0.8.42, `glam` from 0.32.0 to 0.32.1, and `getrandom` from 0.4.1 to 0.4.2 (PR #97).
 - Hardened `scripts/safe_local_test.sh` to warn and continue when local `cargo-deny` advisory checks fail due to unsupported CVSS 4.0 metadata or an unwritable advisory-db lock path.
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `zerocopy` from 0.8.37 to 0.8.39 (PR #88).
 
 ### Fixed
+- Deduplicated ESDF fast-marching frontier entries so all-features validation and ESDF-from-TSDF propagation complete without explosive duplicate queue growth.
 - Restored Route64 boundary safety in fast neighbor kernels and GPU CPU fallbacks by filtering neighbors that would leave the signed 20-bit domain.
 - Hardened Bech32 ID decoding to validate raw payload invariants before constructing `Galactic128`, `Index64`, or `Route64`.
 - Added Metal input-count bounds checks in both host dispatch setup and the compute shader to prevent out-of-bounds partial-workgroup reads.
@@ -232,7 +235,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.3...HEAD
+[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.4...HEAD
+[0.5.4]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.4
 [0.5.3]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.3
 [0.5.2]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.2
 [0.5.1]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.1
