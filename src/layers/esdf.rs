@@ -212,10 +212,8 @@ impl ESDFLayer {
                     let estimated_dist =
                         clamped_distance.abs() + self.edge_lengths.diagonal * self.voxel_size;
 
-                    if estimated_dist <= self.max_distance {
-                        if pending.insert(neighbor_idx) {
-                            open.push(Reverse((OrderedFloat(estimated_dist), neighbor_idx)));
-                        }
+                    if estimated_dist <= self.max_distance && pending.insert(neighbor_idx) {
+                        open.push(Reverse((OrderedFloat(estimated_dist), neighbor_idx)));
                     }
                 }
             }
