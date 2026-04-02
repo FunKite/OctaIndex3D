@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `lz4_flex` from 0.12.0 to 0.13.0 to address Dependabot alert #2 / CVE-2026-32829 and incorporate the upstream decompression fix.
 - Updated `once_cell` from 1.21.3 to 1.21.4 and `clap` from 4.5.60 to 4.6.0 (supersedes open PRs #103 and #104).
 - Updated `softprops/action-gh-release` from 2.5.0 to 2.6.1 in the release workflow (supersedes open PR #102).
+- Updated `wgpu` from 28.0.0 to 29.0.0 and adjusted the compute backend for the upstream API changes (supersedes open PR #108).
 
 ## [0.5.4] - 2026-03-12
 
