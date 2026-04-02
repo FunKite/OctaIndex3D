@@ -6,6 +6,9 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      semver-minor-days: 7
+      semver-patch-days: 3
     open-pull-requests-limit: 5
     reviewers:
       - "FunKite"
@@ -15,14 +18,20 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
-    # Group minor and patch updates together
+    # Slow routine version PRs slightly so security PRs do not race them,
+    # and group each update class to reduce PR noise.
     groups:
       rust-dependencies:
+        applies-to: "version-updates"
         patterns:
           - "*"
         update-types:
           - "minor"
           - "patch"
+      rust-security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
