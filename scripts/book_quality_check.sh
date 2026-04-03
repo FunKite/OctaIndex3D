@@ -7,6 +7,9 @@ cd "${ROOT_DIR}"
 echo "==> Generating API contract"
 ./scripts/generate_book_api_contract.sh
 
+echo "==> Checking changelog coverage for workflow/dependency maintenance"
+./scripts/check_changelog_entry.sh
+
 echo "==> Checking markdown fence parity"
 fence_errors=0
 while IFS= read -r f; do

@@ -83,6 +83,9 @@ unset GITHUB_TOKEN GH_TOKEN CARGO_REGISTRIES_CRATES_IO_TOKEN
 unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
 unset OPENAI_API_KEY ANTHROPIC_API_KEY
 
+echo "==> Preflight: changelog coverage"
+./scripts/check_changelog_entry.sh
+
 # Prefer existing cargo home when writable; otherwise fall back to a local cache.
 default_cargo_home="${CARGO_HOME:-${HOME}/.cargo}"
 if mkdir -p "${default_cargo_home}" 2>/dev/null; then

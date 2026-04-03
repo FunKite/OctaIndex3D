@@ -14,11 +14,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
 
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
 
       - name: Run book quality checks
         run: |
-          chmod +x scripts/generate_book_api_contract.sh scripts/book_quality_check.sh
+          chmod +x scripts/generate_book_api_contract.sh scripts/book_quality_check.sh scripts/check_changelog_entry.sh
           ./scripts/book_quality_check.sh
