@@ -71,7 +71,7 @@ glam = { version = "0.32", optional = true }
 crc32fast = "1.4"
 
 # SHA256 for container v2
-sha2 = { version = "0.10", optional = true }
+sha2 = { version = "0.11", optional = true }
 
 # Data structures for legacy modules
 ahash = "0.8"
