@@ -31,19 +31,19 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Cache cargo registry
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: ~/.cargo/registry
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache cargo index
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache cargo build
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
