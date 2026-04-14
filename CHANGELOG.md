@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Updated `sha2` from 0.10.9 to 0.11.0 and raised `rand` to 0.10.1 to clear the active `RUSTSEC-2026-0097` advisory affecting `cargo-deny`.
+- Updated GitHub Actions `softprops/action-gh-release` from 2.6.1 to 3.0.0, `EmbarkStudios/cargo-deny-action` from 2.0.15 to 2.0.16, and `actions/cache` from 5.0.4 to 5.0.5.
 - Updated `lz4_flex` from 0.12.0 to 0.13.0 to address Dependabot alert #2 / CVE-2026-32829 and incorporate the upstream decompression fix.
 - Updated `once_cell` from 1.21.3 to 1.21.4 and `clap` from 4.5.60 to 4.6.0 (supersedes open PRs #103 and #104).
 - Updated `softprops/action-gh-release` from 2.5.0 to 2.6.1 in the release workflow (supersedes open PR #102).
