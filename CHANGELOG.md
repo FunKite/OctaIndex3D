@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Updated `rkyv` from 0.8.15 to 0.8.16, `rayon` from 1.11.0 to 1.12.0, and `wgpu` from 29.0.1 to 29.0.2.
 - Updated `clap` from 4.6.0 to 4.6.1, `EmbarkStudios/cargo-deny-action` from 2.0.16 to 2.0.17, regenerated the lockfile with Cargo's current transitive `windows-sys` resolution, and pinned the `cargo-outdated` CI install to its lockfile to keep the outdated-dependency check compatible with the current stable toolchain (supersedes open PRs #119 and #120).
 - Updated `sha2` from 0.10.9 to 0.11.0, kept the direct CLI `rand` dependency on 0.10.1, and refreshed the `proptest` lockfile path from `rand` 0.9.2 to 0.9.3 to clear `RUSTSEC-2026-0097` / `GHSA-cq8v-f236-94qc`.
 - Updated GitHub Actions `softprops/action-gh-release` from 2.6.1 to 3.0.0, `EmbarkStudios/cargo-deny-action` from 2.0.15 to 2.0.16, and `actions/cache` from 5.0.4 to 5.0.5.
