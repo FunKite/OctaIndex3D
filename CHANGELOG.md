@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- Updated `lz4_flex` from 0.13.0 to 0.13.1 (PR #127): fixes an out-of-bounds read / panic when compressing with dictionaries shorter than 4 bytes in `unsafe` mode — this is a security fix for untrusted-dictionary scenarios; all users on 0.13.0 should upgrade.
+
 ### Changed
+- Updated `cudarc` from 0.19.4 to 0.19.7 (PR #127): adds safe NCCL `Group` API, `view_ptr`/`view_ptr_mut`/`chunks_exact`/`chunks_exact_mut` helpers, and fixes a bug in `nccl-version-from-build-system`.
 - Updated `wgpu` from 29.0.2 to 29.0.3; 29.0.2 was yanked upstream due to a compilation error when `cfg(debug_assertions)` is not active (PR #125).
 - Updated `EmbarkStudios/cargo-deny-action` from 2.0.17 to 2.0.18, which bumps the bundled `cargo-deny` to 0.19.5 (PR #124).
 - Updated `rkyv` from 0.8.15 to 0.8.16, `rayon` from 1.11.0 to 1.12.0, and `wgpu` from 29.0.1 to 29.0.2.
