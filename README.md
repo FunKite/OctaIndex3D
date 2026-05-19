@@ -17,7 +17,7 @@
 
 ## Table of Contents
 
-- [What's New in v0.5.4](#whats-new-in-v054)
+- [What's New in v0.5.5](#whats-new-in-v055)
 - [Overview](#overview)
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
@@ -35,14 +35,15 @@
 - [Contributing](#contributing)
 - [Research and Citation](#research-and-citation)
 
-## What's New in v0.5.4
+## What's New in v0.5.5
 
-This release focuses on patch-level dependency updates, security hardening, and safer release operations.
+This release focuses on security dependency updates, GPU dependency compatibility, and release metadata cleanup.
 
-- **Dependency refresh** - Updated `glam`, `rand`, `proptest`, `criterion`, `clap`, `rkyv`, `cudarc`, `zerocopy`, and `getrandom` across runtime and test surfaces.
-- **Security and robustness fixes** - Restored Route64 boundary filtering, hardened Bech32 payload validation, added Metal bounds checks, and made CLI raw-mode cleanup reliable on early exit.
-- **CI and repository hardening** - Pinned GitHub Actions SHAs, added `CODEOWNERS`, clarified unique security check contexts, and tightened workflow permissions.
-- **Release process correction** - The repo release flow now expects `cargo publish --dry-run` and real `cargo publish` to complete before the `v0.5.4` tag is pushed.
+- **Security dependency fix** - Updated `lz4_flex` to 0.13.1 to avoid an upstream unsafe-mode dictionary compression panic for short dictionaries.
+- **GPU dependency refresh** - Updated `cudarc` to 0.19.7 and `wgpu` to 29.0.3, including the replacement for the yanked `wgpu` 29.0.2 release.
+- **Runtime and tooling updates** - Refreshed `rkyv`, `rayon`, `clap`, Cargo lockfile resolution, and GitHub Actions dependency tooling.
+- **Feature build fix** - Restored `--no-default-features` builds by keeping legacy serialization helpers behind the `serde` feature.
+- **Release metadata cleanup** - Promoted the accumulated unreleased dependency notes into the v0.5.5 changelog before publishing to crates.io.
 
 See the full [Changelog](CHANGELOG.md) for release history.
 

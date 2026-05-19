@@ -8,6 +8,7 @@
 use crate::error::{Error, Result};
 use crate::lattice::{Lattice, LatticeCoord, Parity};
 use bech32::{Bech32m, Hrp};
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -40,7 +41,8 @@ pub const FORMAT_VERSION: u8 = 2;
 /// ## Coordinate Range:
 /// - v0.1: ±8.4 million per axis
 /// - v0.2: ±2.1 billion per axis (supports Earth-scale in meters!)
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CellID {
     /// Raw 128-bit value
     value: u128,

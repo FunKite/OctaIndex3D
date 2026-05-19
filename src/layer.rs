@@ -5,6 +5,7 @@
 use crate::error::{Error, Result};
 use crate::id::CellID;
 use rustc_hash::FxHashMap;
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -26,7 +27,8 @@ pub enum Aggregation {
 }
 
 /// Generic data layer for storing cell attributes
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Layer<T> {
     /// Name of this layer
     name: String,

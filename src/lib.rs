@@ -61,6 +61,7 @@ pub mod geojson;
 
 // Legacy modules (for compatibility)
 pub mod id;
+#[cfg(feature = "serde")]
 pub mod io;
 pub mod layer;
 pub mod path;
@@ -108,7 +109,7 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert_eq!(VERSION, "0.5.4");
+        assert_eq!(VERSION, "0.5.5");
     }
 
     #[test]

@@ -1,6 +1,6 @@
 [package]
 name = "octaindex3d"
-version = "0.5.4"
+version = "0.5.5"
 edition = "2021"
 rust-version = "1.77"
 authors = ["Michael A. McLarney"]
@@ -21,6 +21,11 @@ exclude = [
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".cargo/",
     "deny.toml",
+    "release-artifacts/",
+    "replay*.json",
+    "octahedron_image.html",
+    "octahedron_still.html",
+    "Truncated Octahedron.png",
     "rust-toolchain.toml",
     "workinprogress.txt",
 ]

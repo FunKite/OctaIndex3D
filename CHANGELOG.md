@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.5] - 2026-05-19
+
 ### Security
 - Updated `lz4_flex` from 0.13.0 to 0.13.1 (PR #127): fixes an out-of-bounds read / panic when compressing with dictionaries shorter than 4 bytes in `unsafe` mode — this is a security fix for untrusted-dictionary scenarios; all users on 0.13.0 should upgrade.
 
@@ -24,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated pinned `actions/cache` from 5.0.3 to 5.0.4 in the Rust CI workflow (refreshes open PR #107 onto current `main`).
 - Updated `wgpu` from 28.0.0 to 29.0.0 and adjusted the compute backend for the upstream API changes (supersedes open PR #108).
 - Tuned Dependabot Cargo update handling with a version-update cooldown and explicit security-update grouping to reduce overlapping PR noise.
+
+### Fixed
+- Restored `--no-default-features` builds by gating legacy serialization derives and I/O helpers behind the `serde` feature.
+- Excluded local release archives and replay/demo artifacts from the crates.io package.
 
 ## [0.5.4] - 2026-03-12
 
@@ -253,7 +259,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.4...HEAD
+[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.5...HEAD
+[0.5.5]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.4
 [0.5.3]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.3
 [0.5.2]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.2
