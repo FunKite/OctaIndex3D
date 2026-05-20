@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- Replaced unmaintained `serde_cbor` (RUSTSEC-2021-0127) with `ciborium 0.2` in the `serde` feature; the public `Dataset::save_cbor` / `Dataset::load_cbor` API is preserved with identical behaviour.
+- Removed `RUSTSEC-2021-0127` from `deny.toml` advisory ignore list now that the advisory no longer applies.
+- Routine security audit (2026-05-20): no new CVEs or active advisories in the dependency tree; `paste` (RUSTSEC-2024-0436, unmaintained, transitive via `metal`) remains the sole acknowledged advisory.
+
 ## [0.5.5] - 2026-05-19
 
 ### Security

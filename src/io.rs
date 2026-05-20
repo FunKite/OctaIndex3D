@@ -100,7 +100,7 @@ impl Dataset {
     pub fn save_cbor<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let file = File::create(path)?;
         let writer = BufWriter::new(file);
-        serde_cbor::to_writer(writer, self).map_err(|e| Error::IoError(e.to_string()))?;
+        ciborium::into_writer(self, writer).map_err(|e| Error::IoError(e.to_string()))?;
         Ok(())
     }
 
@@ -108,7 +108,7 @@ impl Dataset {
     pub fn load_cbor<P: AsRef<Path>>(path: P) -> Result<Self> {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
-        serde_cbor::from_reader(reader).map_err(|e| Error::IoError(e.to_string()))
+        ciborium::from_reader(reader).map_err(|e| Error::IoError(e.to_string()))
     }
 }
 
