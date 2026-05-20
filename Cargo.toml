@@ -47,7 +47,7 @@ zstd = { version = "0.13", optional = true }
 # Serialization
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_json = { version = "1.0", optional = true }
-serde_cbor = { version = "0.11", optional = true }
+ciborium = { version = "0.2", optional = true }
 
 # Bech32m encoding
 bech32 = "0.11"
@@ -138,7 +138,7 @@ rand = "0.10.1"
 default = ["serde", "lz4", "simd", "parallel"]
 lz4 = []
 zstd = ["dep:zstd"]
-serde = ["dep:serde", "dep:serde_json", "dep:serde_cbor"]
+serde = ["dep:serde", "dep:serde_json", "dep:ciborium"]
 pathfinding = ["dep:petgraph"]
 zerocopy_support = ["dep:zerocopy"]
 rkyv = ["dep:rkyv"]
