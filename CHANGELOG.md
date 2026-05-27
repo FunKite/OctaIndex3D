@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `RUSTSEC-2021-0127` from `deny.toml` advisory ignore list now that the advisory no longer applies.
 - Routine security audit (2026-05-20): no new CVEs or active advisories in the dependency tree; `paste` (RUSTSEC-2024-0436, unmaintained, transitive via `metal`) remains the sole acknowledged advisory.
 
+### Changed
+- Updated `serde_json` from 1.0.149 to 1.0.150 (PR #132): rejects non-string enum object keys, closing a subtle deserialization correctness issue.
+- Updated `EmbarkStudios/cargo-deny-action` from 2.0.18 to 2.0.19 (PR #131): bumps the bundled `cargo-deny` to 0.19.7.
+
 ## [0.5.5] - 2026-05-19
 
 ### Security
