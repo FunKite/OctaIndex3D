@@ -117,14 +117,15 @@ pub fn batch_validate_routes(routes: &[Route64]) -> Vec<bool> {
     }
 
     // Scalar fallback
-    // For BCC lattice, parity must be even (x+y+z must be even)
+    // For BCC lattice, a point is valid iff x, y, z all share the same parity
+    // (all-even or all-odd). Note this is NOT equivalent to "x+y+z is even":
+    // all-odd coordinates sum to an odd value yet are valid.
     for route in routes {
         let x = route.x();
         let y = route.y();
         let z = route.z();
-        let sum = x + y + z;
-        let is_even = (sum & 1) == 0;
-        results.push(is_even);
+        let is_valid = ((x ^ y) & 1) == 0 && ((y ^ z) & 1) == 0;
+        results.push(is_valid);
     }
 
     results
@@ -337,9 +338,8 @@ unsafe fn batch_validate_routes_avx2(routes: &[Route64]) -> Vec<bool> {
             let x = route.x();
             let y = route.y();
             let z = route.z();
-            let sum = x + y + z;
-            let is_even = (sum & 1) == 0;
-            results.push(is_even);
+            let is_valid = ((x ^ y) & 1) == 0 && ((y ^ z) & 1) == 0;
+            results.push(is_valid);
         }
     }
 
@@ -349,9 +349,8 @@ unsafe fn batch_validate_routes_avx2(routes: &[Route64]) -> Vec<bool> {
         let x = route.x();
         let y = route.y();
         let z = route.z();
-        let sum = x + y + z;
-        let is_even = (sum & 1) == 0;
-        results.push(is_even);
+        let is_valid = ((x ^ y) & 1) == 0 && ((y ^ z) & 1) == 0;
+        results.push(is_valid);
     }
 
     results
@@ -431,58 +430,16 @@ unsafe fn batch_euclidean_distance_squared_avx2(
     sz: i64,
     targets: &[Route64],
 ) -> Vec<i64> {
-    use std::arch::x86_64::*;
-
     let len = targets.len();
     let mut results = Vec::with_capacity(len);
 
-    // Broadcast source coordinates
-    let sx_vec = _mm256_set1_epi64x(sx);
-    let sy_vec = _mm256_set1_epi64x(sy);
-    let sz_vec = _mm256_set1_epi64x(sz);
-
-    // Process 4 at a time (AVX2 has 4x 64-bit lanes)
-    let chunks = len / 4;
-    let remainder = len % 4;
-
-    for chunk in 0..chunks {
-        let base = chunk * 4;
-
-        // Load 4 target coordinates
-        let mut tx = [0i64; 4];
-        let mut ty = [0i64; 4];
-        let mut tz = [0i64; 4];
-
-        for i in 0..4 {
-            tx[i] = targets[base + i].x() as i64;
-            ty[i] = targets[base + i].y() as i64;
-            tz[i] = targets[base + i].z() as i64;
-        }
-
-        let tx_vec = _mm256_loadu_si256(tx.as_ptr() as *const __m256i);
-        let ty_vec = _mm256_loadu_si256(ty.as_ptr() as *const __m256i);
-        let tz_vec = _mm256_loadu_si256(tz.as_ptr() as *const __m256i);
-
-        // Calculate differences
-        let _dx = _mm256_sub_epi64(sx_vec, tx_vec);
-        let _dy = _mm256_sub_epi64(sy_vec, ty_vec);
-        let _dz = _mm256_sub_epi64(sz_vec, tz_vec);
-
-        // Note: AVX2 doesn't have 64-bit multiply, so we fall back to scalar
-        // Full AVX-512 would provide _mm512_mullo_epi64
-        for i in 0..4 {
-            let dx_val = tx[i] - sx;
-            let dy_val = ty[i] - sy;
-            let dz_val = tz[i] - sz;
-            results.push(dx_val * dx_val + dy_val * dy_val + dz_val * dz_val);
-        }
-    }
-
-    // Handle remainder
-    for i in (len - remainder)..len {
-        let dx = sx - (targets[i].x() as i64);
-        let dy = sy - (targets[i].y() as i64);
-        let dz = sz - (targets[i].z() as i64);
+    // Note: AVX2 has no 64-bit SIMD multiply, so squared distances are computed
+    // scalar-side. Squaring with 64-bit accumulation requires AVX-512DQ
+    // (_mm512_mullox_epi64); see `batch_euclidean_distance_squared_avx512`.
+    for target in targets {
+        let dx = sx - (target.x() as i64);
+        let dy = sy - (target.y() as i64);
+        let dz = sz - (target.z() as i64);
         results.push(dx * dx + dy * dy + dz * dz);
     }
 
@@ -906,6 +863,35 @@ mod tests {
         assert!(result[0], "Route (0,0,0) should be valid");
         assert!(result[1], "Route (2,2,2) should be valid");
         assert!(result[2], "Route (2,2,0) should be valid");
+    }
+
+    #[test]
+    fn test_batch_validate_routes_odd_parity() {
+        // All-odd coordinates are valid BCC points (odd sublattice) even though
+        // their sum is odd. Build enough routes to exercise the SIMD path too.
+        let mut routes = Vec::new();
+        for i in 0..20 {
+            let c = 2 * i + 1; // 1, 3, 5, ... -> all-odd, valid
+            routes.push(Route64::new(0, c, c, c).unwrap());
+        }
+        let result = batch_validate_routes(&routes);
+        assert!(
+            result.iter().all(|&v| v),
+            "all-odd-parity routes must validate as valid"
+        );
+
+        // Mixed parity (invalid BCC) must be rejected even when the sum is even.
+        // (2,1,1) sums to 4 (even) but mixes parities, so the old sum-even test
+        // would wrongly accept it. Constructed via new_unchecked since new()
+        // rejects it.
+        let mut mixed: Vec<Route64> =
+            (0..16).map(|_| Route64::new(0, 0, 0, 0).unwrap()).collect();
+        mixed.push(unsafe { Route64::new_unchecked(0, 2, 1, 1) });
+        let result = batch_validate_routes(&mixed);
+        assert!(
+            !result[16],
+            "mixed-parity route (2,1,1) must validate as invalid"
+        );
     }
 
     #[test]
