@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New **Bloodhound survival mode** for the interactive maze (`octaindex3d play`). A start-up menu (or `--mode astar|bloodhound`) selects between the existing A* race and the new mode, where you must reach the goal before pursuing bloodhounds catch you. 10% of cells hide invisible metal spikes; an omnidirectional detector reports how many reachable neighbours are spiked. Stepping on a spike makes you scream — releasing a new hound from the furthest map corner, broadcasting your position to every hound, and leaving a 3-turn blood trail whose age each hound can read. Hounds path through the maze toward their freshest scream/blood evidence and never idle: once a hound reaches its last-known location with no fresher lead it searches outward (least-visited connected cell, biased toward the scent) instead of sitting. A hound one cell away *with no wall between* lunges and catches the player — and since the player always moves first, a clean flee down a corridor is safe, but a hound you cannot break contact from (cornered, or juking while staying adjacent through an open cell) catches you; a wall blocks the lunge. Walking into a bloodhound's cell is fatal (you run into its jaws) rather than being blocked. If the player is ever blocked in (no legal move), they forfeit the turn and the hounds still advance. Being caught ends the run. Progressive sizing starts at 8×8×8 and grows each cleared level, with separate stats persisted to `~/.octaindex3d_bloodhound_stats.json`.
+
 ### Security
 - Replaced unmaintained `serde_cbor` (RUSTSEC-2021-0127) with `ciborium 0.2` in the `serde` feature; the public `Dataset::save_cbor` / `Dataset::load_cbor` API is preserved with identical behaviour.
 - Removed `RUSTSEC-2021-0127` from `deny.toml` advisory ignore list now that the advisory no longer applies.
