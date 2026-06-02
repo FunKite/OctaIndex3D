@@ -89,6 +89,11 @@ enum Commands {
         /// Difficulty: easy (8x8x8), medium (20x20x20), hard (40x40x40)
         #[arg(short, long, value_parser = ["easy", "medium", "hard"])]
         difficulty: Option<String>,
+
+        /// Game mode: astar (race A* on nodes explored) or bloodhound (survival).
+        /// If omitted, an in-game menu lets you choose.
+        #[arg(short, long, value_parser = ["astar", "bloodhound"])]
+        mode: Option<String>,
     },
 
     /// View competitive statistics against A*
@@ -256,6 +261,51 @@ impl CompetitiveStats {
         } else {
             self.total_efficiency / self.total_games as f64
         }
+    }
+}
+
+// ============================================================================
+// Bloodhound Mode Statistics (persisted separately from A* stats)
+// ============================================================================
+
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug, Default)]
+struct BloodhoundStats {
+    runs: u32,
+    deaths: u32,
+    best_level: u32,
+    total_screams: u32,
+}
+
+impl BloodhoundStats {
+    fn stats_file() -> PathBuf {
+        dirs::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".octaindex3d_bloodhound_stats.json")
+    }
+
+    fn load() -> Self {
+        if let Ok(content) = fs::read_to_string(Self::stats_file()) {
+            if let Ok(stats) = serde_json::from_str(&content) {
+                return stats;
+            }
+        }
+        Self::default()
+    }
+
+    fn save(&self) -> std::io::Result<()> {
+        let json = serde_json::to_string_pretty(self).map_err(std::io::Error::other)?;
+        fs::write(Self::stats_file(), json)
+    }
+
+    /// Record the outcome of one full bloodhound run.
+    fn record_run(&mut self, levels_cleared: u32, screams: u32, caught: bool) {
+        self.runs += 1;
+        if caught {
+            self.deaths += 1;
+        }
+        self.best_level = self.best_level.max(levels_cleared);
+        self.total_screams += screams;
+        let _ = self.save();
     }
 }
 
@@ -995,6 +1045,641 @@ fn play_game(custom_size: Option<u32>, seed: u64) -> Result<()> {
 }
 
 // ============================================================================
+// Bloodhound Survival Mode
+// ============================================================================
+
+/// Map a movement key to its BCC coordinate delta.
+fn dir_delta(key: char) -> Option<Coord> {
+    Some(match key {
+        'n' => (0, 2, 0),
+        's' => (0, -2, 0),
+        'e' => (2, 0, 0),
+        'w' => (-2, 0, 0),
+        'u' => (0, 0, 2),
+        'd' => (0, 0, -2),
+        '1' => (1, 1, 1),
+        '2' => (1, 1, -1),
+        '3' => (-1, 1, 1),
+        '4' => (-1, 1, -1),
+        '5' => (1, -1, 1),
+        '6' => (1, -1, -1),
+        '7' => (-1, -1, 1),
+        '8' => (-1, -1, -1),
+        _ => return None,
+    })
+}
+
+/// Map a BCC coordinate delta to its movement key and label.
+fn delta_to_dir(d: Coord) -> Option<(char, &'static str)> {
+    Some(match d {
+        (0, 2, 0) => ('n', "North (y+2)"),
+        (0, -2, 0) => ('s', "South (y-2)"),
+        (2, 0, 0) => ('e', "East (x+2)"),
+        (-2, 0, 0) => ('w', "West (x-2)"),
+        (0, 0, 2) => ('u', "Up (z+2)"),
+        (0, 0, -2) => ('d', "Down (z-2)"),
+        (1, 1, 1) => ('1', "NE-Up (+1,+1,+1)"),
+        (1, 1, -1) => ('2', "NE-Down (+1,+1,-1)"),
+        (-1, 1, 1) => ('3', "NW-Up (-1,+1,+1)"),
+        (-1, 1, -1) => ('4', "NW-Down (-1,+1,-1)"),
+        (1, -1, 1) => ('5', "SE-Up (+1,-1,+1)"),
+        (1, -1, -1) => ('6', "SE-Down (+1,-1,-1)"),
+        (-1, -1, 1) => ('7', "SW-Up (-1,-1,+1)"),
+        (-1, -1, -1) => ('8', "SW-Down (-1,-1,-1)"),
+        _ => return None,
+    })
+}
+
+/// Squared Euclidean distance between two coordinates (exact, no truncation).
+fn dist_sq(a: Coord, b: Coord) -> i64 {
+    let dx = (a.0 - b.0) as i64;
+    let dy = (a.1 - b.1) as i64;
+    let dz = (a.2 - b.2) as i64;
+    dx * dx + dy * dy + dz * dz
+}
+
+/// Roll spikes into ~`prob_percent`% of carved cells (start and goal excluded).
+fn generate_spikes(maze: &Maze, seed: u64, prob_percent: u32) -> HashSet<Coord> {
+    use rand::rngs::StdRng;
+    use rand::{RngExt, SeedableRng};
+
+    let mut rng = StdRng::seed_from_u64(seed);
+    let mut spikes = HashSet::new();
+    for &cell in &maze.carved {
+        if cell == maze.start || cell == maze.goal {
+            continue;
+        }
+        if rng.random_range(0..100) < prob_percent {
+            spikes.insert(cell);
+        }
+    }
+    spikes
+}
+
+/// Pick the carved cell nearest the bounding-box corner that is furthest
+/// (max Euclidean distance) from `from`. Used to release a new bloodhound.
+fn furthest_corner_spawn(maze: &Maze, from: Coord) -> Coord {
+    let (ex, ey, ez) = maze.extent;
+    let xs = [0i32, ex as i32 - 1];
+    let ys = [0i32, ey as i32 - 1];
+    let zs = [0i32, ez as i32 - 1];
+
+    let mut best_corner = from;
+    let mut best_corner_d = -1i64;
+    for &x in &xs {
+        for &y in &ys {
+            for &z in &zs {
+                let corner = (x, y, z);
+                let d = dist_sq(corner, from);
+                if d > best_corner_d {
+                    best_corner_d = d;
+                    best_corner = corner;
+                }
+            }
+        }
+    }
+
+    // Snap to the nearest actually-carved cell to that corner.
+    let mut spawn = maze.start;
+    let mut best_d = i64::MAX;
+    for &cell in &maze.carved {
+        let d = dist_sq(cell, best_corner);
+        if d < best_d {
+            best_d = d;
+            spawn = cell;
+        }
+    }
+    spawn
+}
+
+/// A single pursuing bloodhound. It chases the freshest evidence it knows of,
+/// and roams to search when its trail goes cold.
+struct Bloodhound {
+    pos: Coord,
+    /// Cell it is currently walking toward (a scent/blood location, or a search step).
+    target: Coord,
+    /// Last-known player location (scent source) used to bias the search.
+    anchor: Coord,
+    /// Turn number of the freshest scream/blood evidence this hound is tracking.
+    evidence_turn: u64,
+    /// Per-cell visit counts, so the search spreads out instead of oscillating.
+    visits: HashMap<Coord, u32>,
+}
+
+/// Result of a player's attempted move in bloodhound mode.
+enum MoveOutcome {
+    /// Wall or invalid key — no turn was taken.
+    Blocked,
+    /// Moved into an empty cell.
+    Moved,
+    /// Moved onto the goal — level cleared.
+    ReachedGoal,
+    /// Walked straight into a bloodhound — the player is killed.
+    IntoBloodhound,
+}
+
+struct BloodhoundGame {
+    maze: Maze,
+    current_pos: Coord,
+    turn: u64,
+    spikes: HashSet<Coord>,
+    /// Cell -> creation turn (age) of the blood trace left there.
+    blood: HashMap<Coord, u64>,
+    hounds: Vec<Bloodhound>,
+    bleed_turns_remaining: u8,
+    move_history: Vec<Coord>,
+    visited: HashSet<Coord>,
+    start_time: Instant,
+    level: u32,
+    hints_used: u32,
+    screams: u32,
+}
+
+impl BloodhoundGame {
+    fn new(maze: Maze, spikes: HashSet<Coord>, level: u32) -> Self {
+        let start_pos = maze.start;
+        let mut visited = HashSet::new();
+        visited.insert(start_pos);
+        Self {
+            maze,
+            current_pos: start_pos,
+            turn: 0,
+            spikes,
+            blood: HashMap::new(),
+            hounds: Vec::new(),
+            bleed_turns_remaining: 0,
+            move_history: vec![start_pos],
+            visited,
+            start_time: Instant::now(),
+            level,
+            hints_used: 0,
+            screams: 0,
+        }
+    }
+
+    fn hound_at(&self, c: Coord) -> bool {
+        self.hounds.iter().any(|h| h.pos == c)
+    }
+
+    /// Number of reachable (no-wall) neighbor cells that contain a spike.
+    fn spike_detector_count(&self) -> usize {
+        self.maze
+            .get_connected_neighbors(self.current_pos)
+            .into_iter()
+            .filter(|n| self.spikes.contains(n))
+            .count()
+    }
+
+    fn nearest_hound_distance(&self) -> Option<f64> {
+        self.hounds
+            .iter()
+            .map(|h| (dist_sq(h.pos, self.current_pos) as f64).sqrt())
+            .fold(None, |acc, d| match acc {
+                Some(m) if m <= d => Some(m),
+                _ => Some(d),
+            })
+    }
+
+    fn is_caught(&self) -> bool {
+        self.hound_at(self.current_pos)
+    }
+
+    /// True if any bloodhound is one cell from the player with no wall between
+    /// them (i.e. it could step straight onto the player).
+    fn any_hound_can_lunge(&self) -> bool {
+        self.hounds
+            .iter()
+            .any(|h| self.maze.are_connected(h.pos, self.current_pos))
+    }
+
+    /// Resolve the bloodhounds' turn. A hound one open cell away lunges and
+    /// catches the player; otherwise every hound advances one step (and may
+    /// step onto the player). Returns true if the player is caught.
+    fn resolve_hounds(&mut self) -> bool {
+        // Lunge: the player moved first this turn, so a hound still one open
+        // cell away means they failed to break contact — it pounces.
+        if self.is_caught() || self.any_hound_can_lunge() {
+            return true;
+        }
+        self.move_bloodhounds();
+        self.is_caught()
+    }
+
+    /// True if the player has at least one legal move (a connected neighbor
+    /// not occupied by a bloodhound). When false, the player is blocked in.
+    fn has_available_move(&self) -> bool {
+        self.maze
+            .get_connected_neighbors(self.current_pos)
+            .into_iter()
+            .any(|n| !self.hound_at(n))
+    }
+
+    /// Attempt a move. A wall or invalid key is `Blocked` (no turn taken);
+    /// walking into a bloodhound's cell is fatal (`IntoBloodhound`).
+    fn make_move(&mut self, key: char) -> MoveOutcome {
+        let Some(delta) = dir_delta(key) else {
+            return MoveOutcome::Blocked;
+        };
+        let next_pos = (
+            self.current_pos.0 + delta.0,
+            self.current_pos.1 + delta.1,
+            self.current_pos.2 + delta.2,
+        );
+
+        if !self.maze.are_connected(self.current_pos, next_pos) {
+            return MoveOutcome::Blocked;
+        }
+        if self.hound_at(next_pos) {
+            // Run straight into the bloodhound's jaws.
+            return MoveOutcome::IntoBloodhound;
+        }
+
+        self.current_pos = next_pos;
+        self.turn += 1;
+        self.move_history.push(next_pos);
+        self.visited.insert(next_pos);
+
+        // Leave a blood trace while bleeding.
+        if self.bleed_turns_remaining > 0 {
+            self.blood.insert(next_pos, self.turn);
+            self.bleed_turns_remaining -= 1;
+        }
+
+        // Step on a spike -> scream.
+        if self.spikes.contains(&next_pos) {
+            self.trigger_scream();
+        }
+
+        if self.current_pos == self.maze.goal {
+            MoveOutcome::ReachedGoal
+        } else {
+            MoveOutcome::Moved
+        }
+    }
+
+    /// Stepping on a spike: release a hound from the far corner, inform every
+    /// hound of the player's current location, and start bleeding for 3 turns.
+    fn trigger_scream(&mut self) {
+        self.screams += 1;
+        let spawn = furthest_corner_spawn(&self.maze, self.current_pos);
+        let mut visits = HashMap::new();
+        visits.insert(spawn, 1);
+        self.hounds.push(Bloodhound {
+            pos: spawn,
+            target: self.current_pos,
+            anchor: self.current_pos,
+            evidence_turn: self.turn,
+            visits,
+        });
+        // Broadcast the exact player position to all hounds (including the new one).
+        for h in &mut self.hounds {
+            h.target = self.current_pos;
+            h.anchor = self.current_pos;
+            h.evidence_turn = self.turn;
+        }
+        self.bleed_turns_remaining = 3;
+        self.blood.insert(self.current_pos, self.turn);
+    }
+
+    /// Pick a search step when the trail is cold: move to the connected
+    /// neighbor visited least often (so the hound spreads out rather than
+    /// oscillating), breaking ties toward its last-known scent location.
+    /// Never returns the current cell unless the hound is truly isolated.
+    fn search_step(&self, i: usize) -> Coord {
+        let h = &self.hounds[i];
+        let mut best: Option<(u32, u32, Coord)> = None;
+        for nb in self.maze.get_connected_neighbors(h.pos) {
+            let visit_count = *h.visits.get(&nb).unwrap_or(&0);
+            let toward_scent = heuristic(nb, h.anchor);
+            let key = (visit_count, toward_scent);
+            let better = match best {
+                None => true,
+                Some((bv, bt, _)) => key < (bv, bt),
+            };
+            if better {
+                best = Some((visit_count, toward_scent, nb));
+            }
+        }
+        best.map(|(_, _, c)| c).unwrap_or(h.pos)
+    }
+
+    /// Advance every bloodhound one cell. A hound walks the unique tree path
+    /// toward its freshest scream/blood evidence; once it reaches that cell with
+    /// no fresher lead it searches outward — it never sits still. Crossing a
+    /// fresher blood trace re-points it at the player.
+    fn move_bloodhounds(&mut self) {
+        let n = self.hounds.len();
+        for i in 0..n {
+            let pos = self.hounds[i].pos;
+            let next = if pos != self.hounds[i].target {
+                // Head toward the freshest known evidence.
+                astar_pathfind(&self.maze, pos, self.hounds[i].target)
+                    .and_then(|(path, _)| path.get(1).copied())
+                    .unwrap_or_else(|| self.search_step(i))
+            } else {
+                // Arrived at the last-known location: roam to hunt for the trail.
+                let step = self.search_step(i);
+                self.hounds[i].target = step; // commit so the search keeps spreading
+                step
+            };
+
+            self.hounds[i].pos = next;
+            *self.hounds[i].visits.entry(next).or_insert(0) += 1;
+
+            // Detect blood by age; follow fresher trails toward the player.
+            if let Some(&age) = self.blood.get(&next) {
+                if age > self.hounds[i].evidence_turn {
+                    self.hounds[i].target = next;
+                    self.hounds[i].anchor = next;
+                    self.hounds[i].evidence_turn = age;
+                }
+            }
+        }
+    }
+
+    fn display_status(&self) {
+        use std::io::{stdout, Write};
+
+        print!("\r\n🩸 BLOODHOUND SURVIVAL - Level {}\r\n", self.level);
+        print!(
+            "Position: {:?}  →  Goal: {:?}\r\n",
+            self.current_pos, self.maze.goal
+        );
+        print!(
+            "Moves: {}  |  Time: {:.1}s  |  Visited: {}/{}\r\n",
+            self.move_history.len() - 1,
+            self.start_time.elapsed().as_secs_f64(),
+            self.visited.len(),
+            self.maze.carved.len()
+        );
+
+        // Spike detector reading.
+        let spikes_near = self.spike_detector_count();
+        if spikes_near == 0 {
+            print!("🧭 Spike detector: clear (0 adjacent)\r\n");
+        } else {
+            print!(
+                "🧭 Spike detector: ⚠ {} adjacent cell(s) contain spikes!\r\n",
+                spikes_near
+            );
+        }
+
+        // Bloodhound threat.
+        match self.nearest_hound_distance() {
+            None => print!("🐕 Bloodhounds: none released (stay quiet!)\r\n"),
+            Some(d) => print!(
+                "🐕 Bloodhounds: {} loose — nearest {:.1} away (straight line)!\r\n",
+                self.hounds.len(),
+                d
+            ),
+        }
+        if self.any_hound_can_lunge() {
+            print!("‼️  A bloodhound is one step away with a clear path — MOVE or it lunges!\r\n");
+        }
+
+        if self.bleed_turns_remaining > 0 {
+            print!(
+                "🩸 Bleeding: {} turn(s) of blood trail left\r\n",
+                self.bleed_turns_remaining
+            );
+        }
+
+        let dist = heuristic(self.current_pos, self.maze.goal);
+        print!("\r\nDistance to goal: {} (straight line)\r\n\r\n", dist);
+
+        print!("Available Directions (press key to move):\r\n");
+        for neighbor in self.maze.get_connected_neighbors(self.current_pos) {
+            let delta = (
+                neighbor.0 - self.current_pos.0,
+                neighbor.1 - self.current_pos.1,
+                neighbor.2 - self.current_pos.2,
+            );
+            if let Some((key, name)) = delta_to_dir(delta) {
+                if self.hound_at(neighbor) {
+                    print!(
+                        "  [{:>1}] 💀 {} (BLOODHOUND - moving here is death!)\r\n",
+                        key, name
+                    );
+                } else {
+                    let mark = if self.visited.contains(&neighbor) {
+                        "●"
+                    } else {
+                        "○"
+                    };
+                    print!("  [{:>1}] {} {}\r\n", key, mark, name);
+                }
+            }
+        }
+
+        print!("\r\nCommands: [h]int (path to goal) | [q]uit\r\n");
+        let _ = stdout().flush();
+    }
+}
+
+/// Render the "caught by a bloodhound" end-of-run screen.
+fn print_caught_screen(game: &BloodhoundGame, current_level: u32, levels_cleared: u32) {
+    use std::io::{stdout, Write};
+    clear_screen();
+    print!("\r\n💀 CAUGHT! A bloodhound sank its teeth into you.\r\n");
+    print!("═══════════════════════════════════════\r\n");
+    print!("Levels cleared this run: {}\r\n", levels_cleared);
+    print!("Reached level: {}\r\n", current_level);
+    print!("Screams this level: {}\r\n", game.screams);
+    print!("Total moves: {}\r\n", game.move_history.len() - 1);
+    print!(
+        "Time survived: {:.1}s\r\n",
+        game.start_time.elapsed().as_secs_f64()
+    );
+    let _ = stdout().flush();
+}
+
+fn play_bloodhound_game(seed: u64) -> Result<()> {
+    use std::io::{stdout, Write};
+
+    let _raw_mode_guard = RawModeGuard::new()?;
+    let mut stats = BloodhoundStats::load();
+
+    // Progressive sizing: start at 8x8x8, grow by one each cleared level.
+    let mut current_level = 1u32;
+    let mut current_size = 8u32;
+    let mut levels_cleared = 0u32;
+    let mut total_screams = 0u32;
+    let mut caught = false;
+
+    'game_loop: loop {
+        clear_screen();
+        print!(
+            "\r\n🩸 BLOODHOUND SURVIVAL - LEVEL {} ({}x{}x{})\r\n",
+            current_level, current_size, current_size, current_size
+        );
+        print!("Reach the goal before the bloodhounds reach you.\r\n");
+        let _ = stdout().flush();
+
+        let extent = (current_size, current_size, current_size);
+        let level_seed = seed.wrapping_add(current_level as u64);
+        let maze = Maze::generate(extent, level_seed);
+        // Derive a distinct (but deterministic) seed for spike placement.
+        let spikes = generate_spikes(&maze, level_seed ^ 0x9E37_79B9_7F4A_7C15, 10);
+
+        print!(
+            "\r\n✓ Maze generated! Carved nodes: {}\r\n",
+            maze.carved.len()
+        );
+        print!("✓ Start: {:?} → Goal: {:?}\r\n", maze.start, maze.goal);
+        print!("\r\n10% of cells hide an invisible metal spike. Step on one and\r\n");
+        print!("you scream, releasing a bloodhound from the far corner...\r\n");
+        print!("\r\nPress any key to begin...\r\n");
+        let _ = stdout().flush();
+        wait_for_any_key()?;
+
+        let mut game = BloodhoundGame::new(maze, spikes, current_level);
+
+        'level_loop: loop {
+            clear_screen();
+            game.display_status();
+
+            // Blocked in (no legal move): the player forfeits the turn and the
+            // hounds advance anyway.
+            if !game.has_available_move() {
+                print!("\r\n🚧 You're blocked in — no escape! You forfeit this turn.\r\n");
+                print!("Press any key to wait it out (or [q] to quit)...\r\n");
+                let _ = stdout().flush();
+                let KeyEvent { code, .. } = read_key_event()?;
+                if let KeyCode::Char('q') = code {
+                    total_screams += game.screams;
+                    clear_screen();
+                    print!("\r\nYou abandon the maze. The hounds win by default.\r\n");
+                    print!("Levels cleared this run: {}\r\n", levels_cleared);
+                    let _ = stdout().flush();
+                    break 'game_loop;
+                }
+                if game.resolve_hounds() {
+                    caught = true;
+                    total_screams += game.screams;
+                    print_caught_screen(&game, current_level, levels_cleared);
+                    break 'game_loop;
+                }
+                continue 'level_loop;
+            }
+
+            let KeyEvent { code, .. } = read_key_event()?;
+            match code {
+                KeyCode::Char('q') => {
+                    total_screams += game.screams;
+                    clear_screen();
+                    print!("\r\nYou abandon the maze. The hounds win by default.\r\n");
+                    print!("Levels cleared this run: {}\r\n", levels_cleared);
+                    let _ = stdout().flush();
+                    break 'game_loop;
+                }
+                KeyCode::Char('h') => {
+                    game.hints_used += 1;
+                    clear_screen();
+                    game.display_status();
+                    print!("\r\n💡 Computing path to goal...\r\n");
+                    if let Some((path, _)) =
+                        astar_pathfind(&game.maze, game.current_pos, game.maze.goal)
+                    {
+                        if path.len() > 1 {
+                            let next = path[1];
+                            let delta = (
+                                next.0 - game.current_pos.0,
+                                next.1 - game.current_pos.1,
+                                next.2 - game.current_pos.2,
+                            );
+                            let key = delta_to_dir(delta).map(|(k, _)| k).unwrap_or('?');
+                            print!(
+                                "Optimal path: {} moves. Next move: press [{}]\r\n",
+                                path.len() - 1,
+                                key
+                            );
+                        } else {
+                            print!("You're already at the goal!\r\n");
+                        }
+                    } else {
+                        print!("No path found!\r\n");
+                    }
+                    print!("\r\nPress any key to continue...\r\n");
+                    let _ = stdout().flush();
+                    wait_for_any_key()?;
+                }
+                KeyCode::Char(c) => {
+                    match game.make_move(c) {
+                        MoveOutcome::ReachedGoal => {
+                            // Reached the goal — level cleared.
+                            levels_cleared += 1;
+                            total_screams += game.screams;
+                            clear_screen();
+                            print!("\r\n🎉 LEVEL {} CLEARED — you escaped!\r\n", current_level);
+                            print!("═══════════════════════════════════════\r\n");
+                            print!("Moves: {}\r\n", game.move_history.len() - 1);
+                            print!("Time: {:.1}s\r\n", game.start_time.elapsed().as_secs_f64());
+                            print!("Screams this level: {}\r\n", game.screams);
+                            print!("Bloodhounds loose at the end: {}\r\n", game.hounds.len());
+                            print!(
+                                "\r\n🎯 Ready for Level {} ({}x{}x{})?\r\n",
+                                current_level + 1,
+                                current_size + 1,
+                                current_size + 1,
+                                current_size + 1
+                            );
+                            print!("Press [Enter] to continue or [q] to quit...\r\n");
+                            let _ = stdout().flush();
+                            loop {
+                                let KeyEvent { code, .. } = read_key_event()?;
+                                match code {
+                                    KeyCode::Enter => {
+                                        current_level += 1;
+                                        current_size += 1;
+                                        break 'level_loop;
+                                    }
+                                    KeyCode::Char('q') => break 'game_loop,
+                                    _ => {}
+                                }
+                            }
+                        }
+                        MoveOutcome::Moved => {
+                            // Player moved — now the hounds hunt (and may lunge).
+                            if game.resolve_hounds() {
+                                caught = true;
+                                total_screams += game.screams;
+                                print_caught_screen(&game, current_level, levels_cleared);
+                                break 'game_loop;
+                            }
+                        }
+                        MoveOutcome::IntoBloodhound => {
+                            // Walked into a bloodhound — instant death.
+                            caught = true;
+                            total_screams += game.screams;
+                            print_caught_screen(&game, current_level, levels_cleared);
+                            break 'game_loop;
+                        }
+                        MoveOutcome::Blocked => {
+                            // Wall or invalid key — silently redraw.
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    // Record the run once it ends (death or quit).
+    stats.record_run(levels_cleared, total_screams, caught);
+
+    print!("\r\n📈 BLOODHOUND LIFETIME STATS:\r\n");
+    print!("   Runs: {} | Deaths: {}\r\n", stats.runs, stats.deaths);
+    print!("   Best level reached: {}\r\n", stats.best_level);
+    print!("   Total screams: {}\r\n", stats.total_screams);
+    print!("\r\nPress any key to exit...\r\n");
+    let _ = stdout().flush();
+    wait_for_any_key()?;
+
+    println!();
+    Ok(())
+}
+
+// ============================================================================
 // Benchmarks
 // ============================================================================
 
@@ -1265,6 +1950,32 @@ fn reset_stats() {
     }
 }
 
+/// Interactive mode picker. Returns `Some(false)` for A* race, `Some(true)`
+/// for bloodhound survival, or `None` if the player quits.
+fn select_mode_menu() -> Result<Option<bool>> {
+    use std::io::{stdout, Write};
+
+    let _raw_mode_guard = RawModeGuard::new()?;
+    loop {
+        clear_screen();
+        print!("\r\n🎮 3D OCTAHEDRAL MAZE GAME\r\n");
+        print!("═══════════════════════════════════════\r\n\r\n");
+        print!("Choose your mode:\r\n\r\n");
+        print!("  [1] A* Race        — beat A* on nodes explored (classic)\r\n");
+        print!("  [2] Bloodhounds    — reach the goal before the hounds catch you\r\n\r\n");
+        print!("  [q] Quit\r\n");
+        let _ = stdout().flush();
+
+        let KeyEvent { code, .. } = read_key_event()?;
+        match code {
+            KeyCode::Char('1') => return Ok(Some(false)),
+            KeyCode::Char('2') => return Ok(Some(true)),
+            KeyCode::Char('q') => return Ok(None),
+            _ => {}
+        }
+    }
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
@@ -1273,6 +1984,7 @@ fn main() -> Result<()> {
             size,
             seed,
             difficulty,
+            mode,
         } => {
             // Determine if we use custom size or progressive mode
             let custom_size = if let Some(diff) = difficulty {
@@ -1297,7 +2009,18 @@ fn main() -> Result<()> {
                     .unwrap_or(42)
             });
 
-            play_game(custom_size, actual_seed)?;
+            // Resolve the mode: explicit --mode flag, else an interactive menu.
+            let chosen = match mode.as_deref() {
+                Some("astar") => Some(false),
+                Some("bloodhound") => Some(true),
+                _ => select_mode_menu()?,
+            };
+
+            match chosen {
+                Some(false) => play_game(custom_size, actual_seed)?,
+                Some(true) => play_bloodhound_game(actual_seed)?,
+                None => {} // User quit at the menu.
+            }
         }
 
         Commands::Stats => {
@@ -1329,4 +2052,87 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod bloodhound_tests {
+    use super::*;
+
+    fn make_hound(pos: Coord) -> Bloodhound {
+        let mut visits = HashMap::new();
+        visits.insert(pos, 1);
+        Bloodhound {
+            pos,
+            target: pos,
+            anchor: pos,
+            evidence_turn: 0,
+            visits,
+        }
+    }
+
+    /// A hound one open (connected) cell away lunges and catches the player.
+    #[test]
+    fn connected_hound_lunges_and_catches() {
+        let maze = Maze::generate((6, 6, 6), 7);
+        let start = maze.start;
+        let hp = maze.get_connected_neighbors(start)[0]; // an open neighbor
+        let mut game = BloodhoundGame::new(maze, HashSet::new(), 1);
+        game.hounds.push(make_hound(hp));
+        assert!(game.any_hound_can_lunge());
+        assert!(game.resolve_hounds(), "open-adjacent hound must catch");
+    }
+
+    /// A hound one cell away but separated by a wall cannot lunge.
+    #[test]
+    fn walled_neighbor_hound_cannot_lunge() {
+        let maze = Maze::generate((6, 6, 6), 7);
+        let start = maze.start;
+        let connected: HashSet<Coord> = maze.get_connected_neighbors(start).into_iter().collect();
+        let walled = BCC_NEIGHBORS
+            .iter()
+            .map(|d| (start.0 + d.0, start.1 + d.1, start.2 + d.2))
+            .find(|c| maze.carved.contains(c) && !connected.contains(c));
+        let mut game = BloodhoundGame::new(maze, HashSet::new(), 1);
+        match walled {
+            Some(wc) => {
+                game.hounds.push(make_hound(wc));
+                assert!(!game.any_hound_can_lunge(), "a wall must block the lunge");
+            }
+            None => {
+                game.hounds.push(make_hound((5, 5, 5)));
+                assert!(!game.any_hound_can_lunge());
+            }
+        }
+    }
+
+    /// Moving into a bloodhound's cell is fatal, not silently blocked.
+    #[test]
+    fn walking_into_hound_is_fatal() {
+        let maze = Maze::generate((6, 6, 6), 7);
+        let start = maze.start;
+        let nb = maze.get_connected_neighbors(start)[0];
+        let d = (nb.0 - start.0, nb.1 - start.1, nb.2 - start.2);
+        let (key, _) = delta_to_dir(d).expect("neighbor delta maps to a move key");
+        let mut game = BloodhoundGame::new(maze, HashSet::new(), 1);
+        game.hounds.push(make_hound(nb));
+        assert!(matches!(game.make_move(key), MoveOutcome::IntoBloodhound));
+    }
+
+    /// A hound sitting on its target with no fresher lead must still move
+    /// (search) rather than camping in place.
+    #[test]
+    fn hound_searches_instead_of_sitting() {
+        let maze = Maze::generate((6, 6, 6), 7);
+        let start = maze.start;
+        let hp = maze
+            .carved
+            .iter()
+            .copied()
+            .find(|&c| c != start && !maze.get_connected_neighbors(c).is_empty())
+            .expect("a carved cell with a neighbor");
+        let mut game = BloodhoundGame::new(maze, HashSet::new(), 1);
+        game.hounds.push(make_hound(hp)); // target == pos: it has "arrived"
+        game.move_bloodhounds();
+        assert_ne!(game.hounds[0].pos, hp, "hound must not sit on its cell");
+    }
 }
