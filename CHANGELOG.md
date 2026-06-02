@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `serde_json` from 1.0.149 to 1.0.150 (PR #132): rejects non-string enum object keys, closing a subtle deserialization correctness issue.
 - Updated `EmbarkStudios/cargo-deny-action` from 2.0.18 to 2.0.19 (PR #131): bumps the bundled `cargo-deny` to 0.19.7.
 
+### Fixed
+- Corrected the BCC parity check in `batch_validate_routes` (PR #134): it tested `(x + y + z) & 1 == 0`, which wrongly rejected valid all-odd lattice points (e.g. `(1,1,1)`) and accepted invalid mixed-parity points (e.g. `(2,1,1)`). It now verifies that `x`, `y`, `z` share parity, matching `Parity::from_coords` / `Route64::new`. Applies to the scalar fallback and both AVX2 paths; adds an all-odd/mixed-parity regression test.
+- Removed dead SIMD work in `batch_euclidean_distance_squared_avx2` (PR #134): it computed `_mm256_sub_epi64` differences that were discarded before recomputing scalar-side. AVX2 lacks a 64-bit SIMD multiply, so the function is now a clean scalar loop (true vectorization remains in the AVX-512 variant).
+
 ## [0.5.5] - 2026-05-19
 
 ### Security
