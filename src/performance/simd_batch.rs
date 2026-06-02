@@ -884,8 +884,7 @@ mod tests {
         // (2,1,1) sums to 4 (even) but mixes parities, so the old sum-even test
         // would wrongly accept it. Constructed via new_unchecked since new()
         // rejects it.
-        let mut mixed: Vec<Route64> =
-            (0..16).map(|_| Route64::new(0, 0, 0, 0).unwrap()).collect();
+        let mut mixed: Vec<Route64> = (0..16).map(|_| Route64::new(0, 0, 0, 0).unwrap()).collect();
         mixed.push(unsafe { Route64::new_unchecked(0, 2, 1, 1) });
         let result = batch_validate_routes(&mixed);
         assert!(
