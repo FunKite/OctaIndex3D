@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Routine security audit (2026-05-20): no new CVEs or active advisories in the dependency tree; `paste` (RUSTSEC-2024-0436, unmaintained, transitive via `metal`) remains the sole acknowledged advisory.
 
 ### Changed
+- Updated `EmbarkStudios/cargo-deny-action` from 2.0.19 to 2.0.20 (PR #137): bumps the bundled `cargo-deny` to 0.19.8.
+- Updated `glam` from 0.32.1 to 0.33.0 (PR #139): all non-`f32`/`bool` vector and matrix types are now optional Cargo features (enabled by default, so the public API is unchanged), and `as_dmat2`/`as_dmat3`/`as_dmat4` gained `#[must_use]`.
+- Updated `zerocopy` from 0.8.48 to 0.8.50 in the `rust-dependencies` group (PR #138).
+- Updated `actions/checkout` from 6.0.2 to 6.0.3 (PR #136): fixes checkout initialization for SHA-256 repositories and expands the merge-commit SHA regex.
 - Updated `serde_json` from 1.0.149 to 1.0.150 (PR #132): rejects non-string enum object keys, closing a subtle deserialization correctness issue.
 - Updated `EmbarkStudios/cargo-deny-action` from 2.0.18 to 2.0.19 (PR #131): bumps the bundled `cargo-deny` to 0.19.7.
 
