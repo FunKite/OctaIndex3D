@@ -885,7 +885,7 @@ mod tests {
         // would wrongly accept it. Constructed via new_unchecked since new()
         // rejects it.
         let mut mixed: Vec<Route64> = (0..16).map(|_| Route64::new(0, 0, 0, 0).unwrap()).collect();
-        mixed.push(unsafe { Route64::new_unchecked(0, 2, 1, 1) });
+        mixed.push(Route64::new_unchecked(0, 2, 1, 1));
         let result = batch_validate_routes(&mixed);
         assert!(
             !result[16],

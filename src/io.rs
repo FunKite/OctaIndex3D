@@ -1,6 +1,13 @@
-//! I/O operations for various file formats
+//! I/O operations for various file formats (legacy v0.2 API)
 //!
-//! This module provides import/export functionality for different formats.
+//! This module provides import/export functionality for different formats
+//! built on the legacy [`CellID`] and [`Layer`] types.
+//!
+//! **Deprecated:** new code should use the container formats
+//! ([`crate::container`], [`crate::container_v2`]) or serialize the modern ID
+//! types directly with serde.
+
+#![allow(deprecated)]
 
 use crate::error::{Error, Result};
 use crate::id::CellID;

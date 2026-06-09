@@ -1,4 +1,7 @@
-//! Basic usage examples for OctaIndex3D
+//! Basic usage examples for the legacy v0.2 API (CellID, Layer, path)
+//!
+//! These APIs are deprecated; see `quickstart.rs` for the modern API.
+#![allow(deprecated)]
 
 use octaindex3d::layer::{Aggregation, Layer};
 use octaindex3d::path::{astar, k_ring, k_shell, EuclideanCost};

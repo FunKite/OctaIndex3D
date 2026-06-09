@@ -1,6 +1,13 @@
-//! Pathfinding and routing algorithms
+//! Pathfinding and routing algorithms (legacy v0.2 API)
 //!
-//! This module provides A* pathfinding, k-rings, and other routing operations.
+//! This module provides A* pathfinding, k-rings, and other routing operations
+//! on the legacy [`CellID`] type.
+//!
+//! **Deprecated:** new code should use [`crate::grid::BccGrid`], which provides
+//! `astar`, `astar_where`, `k_ring`, and `k_shell` on the modern
+//! [`crate::ids::Route64`] type.
+
+#![allow(deprecated)]
 
 use crate::error::{Error, Result};
 use crate::id::CellID;
@@ -10,6 +17,10 @@ use rustc_hash::{FxHashMap, FxHashSet};
 use std::collections::{BinaryHeap, VecDeque};
 
 /// Cost function trait for pathfinding
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub trait CostFn {
     /// Compute cost of moving from current cell to neighbor
     fn cost(&self, current: CellID, neighbor: CellID) -> f64;
@@ -20,6 +31,10 @@ pub trait CostFn {
 
 /// Simple Euclidean distance cost function
 #[derive(Debug, Clone, Copy)]
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub struct EuclideanCost;
 
 impl CostFn for EuclideanCost {
@@ -37,6 +52,10 @@ impl CostFn for EuclideanCost {
 }
 
 /// Cost function that avoids blocked cells
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub struct AvoidBlockedCost {
     /// Cell flags layer for checking blocked status
     flags: Layer<CellFlags>,
@@ -79,6 +98,10 @@ impl CostFn for AvoidBlockedCost {
 ///
 /// Contains the sequence of cells and the total cost of the path
 #[derive(Debug, Clone)]
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub struct Path {
     /// Sequence of cells from start to goal
     pub cells: Vec<CellID>,
@@ -132,6 +155,10 @@ impl Ord for AStarNode {
 ///
 /// # Returns
 /// Returns the optimal path or an error if no path exists or expansion limit exceeded
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub fn astar<C: CostFn>(start: CellID, goal: CellID, cost_fn: &C) -> Result<Path> {
     astar_with_limit(start, goal, cost_fn, 100_000)
 }
@@ -140,6 +167,10 @@ pub fn astar<C: CostFn>(start: CellID, goal: CellID, cost_fn: &C) -> Result<Path
 ///
 /// This is the internal implementation with full control over the expansion limit.
 /// For most use cases, use [`astar`] instead.
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub fn astar_with_limit<C: CostFn>(
     start: CellID,
     goal: CellID,
@@ -232,6 +263,10 @@ pub fn astar_with_limit<C: CostFn>(
 }
 
 /// Compute k-ring: all cells within k steps (graph distance)
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub fn k_ring(center: CellID, k: usize) -> Vec<CellID> {
     if k == 0 {
         return vec![center];
@@ -261,6 +296,10 @@ pub fn k_ring(center: CellID, k: usize) -> Vec<CellID> {
 }
 
 /// Compute k-shell: all cells at exactly k steps (graph distance)
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub fn k_shell(center: CellID, k: usize) -> Vec<CellID> {
     if k == 0 {
         return vec![center];
@@ -292,6 +331,10 @@ pub fn k_shell(center: CellID, k: usize) -> Vec<CellID> {
 }
 
 /// Compute cells along a line between two cells (3D Bresenham-like)
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use BccGrid (grid module) instead"
+)]
 pub fn trace_line(start: CellID, end: CellID) -> Result<Vec<CellID>> {
     if start == end {
         return Ok(vec![start]);
@@ -317,8 +360,10 @@ pub fn trace_line(start: CellID, end: CellID) -> Result<Vec<CellID>> {
         let y = coord_start.y as f64 + t * dy;
         let z = coord_start.z as f64 + t * dz;
 
-        if let Ok(coord) = crate::lattice::Lattice::physical_to_lattice(x, y, z, start.resolution())
-        {
+        // The interpolated samples are already in lattice coordinates, so snap
+        // at resolution 0 (no rescaling); the cell's resolution only labels the
+        // rebuilt CellID below.
+        if let Ok(coord) = crate::lattice::Lattice::physical_to_lattice(x, y, z, 0) {
             if let Ok(cell) = CellID::from_lattice_coord(start.frame(), start.resolution(), &coord)
             {
                 if cell != prev_cell {
@@ -394,6 +439,20 @@ mod tests {
         assert!(!line.is_empty());
         assert_eq!(line.first(), Some(&start));
         assert_eq!(line.last(), Some(&end));
+
+        // Regression: at nonzero resolution, intermediate cells must stay on
+        // the segment rather than being rescaled by 2^resolution. Allow 1 unit
+        // of slack for BCC parity snapping.
+        for cell in &line {
+            assert_eq!(cell.resolution(), 5);
+            assert!(
+                (-1..=11).contains(&cell.x()),
+                "cell {} strays off the traced segment",
+                cell
+            );
+            assert!((-1..=1).contains(&cell.y()), "cell {} strays", cell);
+            assert!((-1..=1).contains(&cell.z()), "cell {} strays", cell);
+        }
     }
 
     #[test]

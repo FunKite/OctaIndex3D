@@ -1,4 +1,6 @@
 //! Demonstration of resolution levels and hierarchical refinement
+//! using the legacy v0.2 CellID API (deprecated; see `quickstart.rs`).
+#![allow(deprecated)]
 
 use octaindex3d::{CellID, Result};
 

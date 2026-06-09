@@ -8,14 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- New high-level `BccGrid` facade (`grid` module, re-exported at the crate root): convert physical points to cells (`cell_at`/`center_of`), query `neighbors`, `k_ring`, `k_shell`, and `distance`, and run A* pathfinding (`astar`, `astar_where` with a traversability predicate, `astar_with_limit`) on modern `Route64` IDs without handling parity, tiers, or coordinate ranges manually.
+- New `examples/quickstart.rs` demonstrating the modern API (`BccGrid`, `Index64`, `Route64`).
+- The README's Rust code blocks now compile as doctests (`#[doc = include_str!]` harness in `lib.rs`), so documentation examples can no longer drift from the implementation.
+- Property tests for lattice invariants: point snapping always yields a valid BCC point within the covering radius, and the 8:1 refinement partitions the lattice.
 - New **Bloodhound survival mode** for the interactive maze (`octaindex3d play`). A start-up menu (or `--mode astar|bloodhound`) selects between the existing A* race and the new mode, where you must reach the goal before pursuing bloodhounds catch you. 10% of cells hide invisible metal spikes; an omnidirectional detector reports how many reachable neighbours are spiked. Stepping on a spike makes you scream — releasing a new hound from the furthest map corner, broadcasting your position to every hound, and leaving a 3-turn blood trail whose age each hound can read. Hounds path through the maze toward their freshest scream/blood evidence and never idle: once a hound reaches its last-known location with no fresher lead it searches outward (least-visited connected cell, biased toward the scent) instead of sitting. A hound one cell away *with no wall between* lunges and catches the player — and since the player always moves first, a clean flee down a corridor is safe, but a hound you cannot break contact from (cornered, or juking while staying adjacent through an open cell) catches you; a wall blocks the lunge. Walking into a bloodhound's cell is fatal (you run into its jaws) rather than being blocked. If the player is ever blocked in (no legal move), they forfeit the turn and the hounds still advance. Being caught ends the run. Progressive sizing starts at 8×8×8 and grows each cleared level, with separate stats persisted to `~/.octaindex3d_bloodhound_stats.json`.
 
-### Security
-- Replaced unmaintained `serde_cbor` (RUSTSEC-2021-0127) with `ciborium 0.2` in the `serde` feature; the public `Dataset::save_cbor` / `Dataset::load_cbor` API is preserved with identical behaviour.
-- Removed `RUSTSEC-2021-0127` from `deny.toml` advisory ignore list now that the advisory no longer applies.
-- Routine security audit (2026-05-20): no new CVEs or active advisories in the dependency tree; `paste` (RUSTSEC-2024-0436, unmaintained, transitive via `metal`) remains the sole acknowledged advisory.
+### Fixed
+- `Lattice::physical_to_lattice` no longer errors on large portions of its input space. It previously classified points by *sum* parity instead of the BCC all-same-parity rule, so valid all-odd points like `(1,1,1)` were rejected and mixed-parity points with an even sum (e.g. `(2,1,1)`) skipped the snapping branch and errored. It now snaps any finite in-range point to the nearest valid BCC point (error ≤ √5/2 lattice units) and honors its previously ignored `resolution` parameter (coordinates scale by `2^resolution`).
+- `Lattice::get_children` previously generated children at `2p + {0,1}³`, 6 of which are invalid mixed-parity points. It now produces the 8 parity-valid children (`2p`, the three positive axial offsets, and the four positive-x body diagonals), and the new `Lattice::get_parent` is its exact inverse, so `CellID::children` now returns all 8 valid children instead of 2.
+- Corrected the README: the documented parity rule was `(x + y + z) % 2 == 0`, which contradicts the implementation (all coordinates must share parity — its example `(1,1,0)` is actually rejected); the `Galactic128` bit-layout diagram now matches `ids.rs` (96-bit coordinates, 6-bit LOD, 4+4 attribute bits); the Frame Registry and ID-conversion examples now use APIs that exist.
+- Removed the stale `v0.5.0` version from the `lib.rs` crate doc header.
+- `path::trace_line` now snaps its interpolated samples at resolution 0: they are already lattice coordinates, and passing the cell's resolution would rescale them by `2^resolution` now that `physical_to_lattice` honors the parameter (previously ignored). Adds a regression test that intermediate cells stay on the traced segment.
+- Corrected the BCC parity check in `batch_validate_routes` (PR #134): it tested `(x + y + z) & 1 == 0`, which wrongly rejected valid all-odd lattice points (e.g. `(1,1,1)`) and accepted invalid mixed-parity points (e.g. `(2,1,1)`). It now verifies that `x`, `y`, `z` share parity, matching `Parity::from_coords` / `Route64::new`. Applies to the scalar fallback and both AVX2 paths; adds an all-odd/mixed-parity regression test.
+- Removed dead SIMD work in `batch_euclidean_distance_squared_avx2` (PR #134): it computed `_mm256_sub_epi64` differences that were discarded before recomputing scalar-side. AVX2 lacks a 64-bit SIMD multiply, so the function is now a clean scalar loop (true vectorization remains in the AVX-512 variant).
 
 ### Changed
+- `Route64::new_unchecked` is no longer marked `unsafe`: it performs no memory-unsafe operations, and violating its preconditions is a logic error (an invalid cell value), not undefined behavior. Existing `unsafe { ... }` call sites continue to compile (with an `unused_unsafe` warning).
+- Deprecated the legacy v0.2 APIs in favor of modern equivalents: `id::CellID` (use `Galactic128`/`Index64`/`Route64`), `path::{astar, astar_with_limit, k_ring, k_shell, trace_line, CostFn, EuclideanCost, AvoidBlockedCost, Path}` (use `BccGrid`), `layer::Layer` (pair your own map with modern IDs, or use `layers` for occupancy mapping), and `LatticeCoord::half` (use `Lattice::get_parent`). All remain available for compatibility.
 - Updated `EmbarkStudios/cargo-deny-action` from 2.0.19 to 2.0.20 (PR #137): bumps the bundled `cargo-deny` to 0.19.8.
 - Updated `glam` from 0.32.1 to 0.33.0 (PR #139): all non-`f32`/`bool` vector and matrix types are now optional Cargo features (enabled by default, so the public API is unchanged), and `as_dmat2`/`as_dmat3`/`as_dmat4` gained `#[must_use]`.
 - Updated `zerocopy` from 0.8.48 to 0.8.50 in the `rust-dependencies` group (PR #138).
@@ -23,9 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `serde_json` from 1.0.149 to 1.0.150 (PR #132): rejects non-string enum object keys, closing a subtle deserialization correctness issue.
 - Updated `EmbarkStudios/cargo-deny-action` from 2.0.18 to 2.0.19 (PR #131): bumps the bundled `cargo-deny` to 0.19.7.
 
-### Fixed
-- Corrected the BCC parity check in `batch_validate_routes` (PR #134): it tested `(x + y + z) & 1 == 0`, which wrongly rejected valid all-odd lattice points (e.g. `(1,1,1)`) and accepted invalid mixed-parity points (e.g. `(2,1,1)`). It now verifies that `x`, `y`, `z` share parity, matching `Parity::from_coords` / `Route64::new`. Applies to the scalar fallback and both AVX2 paths; adds an all-odd/mixed-parity regression test.
-- Removed dead SIMD work in `batch_euclidean_distance_squared_avx2` (PR #134): it computed `_mm256_sub_epi64` differences that were discarded before recomputing scalar-side. AVX2 lacks a 64-bit SIMD multiply, so the function is now a clean scalar loop (true vectorization remains in the AVX-512 variant).
+### Removed
+- Removed the "Comparison with Alternatives" section and other comparative references from the README; the project is presented on its own merits.
+
+### Security
+- Replaced unmaintained `serde_cbor` (RUSTSEC-2021-0127) with `ciborium 0.2` in the `serde` feature; the public `Dataset::save_cbor` / `Dataset::load_cbor` API is preserved with identical behaviour.
+- Removed `RUSTSEC-2021-0127` from `deny.toml` advisory ignore list now that the advisory no longer applies.
+- Routine security audit (2026-05-20): no new CVEs or active advisories in the dependency tree; `paste` (RUSTSEC-2024-0436, unmaintained, transitive via `metal`) remains the sole acknowledged advisory.
 
 ## [0.5.5] - 2026-05-19
 

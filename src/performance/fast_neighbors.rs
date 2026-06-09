@@ -35,10 +35,9 @@ fn append_neighbor_if_valid(
         return;
     }
 
-    // Safety: the source route is valid and BCC neighbor offsets preserve parity.
-    unsafe {
-        result.push(Route64::new_unchecked(tier, nx, ny, nz));
-    }
+    // The source route is valid and BCC neighbor offsets preserve parity,
+    // so the unchecked constructor's invariants hold.
+    result.push(Route64::new_unchecked(tier, nx, ny, nz));
 }
 
 pub(crate) fn append_neighbors_route64_fast(route: Route64, result: &mut Vec<Route64>) {
@@ -69,9 +68,8 @@ pub(crate) fn append_neighbors_route64_fast(route: Route64, result: &mut Vec<Rou
 /// This version unrolls the neighbor loop and uses inline assembly hints
 /// for better instruction scheduling on modern CPUs.
 ///
-/// # Safety
-/// This function uses unsafe code (`new_unchecked`) internally for performance,
-/// but preserves `Route64` range semantics by filtering neighbors that would
+/// Uses the unchecked `Route64` constructor internally for performance, but
+/// preserves `Route64` range semantics by filtering neighbors that would
 /// leave the signed 20-bit coordinate domain.
 #[must_use]
 #[inline(always)]

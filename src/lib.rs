@@ -1,4 +1,4 @@
-//! # OctaIndex3D v0.5.0
+//! # OctaIndex3D
 //!
 //! A 3D Spatial Indexing and Routing System based on Body-Centered Cubic (BCC) lattice
 //! with truncated octahedral cells.
@@ -8,6 +8,8 @@
 //!
 //! ## Key Features
 //!
+//! - **High-Level Facade**: [`BccGrid`] for working in physical units (points to
+//!   cells, neighbors, k-rings, A* pathfinding) without lattice details
 //! - **Three ID Types**: Galactic128 (global), Index64 (Morton), Route64 (local routing)
 //! - **14-Neighbor Connectivity**: More isotropic than cubic grids
 //! - **Hierarchical Refinement**: Multi-resolution support
@@ -19,21 +21,22 @@
 //! ## Example
 //!
 //! ```rust
-//! use octaindex3d::{Galactic128, Index64, Route64, Result};
+//! use octaindex3d::{BccGrid, Index64, Result};
 //!
 //! # fn main() -> Result<()> {
-//! // Create a global ID
-//! let galactic = Galactic128::new(0, 5, 1, 10, 0, 2, 4, 6)?;
+//! // High-level API: a grid with 0.5-unit cells
+//! let grid = BccGrid::new(0.5)?;
+//! let cell = grid.cell_at(1.2, 3.4, 5.6)?;
+//! assert_eq!(grid.neighbors(cell).len(), 14);
 //!
-//! // Create a Morton-encoded index
+//! let start = grid.cell_at(0.0, 0.0, 0.0)?;
+//! let goal = grid.cell_at(3.0, 3.0, 3.0)?;
+//! let path = grid.astar(start, goal)?;
+//! assert_eq!(path.cells.last(), Some(&goal));
+//!
+//! // Lower-level API: a Morton-encoded storage key
 //! let index = Index64::new(0, 0, 5, 100, 200, 300)?;
-//!
-//! // Create a local routing coordinate
-//! let route = Route64::new(0, 100, 200, 300)?;
-//!
-//! // Get neighbors
-//! let neighbors = octaindex3d::neighbors::neighbors_route64(route);
-//! assert_eq!(neighbors.len(), 14);
+//! assert_eq!(index.decode_coords(), (100, 200, 300));
 //! # Ok(())
 //! # }
 //! ```
@@ -42,6 +45,7 @@ pub mod compression;
 pub mod container;
 pub mod error;
 pub mod frame;
+pub mod grid;
 pub mod ids;
 pub mod lattice;
 pub mod layers;
@@ -59,7 +63,7 @@ pub mod container_v2;
 #[cfg(feature = "gis_geojson")]
 pub mod geojson;
 
-// Legacy modules (for compatibility)
+// Legacy v0.2 modules (deprecated, kept for compatibility)
 pub mod id;
 #[cfg(feature = "serde")]
 pub mod io;
@@ -69,6 +73,7 @@ pub mod path;
 // Re-export commonly used types
 pub use crate::error::{Error, Result};
 pub use crate::frame::{get_frame, list_frames, register_frame, FrameDescriptor};
+pub use crate::grid::{BccGrid, GridPath};
 pub use crate::ids::{FrameId, Galactic128, Index64, Route64};
 pub use crate::lattice::{Lattice, LatticeCoord, Parity, BCC_NEIGHBORS_14};
 pub use crate::layers::{
@@ -97,11 +102,18 @@ pub use crate::geojson::{
     to_geojson_points, write_geojson_linestring, write_geojson_polygon, GeoJsonOptions,
 };
 
-// Legacy re-export
+// Legacy re-export (deprecated, kept for compatibility)
+#[allow(deprecated)]
 pub use crate::id::CellID;
 
 /// Library version
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Compile the README's Rust code blocks as doctests so the documentation
+/// stays in sync with the implementation.
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+pub struct ReadmeDoctests;
 
 #[cfg(test)]
 mod tests {

@@ -1,6 +1,12 @@
-//! Data layer storage and aggregation
+//! Data layer storage and aggregation (legacy v0.2 API)
 //!
-//! This module provides attribute storage for cells and aggregation operations.
+//! This module provides attribute storage for cells and aggregation operations
+//! on the legacy [`CellID`] type.
+//!
+//! **Deprecated:** new code should pair its own map type with the modern ID
+//! types ([`crate::ids`]), or use [`crate::layers`] for occupancy mapping.
+
+#![allow(deprecated)]
 
 use crate::error::{Error, Result};
 use crate::id::CellID;
@@ -27,6 +33,10 @@ pub enum Aggregation {
 }
 
 /// Generic data layer for storing cell attributes
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; pair your own map with the modern ID types, or use crate::layers for occupancy mapping"
+)]
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Layer<T> {
