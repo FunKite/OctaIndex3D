@@ -541,18 +541,19 @@ impl Route64 {
         Ok(route)
     }
 
-    /// Create new Route64 without validation (unsafe, for hot paths only)
+    /// Create new Route64 without validation (for hot paths only)
     ///
-    /// # Safety
-    /// Caller must ensure:
+    /// This skips the range and parity checks performed by [`Route64::new`].
+    /// The caller is expected to guarantee:
     /// - `tier` is in range 0-3
     /// - `x`, `y`, `z` are within 20-bit signed range: -524288 to 524287
     /// - Coordinates have valid BCC parity: (x % 2 == y % 2 == z % 2)
-    /// - Coordinate arithmetic in caller code does not overflow
     ///
-    /// Violating these invariants results in undefined behavior.
+    /// Violating these invariants is a logic error, not undefined behavior:
+    /// the resulting value is memory-safe but represents an invalid cell, and
+    /// other operations on it may return wrong results or errors.
     #[inline(always)]
-    pub unsafe fn new_unchecked(tier: u8, x: i32, y: i32, z: i32) -> Self {
+    pub fn new_unchecked(tier: u8, x: i32, y: i32, z: i32) -> Self {
         let mut value = 0u64;
         value |= Self::HDR << 62;
         value |= ((tier as u64) & 0x3) << 60;

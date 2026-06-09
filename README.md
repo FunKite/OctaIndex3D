@@ -28,7 +28,6 @@
 - [Streaming Container Format](#streaming-container-format)
 - [Performance](#performance)
 - [Use Cases](#use-cases)
-- [Comparison with Alternatives](#comparison-with-alternatives)
 - [Platform Support](#platform-support)
 - [FAQ](#faq)
 - [Troubleshooting](#troubleshooting)
@@ -60,6 +59,24 @@ octaindex3d play --difficulty medium
 
 # Or use as a library
 cargo add octaindex3d
+```
+
+```rust
+use octaindex3d::BccGrid;
+
+fn main() -> octaindex3d::Result<()> {
+    let grid = BccGrid::new(0.5)?;            // cells 0.5 units across
+    let cell = grid.cell_at(1.2, 3.4, 5.6)?;  // physical point -> cell
+    let neighbors = grid.neighbors(cell);     // 14-neighbor connectivity
+    assert_eq!(neighbors.len(), 14);
+
+    let path = grid.astar(
+        grid.cell_at(0.0, 0.0, 0.0)?,
+        grid.cell_at(5.0, 5.0, 5.0)?,
+    )?;                                       // A* over the lattice
+    println!("{} cells, {:.2} units", path.len(), path.cost);
+    Ok(())
+}
 ```
 
 **For code examples and tutorials**, see the [OctaIndex3D Book](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md):
@@ -147,7 +164,7 @@ octaindex3d stats
 
 ### Example Session
 
-```
+```text
 🎮 3D Octahedral Maze Game - BCC Lattice Edition
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -307,14 +324,14 @@ OctaIndex3D provides three main capability areas:
 
 ### Three Interoperable ID Types
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                       Galactic128                           │
-│  128-bit global ID with frame, tier, LOD, and coordinates   │
-│  ┌────────┬──────┬─────┬──────┬──────────────────────────┐  │
-│  │ Frame  │ Tier │ LOD │ Attr │    Coordinates (90b)     │  │
-│  │ 8 bits │ 2b   │ 4b  │ 24b  │    X, Y, Z (30b each)    │  │
-│  └────────┴──────┴─────┴──────┴──────────────────────────┘  │
+│  128-bit global ID with scale, LOD, frame, and coordinates  │
+│  ┌───────┬──────┬─────┬───────┬──────┬───────────────────┐  │
+│  │ Scale │ Tier │ LOD │ Frame │ Attr │ Coordinates (96b) │  │
+│  │ 8b    │ 2b   │ 6b  │ 8b    │ 4+4b │ X, Y, Z (32b ea)  │  │
+│  └───────┴──────┴─────┴───────┴──────┴───────────────────┘  │
 │  HRP: g3d1                                                  │
 └─────────────────────────────────────────────────────────────┘
 
@@ -389,7 +406,7 @@ cargo run --release --example bcc14_prim_astar_demo
 - **Validation**: 5 comprehensive checks ensuring correctness
 
 **Sample output:**
-```
+```text
 🚀 BCC-14 3D Graph: Randomized Prim's Algorithm → A* Pathfinding
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -413,63 +430,96 @@ SOLVE: A* Pathfinding
 
 ### Pathfinding with A*
 
-```rust
-use octaindex3d::{Route64, path::{astar, EuclideanCost}};
-
-let start = Route64::new(0, 0, 0, 0)?;
-let goal = Route64::new(0, 10, 10, 10)?;
-
-// Use legacy pathfinding (from v0.2.0)
-use octaindex3d::CellID;
-let start_cell = CellID::from_coords(0, 5, 0, 0, 0)?;
-let goal_cell = CellID::from_coords(0, 5, 10, 10, 10)?;
-let path = astar(start_cell, goal_cell, &EuclideanCost)?;
-
-println!("Path length: {} cells", path.len());
-```
-
-### Data Layers and Aggregation
+The `BccGrid` facade works directly in physical units and handles lattice details for you:
 
 ```rust
-use octaindex3d::layer::{Layer, Aggregation};
+use octaindex3d::BccGrid;
 
-// Create data layer (legacy API from v0.2.0)
-let mut layer = Layer::new("temperature");
+fn main() -> octaindex3d::Result<()> {
+    let grid = BccGrid::new(1.0)?; // 1-unit cells
 
-for cell in cells {
-    layer.set(cell, temperature_value);
+    let start = grid.cell_at(0.0, 0.0, 0.0)?;
+    let goal = grid.cell_at(10.0, 10.0, 10.0)?;
+
+    // Shortest path over 14-neighbor BCC connectivity
+    let path = grid.astar(start, goal)?;
+    println!("Path: {} cells, {:.1} units long", path.len(), path.cost);
+
+    // Route around obstacles with a traversability predicate
+    let blocked = grid.k_ring(grid.cell_at(5.0, 5.0, 5.0)?, 1);
+    let detour = grid.astar_where(start, goal, |cell| !blocked.contains(&cell))?;
+    assert!(detour.cost >= path.cost);
+    Ok(())
 }
-
-// Aggregate over region
-let mean_temp = layer.aggregate(&region_cells, Aggregation::Mean)?;
-
-// Roll up to coarser resolution
-let coarse_layer = layer.rollup(Aggregation::Mean)?;
 ```
+
+### Neighborhood Queries
+
+```rust
+use octaindex3d::BccGrid;
+
+fn main() -> octaindex3d::Result<()> {
+    let grid = BccGrid::new(0.5)?;
+    let cell = grid.cell_at(1.2, 3.4, 5.6)?;
+
+    // Every interior cell has exactly 14 neighbors
+    assert_eq!(grid.neighbors(cell).len(), 14);
+
+    // All cells within k hops (k-ring) or at exactly k hops (k-shell)
+    let nearby = grid.k_ring(cell, 2);
+    let shell = grid.k_shell(cell, 2);
+    assert_eq!(shell.len(), nearby.len() - grid.k_ring(cell, 1).len());
+    Ok(())
+}
+```
+
+### Storing Data with Cells
+
+Pair any map type with the ID types as keys:
+
+```rust
+use octaindex3d::{BccGrid, Route64};
+use std::collections::HashMap;
+
+fn main() -> octaindex3d::Result<()> {
+    let grid = BccGrid::new(1.0)?;
+    let mut temperatures: HashMap<Route64, f64> = HashMap::new();
+
+    temperatures.insert(grid.cell_at(0.0, 0.0, 0.0)?, 21.5);
+    temperatures.insert(grid.cell_at(2.0, 0.0, 0.0)?, 22.1);
+
+    let mean: f64 = temperatures.values().sum::<f64>() / temperatures.len() as f64;
+    assert!(mean > 21.0 && mean < 23.0);
+    Ok(())
+}
+```
+
+For probabilistic occupancy mapping, TSDF reconstruction, and sensor fusion, see the [`layers` module](https://docs.rs/octaindex3d/latest/octaindex3d/layers/index.html).
 
 ### Frame Registry
 
 ```rust
-use octaindex3d::frame::{FrameDescriptor, register_frame};
+use octaindex3d::{FrameDescriptor, register_frame};
 
-// Register custom coordinate system
-let frame = FrameDescriptor {
-    id: 1,
-    name: "LocalENU".to_string(),
-    description: "East-North-Up local frame".to_string(),
-    base_unit: 1.0, // meters
-    origin: [0.0, 0.0, 0.0],
-    srid: None,
-};
-
-register_frame(frame)?;
+fn main() -> octaindex3d::Result<()> {
+    // Register a custom coordinate system as frame 42
+    let frame = FrameDescriptor::new(
+        "LocalENU",                 // name
+        "WGS-84",                   // datum
+        "East-North-Up local frame", // description
+        true,                       // right-handed
+        1.0,                        // base unit in meters
+    );
+    register_frame(42, frame)?;
+    Ok(())
+}
 ```
 
 ## Streaming Container Format
 
 The container format provides efficient storage for spatial data with streaming support:
 
-```
+```text
 [Header] [Frame 1] [Frame 2] ... [TOC] [Footer]
 ```
 
@@ -548,27 +598,6 @@ Using these primitives, you can build various exploration strategies:
 - **Urban Planning**: 3D city models, airspace management, building information
 - **GIS Integration**: Export to WGS84 for visualization in QGIS, ArcGIS, etc.
 
-## Comparison with Alternatives
-
-| Feature | OctaIndex3D (BCC) | H3 (Hexagonal) | S2 (Spherical) | Octree |
-|---------|-------------------|----------------|----------------|--------|
-| **Dimensionality** | 3D | 2D (Earth surface) | 2D (Sphere) | 3D |
-| **Cell Shape** | Truncated Octahedron | Hexagon | Spherical quad | Cube |
-| **Neighbors** | 14 (uniform) | 6 | 4-8 (variable) | 6-26 |
-| **Isotropy** | Excellent | Good | Excellent | Poor |
-| **Hierarchical** | Yes (8:1) | Yes (7:1) | Yes (4:1) | Yes (8:1) |
-| **Space-Filling Curve** | Morton/Hilbert | H3 | S2 Cell | Z-order |
-| **Efficiency vs Cubic** | +29% | N/A | N/A | Baseline |
-| **Best For** | 3D volumes | Geospatial 2D | Global spherical | Adaptive 3D |
-| **Rust Native** | Yes | No (C bindings) | No (C++) | Various |
-
-**When to choose OctaIndex3D:**
-- You need true 3D volumetric indexing (not just surface)
-- You want optimal sampling efficiency (29% fewer points than cubic)
-- You need isotropic neighbor relationships for pathfinding or analysis
-- You're working with atmospheric, oceanic, geological, or urban 3D data
-- You want a pure Rust implementation with modern performance features
-
 ## Platform Support
 
 ### Supported Platforms
@@ -601,11 +630,8 @@ Using these primitives, you can build various exploration strategies:
 **Q: What is a BCC lattice?**
 A: A Body-Centered Cubic lattice is a 3D crystal structure where each point has one point at the center of each cube. It's the optimal structure for sampling 3D space, requiring 29% fewer points than a cubic grid for the same fidelity.
 
-**Q: How does this compare to octrees?**
-A: While octrees partition space hierarchically, OctaIndex3D uses a regular BCC lattice with truncated octahedral cells. This provides consistent topology, isotropic neighbor relationships, and efficient space-filling curves, making it better for uniform spatial indexing and pathfinding.
-
 **Q: Can I use this for 2D applications?**
-A: While optimized for 3D, you can use OctaIndex3D for 2D by fixing one coordinate (e.g., z=0). However, dedicated 2D libraries like H3 may be more efficient for purely 2D use cases.
+A: While optimized for 3D, you can use OctaIndex3D for 2D by fixing one coordinate (e.g., z=0). Dedicated 2D spatial indexing libraries may be more efficient for purely 2D use cases.
 
 **Q: What are the ID types used for?**
 A:
@@ -631,22 +657,38 @@ A: GPU features are optional and experimental. They're useful for massive batch 
 ### Usage Questions
 
 **Q: How do I convert between ID types?**
-A: Use the `From`/`Into` traits:
+A: Each ID type exposes its coordinates, so you can construct one type from another's components. `Index64` and `Hilbert64` (with the `hilbert` feature) also support direct `TryFrom` conversion:
+
 ```rust
-let index: Index64 = galactic128.try_into()?;
-let hilbert: Hilbert64 = index.try_into()?;
-let route: Route64 = index.try_into()?;
+use octaindex3d::{Index64, Route64};
+
+fn main() -> octaindex3d::Result<()> {
+    let index = Index64::new(0, 0, 5, 100, 200, 300)?;
+
+    // Rebuild as a local routing coordinate from the decoded coordinates
+    let (x, y, z) = index.decode_coords();
+    let route = Route64::new(index.scale_tier(), x as i32, y as i32, z as i32)?;
+    assert_eq!((route.x(), route.y(), route.z()), (100, 200, 300));
+    Ok(())
+}
 ```
 
 **Q: How do I get a cell's neighbors?**
 A: Use the neighbor functions:
 ```rust
+use octaindex3d::Route64;
 use octaindex3d::neighbors::neighbors_route64;
-let neighbors = neighbors_route64(route); // Returns Vec<Route64> with 14 neighbors
+
+fn main() -> octaindex3d::Result<()> {
+    let route = Route64::new(0, 100, 200, 300)?;
+    let neighbors = neighbors_route64(route); // Vec<Route64> with 14 neighbors
+    assert_eq!(neighbors.len(), 14);
+    Ok(())
+}
 ```
 
 **Q: Can I store custom data with cells?**
-A: Yes, use your own HashMap or spatial data structure with IDs as keys. For legacy code, see the `Layer` API in the documentation.
+A: Yes, use your own HashMap or spatial data structure with IDs as keys (see [Storing Data with Cells](#storing-data-with-cells)).
 
 ## Troubleshooting
 
@@ -674,15 +716,37 @@ xcode-select --install
 ### Runtime Issues
 
 **Issue**: "Parity violation" error when creating coordinates
-**Solution**: BCC lattice points must satisfy `(x + y + z) % 2 == 0`. Ensure your coordinates follow this constraint:
-```rust
-// Valid BCC points (even sum)
-Route64::new(0, 0, 0, 0)?;  // 0+0+0 = 0 ✓
-Route64::new(0, 1, 1, 0)?;  // 1+1+0 = 2 ✓
-Route64::new(0, 2, 3, 1)?;  // 2+3+1 = 6 ✓
+**Solution**: BCC lattice points must have *identical parity* on all three axes: all coordinates even, or all coordinates odd. Mixed parity is invalid:
 
-// Invalid (odd sum)
-Route64::new(0, 1, 0, 0)?;  // 1+0+0 = 1 ✗ Error!
+```rust
+use octaindex3d::Route64;
+
+fn main() {
+    // Valid: all even
+    assert!(Route64::new(0, 0, 0, 0).is_ok());
+    assert!(Route64::new(0, 2, 4, 6).is_ok());
+
+    // Valid: all odd
+    assert!(Route64::new(0, 1, 1, 1).is_ok());
+    assert!(Route64::new(0, 3, 5, 7).is_ok());
+
+    // Invalid: mixed parity
+    assert!(Route64::new(0, 1, 1, 0).is_err());
+    assert!(Route64::new(0, 2, 3, 1).is_err());
+}
+```
+
+If you are converting arbitrary points, let the library snap them to the nearest valid cell instead of constructing IDs manually:
+
+```rust
+use octaindex3d::BccGrid;
+
+fn main() -> octaindex3d::Result<()> {
+    let grid = BccGrid::new(1.0)?;
+    let cell = grid.cell_at(1.0, 0.0, 0.0)?; // snapped to a valid BCC cell
+    println!("{}", cell);
+    Ok(())
+}
 ```
 
 **Issue**: Morton encoding seems slow

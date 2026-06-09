@@ -1,9 +1,15 @@
-//! Cell ID system with 128-bit format and Bech32m encoding
+//! Cell ID system with 128-bit format and Bech32m encoding (legacy v0.2 API)
 //!
 //! This module implements the hierarchical cell identification system with:
 //! - 128-bit binary format with 32-bit coordinates (v0.2.0+)
 //! - Bech32m human-readable encoding with error detection
 //! - Support for frames, resolution levels, and coordinates
+//!
+//! **Deprecated:** kept for compatibility with v0.2.x data. New code should
+//! use the v0.3+ ID types ([`crate::ids::Galactic128`], [`crate::ids::Index64`],
+//! [`crate::ids::Route64`]) and the [`crate::grid::BccGrid`] facade.
+
+#![allow(deprecated)]
 
 use crate::error::{Error, Result};
 use crate::lattice::{Lattice, LatticeCoord, Parity};
@@ -41,6 +47,10 @@ pub const FORMAT_VERSION: u8 = 2;
 /// ## Coordinate Range:
 /// - v0.1: ±8.4 million per axis
 /// - v0.2: ±2.1 billion per axis (supports Earth-scale in meters!)
+#[deprecated(
+    since = "0.5.6",
+    note = "legacy v0.2 API; use Galactic128/Index64/Route64 and the BccGrid facade instead"
+)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CellID {
@@ -178,8 +188,8 @@ impl CellID {
 
     /// Get children cells (one resolution finer)
     ///
-    /// Note: In BCC lattice, only 4 of the 8 possible children have valid parity.
-    /// This method filters out invalid children and returns only valid ones (typically 4).
+    /// Returns the 8 children of this cell. All children are valid BCC lattice
+    /// points, and each child's [`CellID::parent`] is this cell.
     pub fn children(&self) -> Result<Vec<CellID>> {
         let resolution = self.resolution();
         if resolution == 255 {
@@ -352,8 +362,13 @@ mod tests {
         let child = CellID::from_coords(0, 6, 4, 8, 12).unwrap();
         assert_eq!(child.parent().unwrap(), parent);
 
-        // Note: Full 8:1 children generation requires filtering for valid parity
-        // This is a known limitation documented in the spec
+        // Full 8:1 refinement: all 8 children are valid and round-trip to parent
+        let children = parent.children().unwrap();
+        assert_eq!(children.len(), 8);
+        for c in &children {
+            assert_eq!(c.resolution(), 6);
+            assert_eq!(c.parent().unwrap(), parent);
+        }
     }
 
     #[test]
