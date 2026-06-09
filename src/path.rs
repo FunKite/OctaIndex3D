@@ -360,8 +360,10 @@ pub fn trace_line(start: CellID, end: CellID) -> Result<Vec<CellID>> {
         let y = coord_start.y as f64 + t * dy;
         let z = coord_start.z as f64 + t * dz;
 
-        if let Ok(coord) = crate::lattice::Lattice::physical_to_lattice(x, y, z, start.resolution())
-        {
+        // The interpolated samples are already in lattice coordinates, so snap
+        // at resolution 0 (no rescaling); the cell's resolution only labels the
+        // rebuilt CellID below.
+        if let Ok(coord) = crate::lattice::Lattice::physical_to_lattice(x, y, z, 0) {
             if let Ok(cell) = CellID::from_lattice_coord(start.frame(), start.resolution(), &coord)
             {
                 if cell != prev_cell {
@@ -437,6 +439,20 @@ mod tests {
         assert!(!line.is_empty());
         assert_eq!(line.first(), Some(&start));
         assert_eq!(line.last(), Some(&end));
+
+        // Regression: at nonzero resolution, intermediate cells must stay on
+        // the segment rather than being rescaled by 2^resolution. Allow 1 unit
+        // of slack for BCC parity snapping.
+        for cell in &line {
+            assert_eq!(cell.resolution(), 5);
+            assert!(
+                (-1..=11).contains(&cell.x()),
+                "cell {} strays off the traced segment",
+                cell
+            );
+            assert!((-1..=1).contains(&cell.y()), "cell {} strays", cell);
+            assert!((-1..=1).contains(&cell.z()), "cell {} strays", cell);
+        }
     }
 
     #[test]
