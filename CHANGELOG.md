@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - README: the "Quick Start" table-of-contents entry and the v0.5.6 `BccGrid` highlight linked to `#quick-start`, which resolved to the maze game's install instructions instead of the library quick start. Both now point to the 30-Second Quick Start (the `BccGrid` example), and the game's duplicate "Quick Start" heading is renamed "How to Play".
+- CHANGELOG: the `[Unreleased]` comparison link still pointed at `v0.5.5...HEAD` and the released `0.5.6` entry had no reference-link definition. The `[Unreleased]` link now compares against `v0.5.6`, and a `[0.5.6]` link (`v0.5.5...v0.5.6`) was added.
+
+### Security
+- Routine security audit (2026-06-10): `cargo audit` against the current `Cargo.lock` (308 crate dependencies, 1123 advisories loaded) reports no new CVEs or active advisories. `paste` (RUSTSEC-2024-0436, unmaintained, transitive via `metal`/`wgpu-hal`) remains the sole acknowledged advisory and stays ignored in `deny.toml`.
 
 ## [0.5.6] - 2026-06-10
 
@@ -299,7 +303,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.5...HEAD
+[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.6...HEAD
+[0.5.6]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.4
 [0.5.3]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.3
