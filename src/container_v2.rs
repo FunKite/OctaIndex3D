@@ -41,13 +41,19 @@ impl Default for StreamConfig {
 /// Container v2 header (32 bytes)
 #[derive(Debug, Clone)]
 pub struct HeaderV2 {
+    /// Container format version (currently 2).
     pub format_version: u8,
+    /// Feature flags; bit 0 indicates per-frame SHA-256 hashes are present.
     pub flags: u8,
+    /// Unique stream identifier, derived from the creation timestamp.
     pub stream_id: u64,
+    /// Byte offset of the first frame (immediately after the 32-byte header).
     pub first_frame_offset: u64,
 }
 
 impl HeaderV2 {
+    /// Creates a header for a new stream, generating a fresh `stream_id`
+    /// and setting the SHA-256 flag if `enable_sha256` is true.
     pub fn new(enable_sha256: bool) -> Self {
         use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -65,10 +71,12 @@ impl HeaderV2 {
         }
     }
 
+    /// Returns true if frames in this stream carry SHA-256 integrity hashes.
     pub fn has_sha256(&self) -> bool {
         (self.flags & 0x01) != 0
     }
 
+    /// Serializes the header to its fixed 32-byte on-disk representation.
     pub fn to_bytes(&self) -> [u8; 32] {
         let mut bytes = [0u8; 32];
         bytes[0..8].copy_from_slice(MAGIC_V2);
@@ -80,6 +88,9 @@ impl HeaderV2 {
         bytes
     }
 
+    /// Parses a header from its 32-byte on-disk representation.
+    ///
+    /// Returns [`Error::InvalidFormat`] if the magic number does not match.
     pub fn from_bytes(bytes: &[u8; 32]) -> Result<Self> {
         if &bytes[0..8] != MAGIC_V2 {
             return Err(Error::InvalidFormat("Invalid magic number".to_string()));
@@ -105,17 +116,26 @@ impl HeaderV2 {
 /// TOC entry (32 bytes)
 #[derive(Debug, Clone)]
 pub struct TocEntry {
+    /// Byte offset of the frame within the container.
     pub offset: u64,
+    /// Size of the frame payload before compression, in bytes.
     pub uncompressed_len: u32,
+    /// Size of the frame payload after compression, in bytes.
     pub compressed_len: u32,
+    /// Compression codec identifier used for this frame.
     pub codec: u8,
+    /// Graph identifier the frame belongs to.
     pub graph: u8,
+    /// Level-of-detail tag for the frame.
     pub lod: u8,
+    /// Storage tier tag for the frame.
     pub tier: u8,
+    /// Monotonically increasing sequence number of the frame.
     pub seq: u64,
 }
 
 impl TocEntry {
+    /// Serializes the entry to its fixed 32-byte on-disk representation.
     pub fn to_bytes(&self) -> [u8; 32] {
         let mut bytes = [0u8; 32];
         bytes[0..8].copy_from_slice(&self.offset.to_be_bytes());
@@ -129,6 +149,7 @@ impl TocEntry {
         bytes
     }
 
+    /// Parses an entry from its 32-byte on-disk representation.
     pub fn from_bytes(bytes: &[u8; 32]) -> Self {
         Self {
             offset: u64::from_be_bytes(
@@ -162,13 +183,18 @@ impl TocEntry {
 /// Footer (32 bytes)
 #[derive(Debug, Clone)]
 pub struct Footer {
+    /// Byte offset where the table of contents begins.
     pub toc_offset: u64,
+    /// Length of the table of contents, in bytes.
     pub toc_len: u64,
+    /// Number of TOC entries (frames) recorded.
     pub entry_count: u64,
+    /// Copy of the header flags, for recovery without re-reading the header.
     pub flags_copy: u64,
 }
 
 impl Footer {
+    /// Serializes the footer to its fixed 32-byte on-disk representation.
     pub fn to_bytes(&self) -> [u8; 32] {
         let mut bytes = [0u8; 32];
         bytes[0..8].copy_from_slice(&self.toc_offset.to_be_bytes());
@@ -178,6 +204,7 @@ impl Footer {
         bytes
     }
 
+    /// Parses a footer from its 32-byte on-disk representation.
     pub fn from_bytes(bytes: &[u8; 32]) -> Self {
         Self {
             toc_offset: u64::from_be_bytes(
@@ -216,6 +243,9 @@ pub struct ContainerWriterV2<W: Write + Seek> {
 }
 
 impl<W: Write + Seek> ContainerWriterV2<W> {
+    /// Creates a writer over `writer`, immediately writing the stream header.
+    ///
+    /// Frames are LZ4-compressed by default; see [`Self::with_compression`].
     pub fn new(mut writer: W, config: StreamConfig) -> Result<Self> {
         let header = HeaderV2::new(config.enable_sha256);
 
@@ -233,11 +263,16 @@ impl<W: Write + Seek> ContainerWriterV2<W> {
         })
     }
 
+    /// Replaces the default LZ4 codec with a custom [`Compression`] implementation.
     pub fn with_compression(mut self, compression: Box<dyn Compression>) -> Result<Self> {
         self.compression = compression;
         Ok(self)
     }
 
+    /// Appends one frame of data, compressing it and recording a TOC entry.
+    ///
+    /// A checkpoint (TOC + footer) is flushed automatically once the configured
+    /// frame-count or byte thresholds in [`StreamConfig`] are reached.
     pub fn write_frame(&mut self, data: &[u8]) -> Result<()> {
         let uncompressed_len = data.len() as u32;
         let offset = self.writer.stream_position()?;
@@ -331,6 +366,10 @@ impl<W: Write + Seek> ContainerWriterV2<W> {
         Ok(())
     }
 
+    /// Finalizes the container, writing the last checkpoint (TOC + footer).
+    ///
+    /// Must be called for the container to be readable; dropping the writer
+    /// without calling `finish` leaves only data up to the last checkpoint.
     pub fn finish(mut self) -> Result<()> {
         // Write final checkpoint
         if !self.toc_entries.is_empty() {

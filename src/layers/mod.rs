@@ -62,7 +62,7 @@ pub mod ros2 {
     pub use super::ros2_bridge::*;
 }
 
-// Re-export GPU types (conditionally)
+/// Re-export GPU-accelerated occupancy types (available with `gpu-metal` or `gpu-cuda`)
 #[cfg(any(feature = "gpu-metal", feature = "gpu-cuda"))]
 pub mod gpu {
     pub use super::occupancy_gpu::*;

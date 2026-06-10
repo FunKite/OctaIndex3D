@@ -234,11 +234,13 @@ impl GpuBackend for WgpuBackend {
     }
 }
 
+/// Stub wgpu backend used when the `gpu-vulkan` feature is not enabled
 #[cfg(not(feature = "gpu-vulkan"))]
 pub struct WgpuBackend;
 
 #[cfg(not(feature = "gpu-vulkan"))]
 impl WgpuBackend {
+    /// Always returns an error: the `gpu-vulkan` feature is not enabled
     pub fn new() -> Result<Self> {
         Err(Error::InvalidFormat("wgpu feature not enabled".to_string()))
     }

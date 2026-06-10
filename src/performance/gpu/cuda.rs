@@ -45,6 +45,7 @@ impl CudaBackend {
     }
 }
 
+/// Stub CUDA backend for Apple platforms, where CUDA is unavailable.
 #[cfg(all(feature = "gpu-cuda", any(target_os = "macos", target_os = "ios")))]
 pub struct CudaBackend;
 
@@ -116,11 +117,13 @@ impl GpuBackend for CudaBackend {
     }
 }
 
+/// Stub CUDA backend used when the `gpu-cuda` feature is not enabled
 #[cfg(not(feature = "gpu-cuda"))]
 pub struct CudaBackend;
 
 #[cfg(not(feature = "gpu-cuda"))]
 impl CudaBackend {
+    /// Always returns an error: the `gpu-cuda` feature is not enabled
     pub fn new() -> Result<Self> {
         Err(Error::InvalidFormat("CUDA feature not enabled".to_string()))
     }
@@ -134,11 +137,13 @@ pub fn is_cuda_available() -> bool {
         .unwrap_or(false)
 }
 
+/// Check if CUDA is available (always false on Apple platforms)
 #[cfg(all(feature = "gpu-cuda", any(target_os = "macos", target_os = "ios")))]
 pub fn is_cuda_available() -> bool {
     false
 }
 
+/// Check if CUDA is available (always false without the `gpu-cuda` feature)
 #[cfg(not(feature = "gpu-cuda"))]
 pub fn is_cuda_available() -> bool {
     false

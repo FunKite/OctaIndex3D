@@ -125,6 +125,7 @@ mod metal_impl {
     use metal::*;
     use std::sync::Arc;
 
+    /// Ray-casting backend that runs occupancy updates on the GPU via Metal.
     pub struct MetalRayCaster {
         _device: Arc<Device>,
         _command_queue: Arc<CommandQueue>,
@@ -132,6 +133,8 @@ mod metal_impl {
     }
 
     impl MetalRayCaster {
+        /// Creates a ray caster on the system's default Metal device,
+        /// compiling the occupancy ray-cast compute shader.
         pub fn new() -> Result<Self> {
             let device = Device::system_default()
                 .ok_or_else(|| Error::InvalidFormat("No Metal device found".to_string()))?;
@@ -193,11 +196,13 @@ pub use metal_impl::MetalRayCaster;
 mod cuda_impl {
     use super::*;
 
+    /// Ray-casting backend that runs occupancy updates on NVIDIA GPUs via CUDA.
     pub struct CudaRayCaster {
         // CUDA context and kernels would go here
     }
 
     impl CudaRayCaster {
+        /// Creates a CUDA ray caster.
         pub fn new() -> Result<Self> {
             // Initialize CUDA ray casting kernel
             Ok(Self {})

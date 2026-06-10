@@ -155,11 +155,13 @@ impl GpuBackend for MetalBackend {
     }
 }
 
+/// Stub Metal backend used when the `gpu-metal` feature is not enabled
 #[cfg(not(feature = "gpu-metal"))]
 pub struct MetalBackend;
 
 #[cfg(not(feature = "gpu-metal"))]
 impl MetalBackend {
+    /// Always returns an error: the `gpu-metal` feature is not enabled
     pub fn new() -> Result<Self> {
         Err(Error::InvalidFormat(
             "Metal feature not enabled".to_string(),

@@ -80,6 +80,7 @@ impl ParallelBatchIndexBuilder {
         batch_result
     }
 
+    /// Stub that panics: the `parallel` feature is not enabled
     #[cfg(not(feature = "parallel"))]
     pub fn build(
         &self,
@@ -145,11 +146,13 @@ impl ParallelBatchNeighborCalculator {
             .collect()
     }
 
+    /// Stub that panics: the `parallel` feature is not enabled
     #[cfg(not(feature = "parallel"))]
     pub fn calculate(&self, _routes: &[Route64]) -> Vec<Route64> {
         panic!("Parallel feature not enabled");
     }
 
+    /// Stub that panics: the `parallel` feature is not enabled
     #[cfg(not(feature = "parallel"))]
     pub fn calculate_grouped(&self, _routes: &[Route64]) -> Vec<Vec<Route64>> {
         panic!("Parallel feature not enabled");
@@ -174,6 +177,7 @@ pub fn thread_count() -> usize {
     rayon::current_num_threads()
 }
 
+/// Get the number of threads available (always 1 without the `parallel` feature)
 #[cfg(not(feature = "parallel"))]
 pub fn thread_count() -> usize {
     1
