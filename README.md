@@ -22,7 +22,7 @@
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
 - [Installation](#installation)
-- [Quick Start](#quick-start)
+- [Quick Start](#30-second-quick-start)
 - [ID System Architecture](#id-system-architecture-v030)
 - [Examples](#examples)
 - [Streaming Container Format](#streaming-container-format)
@@ -38,7 +38,7 @@
 
 This release introduces the high-level `BccGrid` API, corrects several BCC lattice operations, and adds a new survival mode to the interactive maze.
 
-- **New `BccGrid` facade** - Convert physical points to cells, query `neighbors`, `k_ring`, `k_shell`, and `distance`, and run A* pathfinding on modern `Route64` IDs without handling parity, tiers, or coordinate ranges manually. See the [Quick Start](#quick-start) and `examples/quickstart.rs`.
+- **New `BccGrid` facade** - Convert physical points to cells, query `neighbors`, `k_ring`, `k_shell`, and `distance`, and run A* pathfinding on modern `Route64` IDs without handling parity, tiers, or coordinate ranges manually. See the [30-Second Quick Start](#30-second-quick-start) and `examples/quickstart.rs`.
 - **Lattice correctness fixes** - `physical_to_lattice` now snaps any finite in-range point to the nearest valid BCC point and honors its `resolution` parameter; `get_children` produces the 8 parity-valid children with `get_parent` as its exact inverse; `batch_validate_routes` applies the correct all-same-parity rule.
 - **Legacy API deprecations** - The v0.2-era `CellID`, `path::*`, and `Layer` APIs are deprecated in favor of `BccGrid` and the modern ID types. All remain available for compatibility.
 - **README doctests** - The README's Rust code blocks now compile as doctests, so documentation examples stay in sync with the implementation.
@@ -141,7 +141,7 @@ Experience the power of BCC lattice pathfinding with our **interactive 3D octahe
 - **Real-time feedback**: See your efficiency compared to the theoretical minimum path
 - **BCC lattice navigation**: Experience true 3D movement with 14-neighbor connectivity
 
-### Quick Start
+### How to Play
 
 ```bash
 # Install the CLI (requires 'cli' feature)

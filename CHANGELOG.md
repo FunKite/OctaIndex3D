@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- README: the "Quick Start" table-of-contents entry and the v0.5.6 `BccGrid` highlight linked to `#quick-start`, which resolved to the maze game's install instructions instead of the library quick start. Both now point to the 30-Second Quick Start (the `BccGrid` example), and the game's duplicate "Quick Start" heading is renamed "How to Play".
+
 ## [0.5.6] - 2026-06-10
 
 ### Added
