@@ -69,6 +69,7 @@ impl GpuBatchProcessor {
         })
     }
 
+    /// Create a GPU batch processor using the Vulkan (wgpu) backend
     #[cfg(all(feature = "gpu-vulkan", not(target_os = "windows")))]
     pub fn with_vulkan() -> Result<Self> {
         Ok(Self {
@@ -147,6 +148,7 @@ pub fn is_cuda_available() -> bool {
     cuda::is_cuda_available()
 }
 
+/// Check if CUDA is available (always false without the `gpu-cuda` feature)
 #[cfg(not(all(feature = "gpu-cuda", not(target_os = "windows"))))]
 pub fn is_cuda_available() -> bool {
     false
@@ -158,6 +160,7 @@ pub fn is_metal_available() -> bool {
     metal::MetalBackend::new().is_ok()
 }
 
+/// Check if Metal is available (always false off macOS or without the `gpu-metal` feature)
 #[cfg(not(all(feature = "gpu-metal", target_os = "macos")))]
 pub fn is_metal_available() -> bool {
     false
@@ -169,6 +172,7 @@ pub fn is_vulkan_available() -> bool {
     wgpu_backend::WgpuBackend::new().is_ok()
 }
 
+/// Check if Vulkan is available (always false without the `gpu-vulkan` feature)
 #[cfg(not(all(feature = "gpu-vulkan", not(target_os = "windows"))))]
 pub fn is_vulkan_available() -> bool {
     false
@@ -180,6 +184,7 @@ pub fn is_rocm_available() -> bool {
     rocm::is_rocm_available()
 }
 
+/// Check if ROCm is available (always false without the `gpu-rocm` feature)
 #[cfg(not(feature = "gpu-rocm"))]
 pub fn is_rocm_available() -> bool {
     false

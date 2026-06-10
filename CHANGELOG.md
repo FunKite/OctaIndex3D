@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.6] - 2026-06-10
+
 ### Added
+- Documentation for all remaining public API items — the container v2 format types (`HeaderV2`, `TocEntry`, `Footer`, `ContainerWriterV2`), GPU backend constructors and availability checks (including feature-disabled stubs), `Avx512Info` feature-detection fields and methods, and GPU-accelerated occupancy ray casters — bringing rustdoc item coverage to 100%.
 - New high-level `BccGrid` facade (`grid` module, re-exported at the crate root): convert physical points to cells (`cell_at`/`center_of`), query `neighbors`, `k_ring`, `k_shell`, and `distance`, and run A* pathfinding (`astar`, `astar_where` with a traversability predicate, `astar_with_limit`) on modern `Route64` IDs without handling parity, tiers, or coordinate ranges manually.
 - New `examples/quickstart.rs` demonstrating the modern API (`BccGrid`, `Index64`, `Route64`).
 - The README's Rust code blocks now compile as doctests (`#[doc = include_str!]` harness in `lib.rs`), so documentation examples can no longer drift from the implementation.

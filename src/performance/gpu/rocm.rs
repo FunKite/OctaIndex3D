@@ -107,6 +107,7 @@ pub struct RocmBackend;
 
 #[cfg(not(feature = "gpu-rocm"))]
 impl RocmBackend {
+    /// Always returns an error: the `gpu-rocm` feature is not enabled
     pub fn new() -> Result<Self> {
         Err(Error::InvalidFormat("ROCm feature not enabled".to_string()))
     }
@@ -126,6 +127,7 @@ pub fn is_rocm_available() -> bool {
     false
 }
 
+/// Check if ROCm is available (always false without the `gpu-rocm` feature)
 #[cfg(not(feature = "gpu-rocm"))]
 pub fn is_rocm_available() -> bool {
     false

@@ -24,6 +24,7 @@ pub fn has_avx512f() -> bool {
     is_x86_feature_detected!("avx512f")
 }
 
+/// Check if AVX-512F (foundation) is available (always false on non-x86_64)
 #[cfg(not(target_arch = "x86_64"))]
 pub fn has_avx512f() -> bool {
     false
@@ -35,6 +36,7 @@ pub fn has_avx512cd() -> bool {
     is_x86_feature_detected!("avx512cd")
 }
 
+/// Check if AVX-512 with conflict detection is available (always false on non-x86_64)
 #[cfg(not(target_arch = "x86_64"))]
 pub fn has_avx512cd() -> bool {
     false
@@ -141,15 +143,22 @@ pub unsafe fn batch_morton_encode_avx512(coords: &[(u16, u16, u16)]) -> Vec<u64>
 
 /// Get AVX-512 feature availability summary
 pub struct Avx512Info {
-    pub has_f: bool,    // Foundation
-    pub has_cd: bool,   // Conflict Detection
-    pub has_dq: bool,   // Doubleword and Quadword
-    pub has_bw: bool,   // Byte and Word
-    pub has_vl: bool,   // Vector Length Extensions
-    pub has_vnni: bool, // Vector Neural Network Instructions
+    /// Foundation (AVX-512F)
+    pub has_f: bool,
+    /// Conflict Detection (AVX-512CD)
+    pub has_cd: bool,
+    /// Doubleword and Quadword (AVX-512DQ)
+    pub has_dq: bool,
+    /// Byte and Word (AVX-512BW)
+    pub has_bw: bool,
+    /// Vector Length Extensions (AVX-512VL)
+    pub has_vl: bool,
+    /// Vector Neural Network Instructions (AVX-512VNNI)
+    pub has_vnni: bool,
 }
 
 impl Avx512Info {
+    /// Detect which AVX-512 feature sets the current CPU supports
     #[cfg(target_arch = "x86_64")]
     pub fn detect() -> Self {
         Self {
@@ -162,6 +171,7 @@ impl Avx512Info {
         }
     }
 
+    /// Detect AVX-512 feature sets (all false on non-x86_64)
     #[cfg(not(target_arch = "x86_64"))]
     pub fn detect() -> Self {
         Self {
@@ -174,10 +184,12 @@ impl Avx512Info {
         }
     }
 
+    /// Returns true if the AVX-512 foundation instructions are available
     pub fn is_available(&self) -> bool {
         self.has_f
     }
 
+    /// Print a human-readable summary of detected AVX-512 features to stdout
     pub fn print_info(&self) {
         println!("AVX-512 Features:");
         println!("  Foundation (F): {}", self.has_f);
