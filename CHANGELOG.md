@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Updated `zerocopy` from 0.8.50 to 0.8.52 and `glam` from 0.33.0 to 0.33.1 in the `rust-dependencies` group (PR #145): both are patch-level lockfile bumps with no public API impact; `glam` relaxes the vector `map` closure bound from `Fn` to `FnMut`. All CI, security-audit, and `cargo-deny` checks pass.
+
 ### Fixed
 - README: the "Quick Start" table-of-contents entry and the v0.5.6 `BccGrid` highlight linked to `#quick-start`, which resolved to the maze game's install instructions instead of the library quick start. Both now point to the 30-Second Quick Start (the `BccGrid` example), and the game's duplicate "Quick Start" heading is renamed "How to Play".
 - CHANGELOG: the `[Unreleased]` comparison link still pointed at `v0.5.5...HEAD` and the released `0.5.6` entry had no reference-link definition. The `[Unreleased]` link now compares against `v0.5.6`, and a `[0.5.6]` link (`v0.5.5...v0.5.6`) was added.
