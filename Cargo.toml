@@ -50,7 +50,7 @@ serde_json = { version = "1.0", optional = true }
 ciborium = { version = "0.2", optional = true }
 
 # Bech32m encoding
-bech32 = "0.11"
+bech32 = "0.12"
 
 # Zero-copy support
 bytemuck = { version = "1.25", features = ["derive"] }
