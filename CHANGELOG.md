@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Updated `bech32` from 0.11.1 to 0.12.0 (PR #150): upstream adds checksum error correction and a const `Hrp::len`, removes an unused argument on `CheckedHrpstring::fe32_iter`, and derives `Default` for `Fe32`. The APIs this crate uses are unchanged; all CI, security-audit, and `cargo-deny` checks pass.
+- Updated the `rust-dependencies` group (PR #149): `cudarc` from 0.19.7 to 0.19.8 (adds CUDA 13.3 support) and `getrandom` from 0.4.2 to 0.4.3 (adds `wasm64-unknown-unknown` support and replaces the `wasip2`/`wasip3` dependencies with manual bindings). Lockfile-only bumps with no public API impact.
+- Updated `actions/checkout` from 6.0.3 to 7.0.0 (PR #148): a major release moving the action runtime to Node 24 that now blocks checking out fork PRs under `pull_request_target`/`workflow_run`. This repository uses neither trigger, so the behavioural change is a no-op here; the full CI matrix runs green on checkout v7.
+- Updated `softprops/action-gh-release` from 3.0.0 to 3.0.1 (PR #147): an upstream maintenance release with refreshed bundled dependencies.
 - Updated `zerocopy` from 0.8.50 to 0.8.52 and `glam` from 0.33.0 to 0.33.1 in the `rust-dependencies` group (PR #145): both are patch-level lockfile bumps with no public API impact; `glam` relaxes the vector `map` closure bound from `Fn` to `FnMut`. All CI, security-audit, and `cargo-deny` checks pass.
 
 ### Fixed
@@ -15,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CHANGELOG: the `[Unreleased]` comparison link still pointed at `v0.5.5...HEAD` and the released `0.5.6` entry had no reference-link definition. The `[Unreleased]` link now compares against `v0.5.6`, and a `[0.5.6]` link (`v0.5.5...v0.5.6`) was added.
 
 ### Security
+- Routine dependency maintenance (2026-06-24): merged the four open Dependabot updates (PRs #147–#150). Each passed the `Rust Security Audit` and `cargo-deny` (advisories/bans/licenses/sources) CI jobs, and `cargo update --locked` confirms the combined `Cargo.lock` is consistent and introduces no new advisories. `paste` (RUSTSEC-2024-0436, unmaintained, transitive via `metal`/`wgpu-hal`) remains the sole acknowledged advisory and stays ignored in `deny.toml`.
 - Routine security audit (2026-06-10): `cargo audit` against the current `Cargo.lock` (308 crate dependencies, 1123 advisories loaded) reports no new CVEs or active advisories. `paste` (RUSTSEC-2024-0436, unmaintained, transitive via `metal`/`wgpu-hal`) remains the sole acknowledged advisory and stays ignored in `deny.toml`.
 
 ## [0.5.6] - 2026-06-10
