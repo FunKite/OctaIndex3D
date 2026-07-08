@@ -41,6 +41,7 @@ impl WgpuBackend {
             power_preference: wgpu::PowerPreference::HighPerformance,
             compatible_surface: None,
             force_fallback_adapter: false,
+            apply_limit_buckets: false,
         }))
         .map_err(|e| Error::InvalidFormat(format!("No suitable GPU adapter found: {}", e)))?;
 
@@ -210,7 +211,9 @@ impl GpuBackend for WgpuBackend {
             .map_err(|e| Error::InvalidFormat(format!("Failed to receive buffer mapping: {}", e)))?
             .map_err(|e| Error::InvalidFormat(format!("Failed to map buffer: {}", e)))?;
 
-        let data = buffer_slice.get_mapped_range();
+        let data = buffer_slice.get_mapped_range().map_err(|e| {
+            Error::InvalidFormat(format!("Failed to get mapped buffer range: {}", e))
+        })?;
         let output_data: Vec<u64> = bytemuck::cast_slice(&data).to_vec();
 
         drop(data);
