@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.7] - 2026-07-20
+
 ### Changed
 - Added a `concurrency` group (cancel-in-progress, keyed by workflow + head ref) to `rust.yml`, `security.yml`, and `book-quality.yml`: pushing new commits to an open PR or branch now cancels that branch's still-running CI instead of letting redundant runs pile up.
 - Updated `pollster` from 0.4.0 to 1.0.1 (PR #161): a semver-major release. This crate's only use is `pollster::block_on` in `wgpu_backend.rs`, whose signature is unchanged; the sole breaking change (`FutureExt` now also covers `IntoFuture`) doesn't affect this call site. All CI checks pass.
@@ -321,7 +323,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.6...HEAD
+[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.7...HEAD
+[0.5.7]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/FunKite/OctaIndex3D/releases/tag/v0.5.4
