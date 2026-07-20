@@ -17,7 +17,7 @@
 
 ## Table of Contents
 
-- [What's New in v0.5.6](#whats-new-in-v056)
+- [What's New in v0.5.7](#whats-new-in-v057)
 - [Overview](#overview)
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
@@ -34,17 +34,15 @@
 - [Contributing](#contributing)
 - [Research and Citation](#research-and-citation)
 
-## What's New in v0.5.6
+## What's New in v0.5.7
 
-This release introduces the high-level `BccGrid` API, corrects several BCC lattice operations, and adds a new survival mode to the interactive maze.
+This is a maintenance release focused on dependency currency, a transitive security fix, and CI efficiency. There are no public API changes.
 
-- **New `BccGrid` facade** - Convert physical points to cells, query `neighbors`, `k_ring`, `k_shell`, and `distance`, and run A* pathfinding on modern `Route64` IDs without handling parity, tiers, or coordinate ranges manually. See the [30-Second Quick Start](#30-second-quick-start) and `examples/quickstart.rs`.
-- **Lattice correctness fixes** - `physical_to_lattice` now snaps any finite in-range point to the nearest valid BCC point and honors its `resolution` parameter; `get_children` produces the 8 parity-valid children with `get_parent` as its exact inverse; `batch_validate_routes` applies the correct all-same-parity rule.
-- **Legacy API deprecations** - The v0.2-era `CellID`, `path::*`, and `Layer` APIs are deprecated in favor of `BccGrid` and the modern ID types. All remain available for compatibility.
-- **README doctests** - The README's Rust code blocks now compile as doctests, so documentation examples stay in sync with the implementation.
-- **Bloodhound survival mode** - A new mode for `octaindex3d play`: reach the goal before pursuing bloodhounds catch you, with spike traps, scent trails, and progressive level sizing.
-- **Security** - Replaced the unmaintained `serde_cbor` dependency with `ciborium` (RUSTSEC-2021-0127); the `Dataset` CBOR API is unchanged.
-- **Documentation coverage** - Documented the remaining public API items (container v2 format types, GPU backends, AVX-512 feature detection) for complete docs.rs coverage.
+- **Security** - Upgraded the transitive `crossbeam-epoch` dependency (pulled in via `rayon`) to 0.9.20 to resolve RUSTSEC-2026-0204, an invalid-pointer-dereference bug in its `fmt::Pointer` impl.
+- **GPU dependency upgrades** - Updated `wgpu` to 30.0.0 and `pollster` to 1.0.1 (both semver-major); the wgpu GPU backend was adjusted for the `RequestAdapterOptions` and `BufferSlice::get_mapped_range` API changes, verified against the full CI matrix including the Vulkan and Metal feature-test jobs.
+- **CI efficiency** - Added cancel-in-progress `concurrency` groups to the `rust.yml`, `security.yml`, and `book-quality.yml` workflows, so new pushes to a branch cancel that branch's still-running CI instead of piling up redundant runs. Added `--locked` to the `cargo-audit` installs so security jobs use a pinned toolchain-compatible version.
+- **Routine dependency maintenance** - Refreshed `bech32`, `cudarc`, `getrandom`, `zerocopy`, `glam`, `bytemuck`, and several GitHub Actions to their latest compatible releases. See the [Changelog](CHANGELOG.md) for the full list.
+- **Documentation coverage** - rustdoc item coverage remains at 100% for complete docs.rs coverage.
 
 See the full [Changelog](CHANGELOG.md) for release history.
 
