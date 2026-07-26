@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Updated `actions/checkout` from 7.0.0 to 7.0.1 (PR #163): upstream patch release trimming ASCII-only whitespace for branch names, escaping values passed to `--unset`, and skipping the unsafe-PR check when the input is the default. All `uses: actions/checkout@<sha>` references across `rust.yml`, `security.yml`, `release.yml`, and `book-quality.yml` were rebased to the new release SHA; the full CI matrix ran green.
+- Updated `clap` from 4.6.1 to 4.6.2 and `clap_builder` to 4.6.2 in the `rust-dependencies` group (PR #164): a patch release fixing shell-completion help text; lockfile-only bump with no public API impact.
+
 ## [0.5.7] - 2026-07-20
 
 ### Changed
