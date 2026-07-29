@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated `actions/checkout` from 7.0.0 to 7.0.1 (PR #163): upstream patch release trimming ASCII-only whitespace for branch names, escaping values passed to `--unset`, and skipping the unsafe-PR check when the input is the default. All `uses: actions/checkout@<sha>` references across `rust.yml`, `security.yml`, `release.yml`, and `book-quality.yml` were rebased to the new release SHA; the full CI matrix ran green.
 - Updated `clap` from 4.6.1 to 4.6.2 and `clap_builder` to 4.6.2 in the `rust-dependencies` group (PR #164): a patch release fixing shell-completion help text; lockfile-only bump with no public API impact.
+- Updated the `rust-dependencies` group (PR #166): `serde` 1.0.228 → 1.0.229, `serde_json` 1.0.150 → 1.0.151, `bytemuck` 1.25.1 → 1.25.2, `zerocopy` 0.8.54 → 0.8.55, `thiserror` 2.0.18 → 2.0.19, and `clap`/`clap_builder` 4.6.2 → 4.6.4. All lockfile-only patch bumps with no public API impact; the full CI matrix (22 checks) ran green.
+- Updated `lz4_flex` from 0.13.1 to 0.14.0 (PR #167): adds an opt-in `alloc` feature for `no_std` use without a global allocator. This crate is consumed with default features enabled, so the change is a no-op here; the full CI matrix ran green.
 
 ## [0.5.7] - 2026-07-20
 
