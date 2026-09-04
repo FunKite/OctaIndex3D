@@ -8,11 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Updated the `rust-dependencies` group (PR #172, targeting 0.5.8): `zerocopy` 0.8.55 → 0.8.56, `rkyv` 0.8.17 → 0.8.18, `thiserror` 2.0.19 → 2.0.20, `ordered-float` 5.3.0 → 5.5.0, `glam` 0.33.2 → 0.33.6, `crc32fast` 1.5.0 → 1.5.1, `clap` 4.6.5 → 4.6.6, `wgpu` 30.0.0 → 30.0.1, and `cudarc` 0.19.8 → 0.19.9, with their associated lockfile updates. No feature flags changed.
+- Raised the declared minimum Rust version to 1.90, required by `ordered-float` 5.5.0. The previous 1.77 claim was already incompatible with existing dependencies and its CI check silently used the repository's Rust 1.92 pin. CI now explicitly selects the MSRV and stable/beta compilers and tests the locked dependency set. Updated installation guidance and aligned the book's toolchain pin with the repository's Rust 1.92.0.
+- Disabled fail-fast for the Cargo Deny matrix so an advisory failure cannot cancel the independent bans, licenses, and sources check.
+- Replaced manual divisibility checks with `is_multiple_of` for Clippy compatibility with the corrected MSRV, preserving the alignment helper's panic for zero alignment.
 - Updated `clap` from 4.6.4 to 4.6.5 and `clap_builder` from 4.6.2 to 4.6.5 in the `rust-dependencies` group (PR #169): a lockfile-only patch release that corrects help output for optional `value_names` used with `num_args`; no public API impact.
 - Updated `actions/checkout` from 7.0.0 to 7.0.1 (PR #163): upstream patch release trimming ASCII-only whitespace for branch names, escaping values passed to `--unset`, and skipping the unsafe-PR check when the input is the default. All `uses: actions/checkout@<sha>` references across `rust.yml`, `security.yml`, `release.yml`, and `book-quality.yml` were rebased to the new release SHA; the full CI matrix ran green.
 - Updated `clap` from 4.6.1 to 4.6.2 and `clap_builder` to 4.6.2 in the `rust-dependencies` group (PR #164): a patch release fixing shell-completion help text; lockfile-only bump with no public API impact.
 - Updated the `rust-dependencies` group (PR #166): `serde` 1.0.228 → 1.0.229, `serde_json` 1.0.150 → 1.0.151, `bytemuck` 1.25.1 → 1.25.2, `zerocopy` 0.8.54 → 0.8.55, `thiserror` 2.0.18 → 2.0.19, and `clap`/`clap_derive` 4.6.2 → 4.6.4 (`clap_builder` stayed at 4.6.2). All lockfile-only patch bumps with no public API impact; the full CI matrix (22 checks) ran green.
 - Updated `lz4_flex` from 0.13.1 to 0.14.0 (PR #167): adds an opt-in `alloc` feature for `no_std` use without a global allocator. This crate is consumed with default features enabled, so the change is a no-op here; the full CI matrix ran green.
+
+### Security
+- Updated transitive `chacha20` from yanked 0.10.0 to 0.10.2, fixing the Cargo Deny advisory gate. The upstream patch corrects an SSE4.1 intrinsic used in the SSE2 RNG backend; the existing advisory and license policies remain in force.
 
 ## [0.5.7] - 2026-07-20
 

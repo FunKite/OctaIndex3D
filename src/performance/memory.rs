@@ -204,8 +204,12 @@ impl MemoryAccessAnalyzer {
     }
 
     /// Check if pointer is aligned
+    ///
+    /// # Panics
+    /// Panics if `alignment` is zero.
     pub fn is_aligned<T>(&self, ptr: *const T, alignment: usize) -> bool {
-        (ptr as usize) % alignment == 0
+        assert_ne!(alignment, 0, "alignment must be nonzero");
+        (ptr as usize).is_multiple_of(alignment)
     }
 
     /// Calculate cache line offset

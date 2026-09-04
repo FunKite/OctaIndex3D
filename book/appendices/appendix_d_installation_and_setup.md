@@ -23,12 +23,12 @@ OctaIndex3D is tested across multiple Rust versions:
 
 | Rust Version | Status      | Notes                                      |
 |-------------|-------------|--------------------------------------------|
-| **1.82.0**  | Recommended | Default via `rust-toolchain.toml` in repo |
-| **1.77+**   | Supported   | Minimum Supported Rust Version (MSRV)      |
-| \< 1.77     | Unsupported | Not covered by CI or book examples         |
+| **1.92.0**  | Recommended | Default via `rust-toolchain.toml` in repo |
+| **1.90+**   | Supported   | Minimum Supported Rust Version (MSRV)      |
+| \< 1.90     | Unsupported | Not covered by CI or book examples         |
 
 - For the book and examples, use the pinned toolchain by running commands inside the repository root or `book/` directory so that `rust-toolchain.toml` takes effect.
-- For your own projects, you can target Rust **1.77+**; CI in this repository checks both the current stable toolchain and the MSRV.
+- For your own projects, you can target Rust **1.90+**; CI explicitly selects stable, beta, and the MSRV so the repository toolchain pin cannot override those checks.
 
 ## D.2 Installation Instructions
 
@@ -694,7 +694,7 @@ Common issues and remedies:
 
 - **Rust version mismatches between CI and local**
   - Run `rustc --version` locally and compare against the pinned `rust-toolchain.toml` and MSRV noted in §D.1.1.
-  - When upgrading Rust, update `rust-toolchain.toml`, run `cargo check` with `1.77` (MSRV) and stable, and only then rely on newer language features.
+  - When upgrading Rust, update both `rust-toolchain.toml` files, run `cargo +1.90.0 check --locked --all-features` (MSRV) and `cargo +stable check --locked --all-features`, and only then rely on newer language features.
 
 ### D.9.2 Runtime Issues
 

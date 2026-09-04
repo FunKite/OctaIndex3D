@@ -7,7 +7,7 @@
 [![Crates.io](https://img.shields.io/crates/v/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 [![Documentation](https://docs.rs/octaindex3d/badge.svg)](https://docs.rs/octaindex3d)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Rust](https://img.shields.io/badge/rust-1.77+-orange.svg)](https://www.rust-lang.org)
+[![Rust](https://img.shields.io/badge/rust-1.90+-orange.svg)](https://www.rust-lang.org)
 [![CI](https://github.com/FunKite/OctaIndex3D/workflows/Rust%20CI/badge.svg)](https://github.com/FunKite/OctaIndex3D/actions)
 [![Downloads](https://img.shields.io/crates/d/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 
@@ -612,7 +612,7 @@ Using these primitives, you can build various exploration strategies:
 
 ### Minimum Requirements
 
-- **Rust**: 1.77+ (MSRV)
+- **Rust**: 1.90+ (MSRV)
 - **CPU**: Any 64-bit processor
 - **Memory**: 100MB+ recommended for typical workloads
 - **Optional**: BMI2 support for hardware-accelerated Morton encoding (Intel Haswell+, AMD Zen+)

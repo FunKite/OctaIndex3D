@@ -25,6 +25,8 @@ jobs:
     name: Cargo Deny
     runs-on: ubuntu-latest
     strategy:
+      # Report both policy results even when one check fails.
+      fail-fast: false
       matrix:
         checks:
           - advisories
