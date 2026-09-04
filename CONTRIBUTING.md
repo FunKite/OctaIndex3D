@@ -35,7 +35,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 
 ### Prerequisites
 
-- **Rust 1.77+** (MSRV - Minimum Supported Rust Version)
+- **Rust 1.90+** (MSRV - Minimum Supported Rust Version)
 - **Cargo** (comes with Rust)
 - **Git**
 

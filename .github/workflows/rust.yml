@@ -26,6 +26,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         rust: [stable, beta]
+    # rust-toolchain.toml otherwise overrides the toolchain installed below.
+    env:
+      RUSTUP_TOOLCHAIN: ${{ matrix.rust }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
@@ -33,6 +36,9 @@ jobs:
         uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7
         with:
           toolchain: ${{ matrix.rust }}
+
+      - name: Show active compiler
+        run: rustc --version
 
       - name: Cache cargo registry
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
@@ -53,13 +59,13 @@ jobs:
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Run tests (all features)
-        run: cargo test --verbose --all-features
+        run: cargo test --locked --verbose --all-features
 
       - name: Run tests (default features)
-        run: cargo test --verbose
+        run: cargo test --locked --verbose
 
       - name: Run doc tests
-        run: cargo test --doc --verbose
+        run: cargo test --locked --doc --verbose
 
   feature-tests:
     name: Feature Tests
@@ -219,13 +225,17 @@ jobs:
   msrv:
     name: Minimum Supported Rust Version
     runs-on: ubuntu-latest
+    env:
+      RUSTUP_TOOLCHAIN: 1.90.0
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Install Rust 1.77
+      - name: Install Rust 1.90
         uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7
         with:
-          toolchain: 1.77.0
+          toolchain: ${{ env.RUSTUP_TOOLCHAIN }}
 
       - name: Check with MSRV
-        run: cargo check --all-features
+        run: |
+          rustc --version
+          cargo check --locked --all-features
