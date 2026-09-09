@@ -5,6 +5,7 @@
 **Authors**: Michael A. McLarney, GPT-5.1 (OpenAI), and Claude (Anthropic)  
 **Edition**: First Edition, 2025  
 **Status**: Core Draft Complete and Continuously Updated
+**Current library release**: 0.5.8 — Rust 1.90 minimum; development toolchain 1.92.0. This maintenance release preserves public APIs and feature flags. See the [changelog](../CHANGELOG.md) and [versioned API reference](https://docs.rs/octaindex3d/0.5.8/octaindex3d/).
 
 ---
 

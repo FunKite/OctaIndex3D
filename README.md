@@ -6,18 +6,18 @@
 
 [![Crates.io](https://img.shields.io/crates/v/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 [![Documentation](https://docs.rs/octaindex3d/badge.svg)](https://docs.rs/octaindex3d)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.90+-orange.svg)](https://www.rust-lang.org)
 [![CI](https://github.com/FunKite/OctaIndex3D/workflows/Rust%20CI/badge.svg)](https://github.com/FunKite/OctaIndex3D/actions)
 [![Downloads](https://img.shields.io/crates/d/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 
-[Documentation](https://docs.rs/octaindex3d) | [Book](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](CHANGELOG.md)
+[Documentation](https://docs.rs/octaindex3d) | [Book](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/CHANGELOG.md)
 
 </div>
 
 ## Table of Contents
 
-- [What's New in v0.5.7](#whats-new-in-v057)
+- [What's New in v0.5.8](#whats-new-in-v058)
 - [Overview](#overview)
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
@@ -34,17 +34,18 @@
 - [Contributing](#contributing)
 - [Research and Citation](#research-and-citation)
 
-## What's New in v0.5.7
+## What's New in v0.5.8
 
-This is a maintenance release focused on dependency currency, a transitive security fix, and CI efficiency. There are no public API changes.
+This maintenance release refreshes dependencies and corrects the minimum supported Rust version. Public APIs and feature flags are unchanged.
 
-- **Security** - Upgraded the transitive `crossbeam-epoch` dependency (pulled in via `rayon`) to 0.9.20 to resolve RUSTSEC-2026-0204, an invalid-pointer-dereference bug in its `fmt::Pointer` impl.
-- **GPU dependency upgrades** - Updated `wgpu` to 30.0.0 and `pollster` to 1.0.1 (both semver-major); the wgpu GPU backend was adjusted for the `RequestAdapterOptions` and `BufferSlice::get_mapped_range` API changes, verified against the full CI matrix including the Vulkan and Metal feature-test jobs.
-- **CI efficiency** - Added cancel-in-progress `concurrency` groups to the `rust.yml`, `security.yml`, and `book-quality.yml` workflows, so new pushes to a branch cancel that branch's still-running CI instead of piling up redundant runs. Added `--locked` to the `cargo-audit` installs so security jobs use a pinned toolchain-compatible version.
-- **Routine dependency maintenance** - Refreshed `bech32`, `cudarc`, `getrandom`, `zerocopy`, `glam`, `bytemuck`, and several GitHub Actions to their latest compatible releases. See the [Changelog](CHANGELOG.md) for the full list.
-- **Documentation coverage** - rustdoc item coverage remains at 100% for complete docs.rs coverage.
+- **Rust 1.90 minimum** — required by the locked dependency set; CI now explicitly tests that compiler instead of silently using the repository's Rust 1.92.0 toolchain.
+- **Dependency updates** — includes `lz4_flex` 0.14, optional CLI `dirs` 7.0, and compatible serialization, GPU, and error-handling updates. CLI saved-game locations are unchanged.
+- **Dependency repair** — replaces yanked transitive `chacha20` 0.10.0 with 0.10.2.
+- **Documentation** — public API documentation is checked across all features with missing documentation and rustdoc warnings treated as errors. The README's Rust examples are tested as doctests.
 
-See the full [Changelog](CHANGELOG.md) for release history.
+The [API reference](https://docs.rs/octaindex3d/0.5.8/octaindex3d/) covers optional features as well as the default API. See the [release checklist](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/docs/RELEASING.md) for package and documentation validation.
+
+See the full [Changelog](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/CHANGELOG.md) for release history.
 
 ## Overview
 
@@ -768,14 +769,14 @@ octaindex3d = { version = "0.5", features = ["container_v2"] }
 ### Getting Help
 
 - **Documentation**: Check [docs.rs/octaindex3d](https://docs.rs/octaindex3d)
-- **Examples**: See the [examples/](examples/) directory
+- **Examples**: See the [examples/](https://github.com/FunKite/OctaIndex3D/tree/v0.5.8/examples/) directory
 - **Issues**: [Open an issue](https://github.com/FunKite/OctaIndex3D/issues) for bugs or feature requests
 - **Discussions**: [GitHub Discussions](https://github.com/FunKite/OctaIndex3D/discussions) for questions
-- **Security**: See [SECURITY.md](SECURITY.md) for reporting vulnerabilities
+- **Security**: See [SECURITY.md](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/SECURITY.md) for reporting vulnerabilities
 
 ## Contributing
 
-Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+Contributions are welcome! Please see our [Contributing Guide](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/CONTRIBUTING.md) for details on:
 - Code of conduct and community guidelines
 - How to submit bug reports and feature requests
 - Development setup and coding standards
@@ -789,7 +790,7 @@ Feel free to:
 
 ## License
 
-Licensed under the MIT License. See [LICENSE](LICENSE) for details.
+Licensed under the MIT License. See [LICENSE](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/LICENSE) for details.
 
 ## Research and Citation
 
