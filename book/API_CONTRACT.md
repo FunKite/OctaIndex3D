@@ -11,6 +11,7 @@ container_v2
 error
 frame
 geojson
+grid
 hilbert
 id
 ids
@@ -31,6 +32,7 @@ crate::container_v2::{ContainerWriterV2, HeaderV2, StreamConfig}
 crate::error::{Error, Result}
 crate::frame::{get_frame, list_frames, register_frame, FrameDescriptor}
 crate::geojson::{
+crate::grid::{BccGrid, GridPath}
 crate::hilbert::Hilbert64
 crate::id::CellID
 crate::ids::{FrameId, Galactic128, Index64, Route64}
