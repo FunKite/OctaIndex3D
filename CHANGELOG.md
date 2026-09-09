@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Updated optional CLI dependency `dirs` from 6.0.0 to 7.0.0 (PR #174, targeting 0.5.8). Its Windows `preference_dir` behavior changed upstream; the CLI uses only unchanged `home_dir` calls, so saved game-stat locations and feature flags are unchanged.
+- Updated `softprops/action-gh-release` from 3.0.2 to 3.0.3 (PR #173, targeting 0.5.8), retaining a full commit SHA pin and adding its release version beside the pin for easier review. Upstream hardens malformed API-error handling and refreshes bundled dependencies; workflow inputs and permissions are unchanged.
 - Updated the `rust-dependencies` group (PR #172, targeting 0.5.8): `zerocopy` 0.8.55 → 0.8.56, `rkyv` 0.8.17 → 0.8.18, `thiserror` 2.0.19 → 2.0.20, `ordered-float` 5.3.0 → 5.5.0, `glam` 0.33.2 → 0.33.6, `crc32fast` 1.5.0 → 1.5.1, `clap` 4.6.5 → 4.6.6, `wgpu` 30.0.0 → 30.0.1, and `cudarc` 0.19.8 → 0.19.9, with their associated lockfile updates. No feature flags changed.
 - Raised the declared minimum Rust version to 1.90, required by `ordered-float` 5.5.0. The previous 1.77 claim was already incompatible with existing dependencies and its CI check silently used the repository's Rust 1.92 pin. CI now explicitly selects the MSRV and stable/beta compilers and tests the locked dependency set. Updated installation guidance and aligned the book's toolchain pin with the repository's Rust 1.92.0.
 - Disabled fail-fast for the Cargo Deny matrix so an advisory failure cannot cancel the independent bans, licenses, and sources check.
