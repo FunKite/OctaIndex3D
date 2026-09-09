@@ -1,6 +1,6 @@
 [package]
 name = "octaindex3d"
-version = "0.5.7"
+version = "0.5.8"
 edition = "2021"
 rust-version = "1.90"
 authors = ["Michael A. McLarney"]
@@ -14,6 +14,7 @@ keywords = ["spatial", "3d", "indexing", "routing", "bcc-lattice"]
 categories = ["algorithms", "data-structures", "science"]
 build = "build.rs"
 exclude = [
+    ".claude/",
     "docs/",
     "book/",
     "benches/",

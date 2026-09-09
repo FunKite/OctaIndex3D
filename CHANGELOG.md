@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.8] - 2026-09-09
+
 ### Changed
+- Enforced complete public API documentation in CI, refreshed README and book release guidance, and added an immutable-release checklist. README repository links now target this release for reliable rendering on crates.io and docs.rs; local `.claude/` settings are explicitly excluded from packages.
 - Updated optional CLI dependency `dirs` from 6.0.0 to 7.0.0 (PR #174, targeting 0.5.8). Its Windows `preference_dir` behavior changed upstream; the CLI uses only unchanged `home_dir` calls, so saved game-stat locations and feature flags are unchanged.
 - Updated `softprops/action-gh-release` from 3.0.2 to 3.0.3 (PR #173, targeting 0.5.8), retaining a full commit SHA pin and adding its release version beside the pin for easier review. Upstream hardens malformed API-error handling and refreshes bundled dependencies; workflow inputs and permissions are unchanged.
 - Updated the `rust-dependencies` group (PR #172, targeting 0.5.8): `zerocopy` 0.8.55 → 0.8.56, `rkyv` 0.8.17 → 0.8.18, `thiserror` 2.0.19 → 2.0.20, `ordered-float` 5.3.0 → 5.5.0, `glam` 0.33.2 → 0.33.6, `crc32fast` 1.5.0 → 1.5.1, `clap` 4.6.5 → 4.6.6, `wgpu` 30.0.0 → 30.0.1, and `cudarc` 0.19.8 → 0.19.9, with their associated lockfile updates. No feature flags changed.
@@ -339,7 +342,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.7...HEAD
+[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.8...HEAD
+[0.5.8]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.7...v0.5.8
 [0.5.7]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.4...v0.5.5

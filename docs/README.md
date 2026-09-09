@@ -1,6 +1,8 @@
 # OctaIndex3D Documentation
 
-This directory contains documentation for the OctaIndex3D project.
+This directory contains documentation for OctaIndex3D 0.5.8 (Rust 1.90 minimum; development toolchain 1.92.0). Public APIs and feature flags are unchanged in this maintenance release.
+
+The [versioned API reference](https://docs.rs/octaindex3d/0.5.8/octaindex3d/) documents all features. The README is included in the crates.io package; this directory and the book are maintained on GitHub.
 
 ## Whitepaper
 
@@ -37,6 +39,7 @@ If you use OctaIndex3D in your research, please cite:
 - [GAME_ENHANCEMENTS.md](GAME_ENHANCEMENTS.md) - Game development features
 
 ### Development
+- [RELEASING.md](RELEASING.md) - Immutable release checklist and documentation validation
 - [CODE_REVIEW_REPORT.md](CODE_REVIEW_REPORT.md) - Code quality analysis
 - [SAFE_LOCAL_TESTING.md](SAFE_LOCAL_TESTING.md) - Safer local test workflow for dependency and PR validation
 
