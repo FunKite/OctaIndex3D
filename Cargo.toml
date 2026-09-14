@@ -43,7 +43,7 @@ required-features = ["hilbert"]
 [dependencies]
 # Compression (LZ4 is default)
 lz4_flex = "0.14"
-zstd = { version = "0.13", optional = true }
+zstd = { version = "0.14", optional = true }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"], optional = true }
