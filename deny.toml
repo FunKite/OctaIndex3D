@@ -24,6 +24,24 @@ allow = [
     "MPL-2.0",        # option-ext
 ]
 
+# zstd-rs v0.14.0 relicensed its bindings to BSD-3-Clause.
+# Limit approval to the reviewed versions; recheck upstream licenses on upgrades.
+# https://github.com/gyscos/zstd-rs/tree/v0.14.0
+[[licenses.exceptions]]
+name = "zstd"
+version = "=0.14.0"
+allow = ["BSD-3-Clause"]
+
+[[licenses.exceptions]]
+name = "zstd-safe"
+version = "=8.0.0"
+allow = ["BSD-3-Clause"]
+
+[[licenses.exceptions]]
+name = "zstd-sys"
+version = "=2.1.0"
+allow = ["BSD-3-Clause"]
+
 [bans]
 # Deny multiple versions of the same crate (helps reduce bloat)
 multiple-versions = "warn"
