@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Refreshed dependencies from PRs #177 and #178 for the next patch release (0.5.9): `zerocopy` and `zerocopy-derive` 0.8.56 → 0.8.57, `glam` 0.33.6 → 0.33.7, and optional `zstd` 0.13.3 → 0.14.0 with `zstd-safe` 8.0.0 and `zstd-sys` 2.1.0+zstd.1.5.7. The compression APIs used by this crate and its feature flags are unchanged.
+- Added version-specific BSD-3-Clause license exceptions for the three updated `zstd` crates after reviewing their upstream relicensing. Other dependencies remain subject to the existing license allowlist; future `zstd` upgrades require renewed license review.
+
 ## [0.5.8] - 2026-09-09
 
 ### Changed
