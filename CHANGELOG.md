@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refreshed dependencies from PRs #177 and #178 for the next patch release (0.5.9): `zerocopy` and `zerocopy-derive` 0.8.56 → 0.8.57, `glam` 0.33.6 → 0.33.7, and optional `zstd` 0.13.3 → 0.14.0 with `zstd-safe` 8.0.0 and `zstd-sys` 2.1.0+zstd.1.5.7. The compression APIs used by this crate and its feature flags are unchanged.
 - Added version-specific BSD-3-Clause license exceptions for the three updated `zstd` crates after reviewing their upstream relicensing. Other dependencies remain subject to the existing license allowlist; future `zstd` upgrades require renewed license review.
+- Updated the `rust-dependencies` group (PR #180, targeting 0.5.9): `crc32fast` 1.5.1 → 1.5.2 (faster tail folding in the baseline implementation) and `clap`/`clap_builder` 4.6.6 → 4.6.7 with `clap_derive` 4.6.4 → 4.6.7 (adds an opt-in `#[command(defer)]` derive attribute). Lockfile-only patch bumps with no public API or feature-flag changes; the full CI matrix ran green.
 
 ## [0.5.8] - 2026-09-09
 
