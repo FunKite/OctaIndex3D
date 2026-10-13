@@ -6,6 +6,14 @@
 //! This library provides efficient spatial analysis, indexing, and pathfinding in three
 //! dimensions at multiple scales using a BCC lattice structure.
 //!
+//! ## Project Status
+//!
+//! **Version 0.5.9 is the final release. OctaIndex3D is no longer maintained**, and
+//! its [GitHub repository](https://github.com/FunKite/OctaIndex3D) is archived
+//! (read-only). No further releases, bug fixes, dependency updates, or security
+//! patches are planned. The code is MIT-licensed; you are welcome to fork it and
+//! continue development under a new crate name.
+//!
 //! ## Key Features
 //!
 //! - **High-Level Facade**: [`BccGrid`] for working in physical units (points to
@@ -121,7 +129,7 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert_eq!(VERSION, "0.5.8");
+        assert_eq!(VERSION, "0.5.9");
     }
 
     #[test]

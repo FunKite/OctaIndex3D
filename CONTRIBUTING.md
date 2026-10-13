@@ -1,5 +1,7 @@
 # Contributing to OctaIndex3D
 
+> **This project is no longer maintained and is not accepting contributions.** Version 0.5.9 was the final release, and the repository is archived (read-only), so new issues and pull requests cannot be opened. The code is MIT-licensed; you are welcome to fork it. The guidelines below are kept for reference and describe how the project was developed.
+
 Thank you for your interest in contributing to OctaIndex3D! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents

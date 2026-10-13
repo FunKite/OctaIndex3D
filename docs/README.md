@@ -1,8 +1,10 @@
 # OctaIndex3D Documentation
 
-This directory contains documentation for OctaIndex3D 0.5.8 (Rust 1.90 minimum; development toolchain 1.92.0). Public APIs and feature flags are unchanged in this maintenance release.
+> **OctaIndex3D is no longer maintained.** Version 0.5.9 is the final release, and the repository is archived (read-only). See [Project Status](https://github.com/FunKite/OctaIndex3D/blob/v0.5.9/README.md#project-status-no-longer-maintained).
 
-The [versioned API reference](https://docs.rs/octaindex3d/0.5.8/octaindex3d/) documents all features. The README is included in the crates.io package; this directory and the book are maintained on GitHub.
+This directory contains documentation for OctaIndex3D 0.5.9 (Rust 1.90 minimum; development toolchain 1.92.0).
+
+The [versioned API reference](https://docs.rs/octaindex3d/0.5.9/octaindex3d/) documents all features. The README is included in the crates.io package; this directory and the book remain available on GitHub.
 
 ## Whitepaper
 

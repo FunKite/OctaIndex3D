@@ -6,18 +6,31 @@
 
 [![Crates.io](https://img.shields.io/crates/v/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
 [![Documentation](https://docs.rs/octaindex3d/badge.svg)](https://docs.rs/octaindex3d)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/FunKite/OctaIndex3D/blob/v0.5.9/LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.90+-orange.svg)](https://www.rust-lang.org)
 [![CI](https://github.com/FunKite/OctaIndex3D/workflows/Rust%20CI/badge.svg)](https://github.com/FunKite/OctaIndex3D/actions)
 [![Downloads](https://img.shields.io/crates/d/octaindex3d.svg)](https://crates.io/crates/octaindex3d)
+[![Maintenance](https://img.shields.io/badge/maintenance-unmaintained-red.svg)](#project-status-no-longer-maintained)
 
-[Documentation](https://docs.rs/octaindex3d) | [Book](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/CHANGELOG.md)
+[Documentation](https://docs.rs/octaindex3d) | [Book](https://github.com/FunKite/OctaIndex3D/blob/main/book/README.md) | [Crates.io](https://crates.io/crates/octaindex3d) | [Examples](#examples) | [Changelog](https://github.com/FunKite/OctaIndex3D/blob/v0.5.9/CHANGELOG.md)
 
 </div>
 
+## Project Status: No Longer Maintained
+
+**v0.5.9 is the final release of OctaIndex3D.** The project is no longer maintained, and the [GitHub repository](https://github.com/FunKite/OctaIndex3D) is archived (read-only).
+
+- No further releases, bug fixes, dependency updates, or security patches are planned.
+- Issues, pull requests, and discussions are closed; existing ones remain readable.
+- All published versions stay available on crates.io, and the documentation stays on docs.rs.
+- The code is MIT-licensed. You are welcome to fork it and continue development under a new crate name.
+
+If you depend on this crate, 0.5.9 is the version to use. Vendor or fork it if you need changes.
+
 ## Table of Contents
 
-- [What's New in v0.5.8](#whats-new-in-v058)
+- [Project Status](#project-status-no-longer-maintained)
+- [What's New in v0.5.9](#whats-new-in-v059)
 - [Overview](#overview)
 - [Why BCC Lattice?](#why-bcc-lattice)
 - [Interactive 3D Maze Game](#-interactive-3d-maze-game)
@@ -34,18 +47,16 @@
 - [Contributing](#contributing)
 - [Research and Citation](#research-and-citation)
 
-## What's New in v0.5.8
+## What's New in v0.5.9
 
-This maintenance release refreshes dependencies and corrects the minimum supported Rust version. Public APIs and feature flags are unchanged.
+This is the **final release** of OctaIndex3D. It refreshes dependencies and marks the project as no longer maintained. Public APIs, feature flags, and the Rust 1.90 minimum are unchanged from 0.5.8.
 
-- **Rust 1.90 minimum** — required by the locked dependency set; CI now explicitly tests that compiler instead of silently using the repository's Rust 1.92.0 toolchain.
-- **Dependency updates** — includes `lz4_flex` 0.14, optional CLI `dirs` 7.0, and compatible serialization, GPU, and error-handling updates. CLI saved-game locations are unchanged.
-- **Dependency repair** — replaces yanked transitive `chacha20` 0.10.0 with 0.10.2.
-- **Documentation** — public API documentation is checked across all features with missing documentation and rustdoc warnings treated as errors. The README's Rust examples are tested as doctests.
+- **Dependency updates** — includes optional `zstd` 0.14 (license reviewed after upstream relicensing to BSD-3-Clause), `glam` 0.33.12, `zerocopy` 0.8.59, `thiserror` 2.0.21, `crc32fast` 1.5.2, `clap` 4.6.7, and an MSRV-aware refresh of transitive dependencies such as `wgpu` 30.0.1.
+- **End of maintenance** — see [Project Status](#project-status-no-longer-maintained).
 
-The [API reference](https://docs.rs/octaindex3d/0.5.8/octaindex3d/) covers optional features as well as the default API. See the [release checklist](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/docs/RELEASING.md) for package and documentation validation.
+The [API reference](https://docs.rs/octaindex3d/0.5.9/octaindex3d/) covers optional features as well as the default API.
 
-See the full [Changelog](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/CHANGELOG.md) for release history.
+See the full [Changelog](https://github.com/FunKite/OctaIndex3D/blob/v0.5.9/CHANGELOG.md) for release history.
 
 ## Overview
 
@@ -769,28 +780,17 @@ octaindex3d = { version = "0.5", features = ["container_v2"] }
 ### Getting Help
 
 - **Documentation**: Check [docs.rs/octaindex3d](https://docs.rs/octaindex3d)
-- **Examples**: See the [examples/](https://github.com/FunKite/OctaIndex3D/tree/v0.5.8/examples/) directory
-- **Issues**: [Open an issue](https://github.com/FunKite/OctaIndex3D/issues) for bugs or feature requests
-- **Discussions**: [GitHub Discussions](https://github.com/FunKite/OctaIndex3D/discussions) for questions
-- **Security**: See [SECURITY.md](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/SECURITY.md) for reporting vulnerabilities
+- **Examples**: See the [examples/](https://github.com/FunKite/OctaIndex3D/tree/v0.5.9/examples/) directory
+- **Past issues and discussions**: The archived [issues](https://github.com/FunKite/OctaIndex3D/issues?q=is%3Aissue) and [discussions](https://github.com/FunKite/OctaIndex3D/discussions) remain searchable, but no new ones can be opened
+- **Security**: No security patches will be released; see [SECURITY.md](https://github.com/FunKite/OctaIndex3D/blob/v0.5.9/SECURITY.md)
 
 ## Contributing
 
-Contributions are welcome! Please see our [Contributing Guide](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/CONTRIBUTING.md) for details on:
-- Code of conduct and community guidelines
-- How to submit bug reports and feature requests
-- Development setup and coding standards
-- Pull request process and review guidelines
-
-Feel free to:
-- Open an [issue](https://github.com/FunKite/OctaIndex3D/issues) for bugs or feature requests
-- Submit a pull request with improvements
-- Start a [discussion](https://github.com/FunKite/OctaIndex3D/discussions) for questions or ideas
-- Improve documentation or examples
+This project is no longer maintained and is not accepting contributions. The repository is archived, so new issues and pull requests cannot be opened. The code is MIT-licensed, so you are welcome to fork it; the [Contributing Guide](https://github.com/FunKite/OctaIndex3D/blob/v0.5.9/CONTRIBUTING.md) still describes the development setup and coding standards used here.
 
 ## License
 
-Licensed under the MIT License. See [LICENSE](https://github.com/FunKite/OctaIndex3D/blob/v0.5.8/LICENSE) for details.
+Licensed under the MIT License. See [LICENSE](https://github.com/FunKite/OctaIndex3D/blob/v0.5.9/LICENSE) for details.
 
 ## Research and Citation
 
@@ -818,6 +818,6 @@ The book transforms theoretical foundations into practical guidance for building
 
 **Made with ❤️ and Rust**
 
-[Report Bug](https://github.com/FunKite/OctaIndex3D/issues) · [Request Feature](https://github.com/FunKite/OctaIndex3D/issues)
+This project is no longer maintained. See [Project Status](#project-status-no-longer-maintained).
 
 </div>
