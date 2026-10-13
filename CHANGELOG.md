@@ -5,9 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.9] - 2026-10-13
+
+**Final release.** OctaIndex3D is no longer maintained, and the GitHub repository is archived (read-only) after this release. No further releases, bug fixes, dependency updates, or security patches are planned. Published versions remain available on crates.io and docs.rs, and the code remains MIT-licensed for anyone who wants to fork it.
 
 ### Changed
+- Marked the project as no longer maintained in the README (shown on GitHub and crates.io), the crate-level documentation (shown on docs.rs), `SECURITY.md`, `CONTRIBUTING.md`, and the documentation and book indexes. Public APIs, feature flags, and the Rust 1.90 minimum are unchanged.
 - Refreshed dependencies from PRs #177 and #178 for the next patch release (0.5.9): `zerocopy` and `zerocopy-derive` 0.8.56 → 0.8.57, `glam` 0.33.6 → 0.33.7, and optional `zstd` 0.13.3 → 0.14.0 with `zstd-safe` 8.0.0 and `zstd-sys` 2.1.0+zstd.1.5.7. The compression APIs used by this crate and its feature flags are unchanged.
 - Added version-specific BSD-3-Clause license exceptions for the three updated `zstd` crates after reviewing their upstream relicensing. Other dependencies remain subject to the existing license allowlist; future `zstd` upgrades require renewed license review.
 - Updated the `rust-dependencies` group (PR #180, targeting 0.5.9): `crc32fast` 1.5.1 → 1.5.2 (faster tail folding in the baseline implementation) and `clap`/`clap_builder` 4.6.6 → 4.6.7 with `clap_derive` 4.6.4 → 4.6.7 (adds an opt-in `#[command(defer)]` derive attribute). Lockfile-only patch bumps with no public API or feature-flag changes; the full CI matrix ran green.
@@ -350,7 +353,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Morton decode optimization (37% speedup)
 - Parallel overhead fix (86% speedup for 10K batches)
 
-[Unreleased]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.8...HEAD
+[0.5.9]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.7...v0.5.8
 [0.5.7]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/FunKite/OctaIndex3D/compare/v0.5.5...v0.5.6

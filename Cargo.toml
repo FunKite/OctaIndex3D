@@ -1,10 +1,10 @@
 [package]
 name = "octaindex3d"
-version = "0.5.8"
+version = "0.5.9"
 edition = "2021"
 rust-version = "1.90"
 authors = ["Michael A. McLarney"]
-description = "3D Spatial Indexing and Routing System based on BCC lattice with truncated octahedral cells"
+description = "3D Spatial Indexing and Routing System based on BCC lattice with truncated octahedral cells (no longer maintained; 0.5.9 is the final release)"
 license = "MIT"
 repository = "https://github.com/FunKite/OctaIndex3D"
 homepage = "https://github.com/FunKite/OctaIndex3D"
